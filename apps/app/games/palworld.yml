@@ -1,0 +1,7 @@
+#cloud-config
+runcmd:
+  - sudo apt update && sudo apt install -y steamcmd unzip
+  - mkdir -p /home/ubuntu/palworld && cd /home/ubuntu/palworld
+  - steamcmd +login anonymous +app_update 2394010 validate +quit
+  - chmod +x PalServer.sh
+  - screen -dmS palworld ./PalServer.sh -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS

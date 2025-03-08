@@ -127,9 +127,6 @@ importers:
       '@repo/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@repo/collaboration':
-        specifier: workspace:*
-        version: link:../../packages/collaboration
       '@repo/database':
         specifier: workspace:*
         version: link:../../packages/database
@@ -163,6 +160,9 @@ importers:
       '@t3-oss/env-nextjs':
         specifier: ^0.12.0
         version: 0.12.0(typescript@5.8.2)(zod@3.24.2)
+      dots-wrapper:
+        specifier: ^3.11.15
+        version: 3.11.15
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
@@ -5399,6 +5399,9 @@ packages:
   dotenv@8.6.0:
     resolution: {integrity: sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==}
     engines: {node: '>=10'}
+
+  dots-wrapper@3.11.15:
+    resolution: {integrity: sha512-emUVSrC6WyG0iyOAUkcdphpx1mT6G195lTa9EzGe9lijsOcueGkkVh7HU1RJ+CYAdgt5ujmeUTtuKY/W0VrP0A==}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -13573,6 +13576,12 @@ snapshots:
   dotenv@16.4.7: {}
 
   dotenv@8.6.0: {}
+
+  dots-wrapper@3.11.15:
+    dependencies:
+      axios: 1.8.1
+    transitivePeerDependencies:
+      - debug
 
   dunder-proto@1.0.1:
     dependencies:

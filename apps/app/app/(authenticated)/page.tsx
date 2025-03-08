@@ -1,6 +1,14 @@
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from '@repo/design-system/components/ui/breadcrumb';
+import { Separator } from '@repo/design-system/components/ui/separator';
+import { SidebarTrigger } from '@repo/design-system/components/ui/sidebar';
 import type { Metadata } from 'next';
 import { CreateServerButton } from './components/create-server-button';
-import { Header } from './components/header';
+import { ServerList } from './components/server-list';
 
 const title = 'Acme Inc';
 const description = 'My application.';
@@ -10,17 +18,26 @@ export const metadata: Metadata = {
   description,
 };
 
-const App = () => {
-  // const pages = await database.page.findMany();
-
-  return (
-    <>
-      <Header pages={['Building Your Application']} page="Data Fetching" />
-      <div className="p-4 pt-0">
-        <CreateServerButton />
-      </div>
-    </>
-  );
-};
+const App = () => (
+  <>
+    <div className="flex items-center gap-2 p-4">
+      <SidebarTrigger className="-ml-1" />
+      <Separator orientation="vertical" className="mr-2 h-4" />
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Home</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    </div>
+    <div className="p-4 pt-0">
+      <h2 className="font-bold text-2xl">Create a Server</h2>
+      <CreateServerButton />
+      <h2 className="font-bold text-2xl">Your Servers</h2>
+      <ServerList />
+    </div>
+  </>
+);
 
 export default App;

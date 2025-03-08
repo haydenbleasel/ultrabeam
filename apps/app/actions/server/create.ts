@@ -1,12 +1,12 @@
 'use server';
 
+import fs from 'node:fs';
+import path from 'node:path';
+import { dots } from '@/lib/digitalocean';
+import { currentUser } from '@repo/auth/server';
+import { database } from '@repo/database';
+
 type Game = 'minecraft' | 'palworld';
-
-const DIGITAL_OCEAN_TOKEN = process.env.DIGITAL_OCEAN_TOKEN;
-
-if (!DIGITAL_OCEAN_TOKEN) {
-  throw new Error('DIGITAL_OCEAN_TOKEN is not set');
-}
 
 export const createServer = async (
   game: Game,
@@ -14,32 +14,42 @@ export const createServer = async (
   size: string
 ): Promise<{ data: object } | { error: string }> => {
   try {
-    const response = await fetch('https://api.digitalocean.com/v2/droplets', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${DIGITAL_OCEAN_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: `ultrabeam-${game}-${Date.now()}`, // Unique name
-        region, // e.g., "nyc3", "sfo3"
-        size, // e.g., "s-2vcpu-4gb"
-        image: `${game}-docker-image`, // Set this up in DigitalOcean
-        ssh_keys: [], // Optional: Add SSH keys for admin access
-        backups: true, // Enable automatic backups
-        monitoring: true,
-        tags: ['ultrabeam', game], // Tagging for organization
-      }),
-    });
+    const user = await currentUser();
 
-    if (!response.ok) {
-      const message = await response.text();
-      return { error: message };
+    if (!user) {
+      throw new Error('User not found');
     }
 
-    const data = await response.json();
+    const cloudInitPath = path.join(process.cwd(), 'games', `${game}.yml`);
 
-    return { data };
+    // Check if the script exists
+    if (!fs.existsSync(cloudInitPath)) {
+      throw new Error(`No Cloud-Init script found for game: ${game}`);
+    }
+
+    const cloudInitScript = fs.readFileSync(cloudInitPath, 'utf-8');
+
+    const response = await dots.droplet.createDroplet({
+      name: `ultrabeam-${game}-${Date.now()}`,
+      region,
+      size,
+      image: 'ubuntu-22-04-x64',
+      user_data: cloudInitScript,
+      ssh_keys: [],
+      backups: true,
+      monitoring: true,
+      tags: ['ultrabeam', game],
+    });
+
+    await database.server.create({
+      data: {
+        dropletId: response.data.droplet.id,
+        game,
+        ownerId: user.id,
+      },
+    });
+
+    return { data: response.data.droplet };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
 

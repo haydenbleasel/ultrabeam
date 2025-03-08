@@ -13,9 +13,11 @@ datasource db {
   relationMode = "prisma"
 }
 
-// This is a stub model.
-// Delete it and add your own Prisma models.
-model Page {
-  id   Int    @id @default(autoincrement())
-  name String
+model Server {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ownerId   String
+  game      String
+  dropletId Int      @unique
 }
