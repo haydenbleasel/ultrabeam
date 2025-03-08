@@ -1,17 +1,23 @@
+'use server';
+
 type Game = 'minecraft' | 'palworld';
+
+const DIGITAL_OCEAN_TOKEN = process.env.DIGITAL_OCEAN_TOKEN;
+
+if (!DIGITAL_OCEAN_TOKEN) {
+  throw new Error('DIGITAL_OCEAN_TOKEN is not set');
+}
 
 export const createServer = async (
   game: Game,
   region: string,
   size: string
 ): Promise<{ data: object } | { error: string }> => {
-  const DIGITALOCEAN_API_KEY = process.env.DIGITALOCEAN_API_KEY;
-
   try {
     const response = await fetch('https://api.digitalocean.com/v2/droplets', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${DIGITALOCEAN_API_KEY}`,
+        Authorization: `Bearer ${DIGITAL_OCEAN_TOKEN}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
