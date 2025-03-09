@@ -1,6 +1,6 @@
-import { dots } from '@/lib/digitalocean';
 import { UserButton } from '@repo/auth/client';
 import { currentUser } from '@repo/auth/server';
+import { getServer } from '@repo/backend';
 import { database } from '@repo/database';
 import { notFound } from 'next/navigation';
 import { BottomNavigation } from './bottom-navigation';
@@ -24,14 +24,12 @@ export const Navbar = async () => {
   }[] = [];
 
   for (const server of servers) {
-    const droplet = await dots.droplet.getDroplet({
-      droplet_id: server.dropletId,
-    });
+    const gameServer = await getServer(server.dropletId);
 
     droplets.push({
       id: server.id,
       game: server.game,
-      status: droplet.data.droplet.status,
+      status: gameServer.status,
     });
   }
   return (

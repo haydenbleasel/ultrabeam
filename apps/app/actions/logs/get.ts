@@ -1,6 +1,6 @@
 'use server';
 
-import { dots } from '@/lib/digitalocean';
+import { getServer } from '@repo/backend';
 import { database } from '@repo/database';
 import { Client } from 'ssh2';
 
@@ -22,9 +22,7 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
       throw new Error('Server not found');
     }
 
-    const droplet = await dots.droplet.getDroplet({
-      droplet_id: server.dropletId,
-    });
+    const droplet = await getServer(server.dropletId);
 
     const conn = new Client();
 

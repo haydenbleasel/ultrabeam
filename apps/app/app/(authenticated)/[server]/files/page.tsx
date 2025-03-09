@@ -1,4 +1,4 @@
-import { dots } from '@/lib/digitalocean';
+import { getServer } from '@repo/backend';
 import { database } from '@repo/database';
 import { notFound } from 'next/navigation';
 import SFTPClient from 'ssh2-sftp-client';
@@ -22,12 +22,10 @@ const FilesPage = async ({ params }: ServerProps) => {
     notFound();
   }
 
-  const droplet = await dots.droplet.getDroplet({
-    droplet_id: instance.dropletId,
-  });
+  const gameServer = await getServer(instance.dropletId);
 
   await sftp.connect({
-    host: droplet.data.droplet.networks.v4[0].ip_address,
+    host: gameServer.networks.v4[0].ip_address,
     port: 22,
     username: 'root',
     privateKey: Buffer.from(instance.privateKey.trim()),

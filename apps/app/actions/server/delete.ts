@@ -1,9 +1,9 @@
 'use server';
 
-import { dots } from '@/lib/digitalocean';
+import { deleteServer } from '@repo/backend';
 import { database } from '@repo/database';
 
-type DeleteServerResponse =
+type DeleteGameServerResponse =
   | {
       message: string;
     }
@@ -11,9 +11,9 @@ type DeleteServerResponse =
       error: string;
     };
 
-export const deleteServer = async (
+export const deleteGameServer = async (
   id: string
-): Promise<DeleteServerResponse> => {
+): Promise<DeleteGameServerResponse> => {
   try {
     const server = await database.server.findUnique({
       where: { id },
@@ -23,13 +23,7 @@ export const deleteServer = async (
       throw new Error('Server not found');
     }
 
-    await dots.droplet.deleteDroplet({
-      droplet_id: server.dropletId,
-    });
-
-    await dots.sshKey.destroySshKey({
-      ssh_key_id: server.sshKeyId,
-    });
+    await deleteServer(server.dropletId, server.sshKeyId);
 
     await database.server.delete({
       where: { id },

@@ -1,6 +1,6 @@
 'use client';
 
-import { createServer } from '@/actions/server/create';
+import { createGameServer } from '@/actions/server/create';
 import { handleError } from '@repo/design-system/lib/error';
 import { Button } from '@repo/design-system/ui/button';
 import {
@@ -31,7 +31,11 @@ export const CreateServerButton = () => {
     setIsLoading(true);
 
     try {
-      const response = await createServer(game as never, region, 's-2vcpu-4gb');
+      const response = await createGameServer(
+        game as never,
+        region,
+        's-2vcpu-4gb'
+      );
 
       if ('error' in response) {
         throw new Error(response.error);

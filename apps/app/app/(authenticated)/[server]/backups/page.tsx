@@ -1,4 +1,4 @@
-import { dots } from '@/lib/digitalocean';
+import { getBackups, getServer } from '@repo/backend';
 import { database } from '@repo/database';
 import { notFound } from 'next/navigation';
 import { BackupTable } from './components/backup-table';
@@ -20,23 +20,15 @@ const BackupsPage = async ({ params }: ServerProps) => {
     notFound();
   }
 
-  const droplet = await dots.droplet.getDroplet({
-    droplet_id: instance.dropletId,
-  });
-
-  const backups = await dots.droplet.listDropletBackups({
-    droplet_id: instance.dropletId,
-  });
+  const gameServer = await getServer(instance.dropletId);
+  const backups = await getBackups(gameServer.id);
 
   return (
     <div className="p-4">
       <p className="text-muted-foreground text-sm">
         Next backup:{' '}
-        {new Date(
-          droplet.data.droplet.next_backup_window.start
-        ).toLocaleString()}{' '}
-        -{' '}
-        {new Date(droplet.data.droplet.next_backup_window.end).toLocaleString()}
+        {new Date(gameServer.next_backup_window.start).toLocaleString()} -{' '}
+        {new Date(gameServer.next_backup_window.end).toLocaleString()}
       </p>
       <BackupTable data={backups.data.backups} />
     </div>
