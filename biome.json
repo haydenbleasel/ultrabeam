@@ -6,11 +6,9 @@
   },
   "files": {
     "ignore": [
-      "packages/design-system/components/ui/**",
+      "packages/design-system/ui/**",
       "packages/design-system/lib/**",
       "packages/design-system/hooks/**",
-      "packages/collaboration/config.ts",
-      "apps/docs/**/*.json",
       "apps/email/.react-email/**"
     ]
   }
