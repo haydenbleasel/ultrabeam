@@ -42,11 +42,7 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
     setIsLoading(true);
 
     try {
-      const response = await createGameServer(
-        game as never,
-        region,
-        's-2vcpu-4gb'
-      );
+      const response = await createGameServer(game as never, region, size);
 
       if ('error' in response) {
         throw new Error(response.error);
