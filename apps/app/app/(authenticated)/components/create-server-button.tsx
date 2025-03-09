@@ -1,15 +1,15 @@
 'use client';
 
 import { createServer } from '@/actions/server/create';
-import { Button } from '@repo/design-system/components/ui/button';
+import { handleError } from '@repo/design-system/lib/utils';
+import { Button } from '@repo/design-system/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@repo/design-system/components/ui/select';
-import { handleError } from '@repo/design-system/lib/utils';
+} from '@repo/design-system/ui/select';
 import { useRouter } from 'next/navigation';
 import { type FormEventHandler, useState } from 'react';
 

@@ -1,5 +1,5 @@
 import { env } from '@/env';
-import { Button } from '@repo/design-system/components/ui/button';
+import { Button } from '@repo/design-system/ui/button';
 import { Check, Minus, MoveRight, PhoneCall } from 'lucide-react';
 import Link from 'next/link';
 

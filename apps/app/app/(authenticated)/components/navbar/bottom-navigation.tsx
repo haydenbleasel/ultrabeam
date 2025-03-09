@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-} from '@repo/design-system/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@repo/design-system/ui/tabs';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 
 const pages = [
@@ -28,9 +24,13 @@ export const BottomNavigation = () => {
 
   return (
     <Tabs value={activePage?.value} onValueChange={handleValueChange}>
-      <TabsList>
+      <TabsList className="h-auto w-full justify-start rounded-none border-b bg-transparent px-4 py-0">
         {pages.map((page) => (
-          <TabsTrigger key={page.value} value={page.value}>
+          <TabsTrigger
+            key={page.value}
+            value={page.value}
+            className="relative rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
+          >
             {page.label}
           </TabsTrigger>
         ))}

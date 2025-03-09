@@ -1,5 +1,5 @@
-import { Button } from '@repo/design-system/components/ui/button';
-import { Input } from '@repo/design-system/components/ui/input';
+import { Button } from '@repo/design-system/ui/button';
+import { Input } from '@repo/design-system/ui/input';
 import { ArrowRightIcon, SearchIcon } from 'lucide-react';
 
 export const Search = () => (

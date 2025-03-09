@@ -1,7 +1,7 @@
 import { env } from '@/env';
 import { blog } from '@repo/cms';
 import { Feed } from '@repo/cms/components/feed';
-import { Button } from '@repo/design-system/components/ui/button';
+import { Button } from '@repo/design-system/ui/button';
 import type { Dictionary } from '@repo/internationalization';
 import { MoveRight, PhoneCall } from 'lucide-react';
 import Link from 'next/link';

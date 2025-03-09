@@ -3,7 +3,7 @@ import {
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
-} from '@repo/design-system/components/ui/breadcrumb';
+} from '@repo/design-system/ui/breadcrumb';
 import type { Metadata } from 'next';
 import { CreateServerButton } from './components/create-server-button';
 import { ServerList } from './components/server-list';

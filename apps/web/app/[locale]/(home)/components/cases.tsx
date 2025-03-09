@@ -5,7 +5,7 @@ import {
   type CarouselApi,
   CarouselContent,
   CarouselItem,
-} from '@repo/design-system/components/ui/carousel';
+} from '@repo/design-system/ui/carousel';
 import type { Dictionary } from '@repo/internationalization';
 import { useEffect, useState } from 'react';
 

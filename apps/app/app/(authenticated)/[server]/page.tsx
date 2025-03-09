@@ -1,9 +1,6 @@
 import { getServer } from '@/actions/server/get';
 import { currentUser } from '@repo/auth/server';
 import { database } from '@repo/database';
-import {} from '@repo/design-system/components/ui/breadcrumb';
-import {} from '@repo/design-system/components/ui/select';
-import {} from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 type Server = {

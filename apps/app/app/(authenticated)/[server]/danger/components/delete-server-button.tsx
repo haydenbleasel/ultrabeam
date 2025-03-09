@@ -1,8 +1,8 @@
 'use client';
 
 import { deleteServer } from '@/actions/server/delete';
-import { Button } from '@repo/design-system/components/ui/button';
 import { handleError } from '@repo/design-system/lib/utils';
+import { Button } from '@repo/design-system/ui/button';
 import { useRouter } from 'next/navigation';
 
 type DeleteServerButtonProps = {

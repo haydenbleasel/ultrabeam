@@ -3,8 +3,8 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@repo/design-system/components/ui/accordion';
-import { Button } from '@repo/design-system/components/ui/button';
+} from '@repo/design-system/ui/accordion';
+import { Button } from '@repo/design-system/ui/button';
 import type { Dictionary } from '@repo/internationalization';
 import { PhoneCall } from 'lucide-react';
 import Link from 'next/link';

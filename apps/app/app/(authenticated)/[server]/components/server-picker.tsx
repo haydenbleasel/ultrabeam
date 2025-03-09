@@ -6,7 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@repo/design-system/components/ui/select';
+} from '@repo/design-system/ui/select';
 import { useParams, useRouter } from 'next/navigation';
 
 type ServerPickerProps = {
