@@ -25,7 +25,11 @@ const DangerPage = async ({ params }: Server) => {
     notFound();
   }
 
-  return <DeleteServerButton serverId={instance.id} />;
+  return (
+    <div className="p-4">
+      <DeleteServerButton serverId={instance.id} />
+    </div>
+  );
 };
 
 export default DangerPage;

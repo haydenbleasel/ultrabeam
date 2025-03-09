@@ -20,4 +20,5 @@ model Server {
   ownerId   String
   game      String
   dropletId Int      @unique
+  privateKey String
 }

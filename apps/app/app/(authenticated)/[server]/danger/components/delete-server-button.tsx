@@ -27,7 +27,7 @@ export const DeleteServerButton = ({ serverId }: DeleteServerButtonProps) => {
   };
 
   return (
-    <Button type="submit" onSubmit={handleDeleteServer}>
+    <Button type="submit" variant="destructive" onClick={handleDeleteServer}>
       Delete Server
     </Button>
   );
