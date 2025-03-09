@@ -6,23 +6,18 @@ import path from 'node:path';
 import { dots } from '@/lib/digitalocean';
 import { currentUser } from '@repo/auth/server';
 import { database } from '@repo/database';
+import { log } from '@repo/observability/log';
+import NodeRSA from 'node-rsa';
 
 type Game = 'minecraft' | 'palworld';
 
 type CreateServerResponse =
   | {
-      data: object;
+      id: string;
     }
   | {
       error: string;
     };
-
-const createSSHKeyPair = () =>
-  generateKeyPairSync('rsa', {
-    modulusLength: 4096,
-    publicKeyEncoding: { type: 'pkcs1', format: 'pem' },
-    privateKeyEncoding: { type: 'pkcs1', format: 'pem' },
-  });
 
 const getCloudInitScript = (game: Game) => {
   const cloudInitPath = path.join(process.cwd(), 'games', `${game}.yml`);
@@ -46,8 +41,28 @@ export const createServer = async (
       throw new Error('User not found');
     }
 
-    const { publicKey, privateKey } = await createSSHKeyPair();
-    const cloudInitScript = await getCloudInitScript(game);
+    const cloudInitScript = getCloudInitScript(game);
+    const { publicKey, privateKey } = generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+      publicKeyEncoding: {
+        type: 'spki',
+        format: 'pem',
+      },
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'pem',
+      },
+    });
+
+    const key = new NodeRSA(publicKey);
+    const openSshKey = key.exportKey('openssh-public');
+
+    const sshKeyResponse = await dots.sshKey.createSshKey({
+      name: `ultrabeam-${game}-${Date.now()}`,
+      public_key: `ssh-rsa ${openSshKey} ${user.id}`,
+    });
+
+    const sshKeyId = sshKeyResponse.data.ssh_key.id;
 
     const response = await dots.droplet.createDroplet({
       name: `ultrabeam-${game}-${Date.now()}`,
@@ -55,24 +70,29 @@ export const createServer = async (
       size,
       image: 'ubuntu-22-04-x64',
       user_data: cloudInitScript,
-      ssh_keys: [publicKey],
+      ssh_keys: [sshKeyId],
       backups: true,
       monitoring: true,
       tags: ['ultrabeam', game],
     });
 
-    await database.server.create({
+    const server = await database.server.create({
       data: {
         dropletId: response.data.droplet.id,
         game,
         ownerId: user.id,
         privateKey,
+        sshKeyId,
       },
     });
 
-    return { data: response.data.droplet };
+    log.info(`Server created: ${server.id}`);
+
+    return { id: server.id };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
+
+    console.error(error);
 
     return { error: message };
   }

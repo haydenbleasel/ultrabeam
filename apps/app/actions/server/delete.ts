@@ -27,6 +27,10 @@ export const deleteServer = async (
       droplet_id: server.dropletId,
     });
 
+    await dots.sshKey.destroySshKey({
+      ssh_key_id: server.sshKeyId,
+    });
+
     await database.server.delete({
       where: { id },
     });

@@ -17,11 +17,18 @@ export const CreateServerButton = () => {
   const [game, setGame] = useState<string>('minecraft');
   const [region, setRegion] = useState<string>('nyc3');
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleCreateServer: FormEventHandler<HTMLFormElement> = async (
     event
   ) => {
     event.preventDefault();
+
+    if (isLoading) {
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
       const response = await createServer(game as never, region, 's-2vcpu-4gb');
@@ -30,9 +37,11 @@ export const CreateServerButton = () => {
         throw new Error(response.error);
       }
 
-      router.push(`/${response.data.id}`);
+      router.push(`/${response.id}`);
     } catch (error) {
       handleError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,7 +65,9 @@ export const CreateServerButton = () => {
           <SelectItem value="sfo3">San Francisco</SelectItem>
         </SelectContent>
       </Select>
-      <Button type="submit">Create Server</Button>
+      <Button type="submit" disabled={isLoading}>
+        {isLoading ? 'Creating...' : 'Create Server'}
+      </Button>
     </form>
   );
 };

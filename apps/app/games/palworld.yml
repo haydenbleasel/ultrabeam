@@ -1,6 +1,10 @@
 #cloud-config
 runcmd:
-  - sudo apt update && sudo apt install -y steamcmd unzip
+  - sudo apt update && sudo apt upgrade -y
+  - sudo apt install openssh-server -y
+  - sudo systemctl enable ssh
+  - sudo systemctl start ssh
+  - sudo apt install -y steamcmd unzip
   - mkdir -p /home/ubuntu/palworld && cd /home/ubuntu/palworld
   - steamcmd +login anonymous +app_update 2394010 validate +quit
   - chmod +x PalServer.sh

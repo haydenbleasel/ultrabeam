@@ -1,6 +1,9 @@
 #cloud-config
 runcmd:
   - sudo apt update && sudo apt upgrade -y
+  - sudo apt install openssh-server -y
+  - sudo systemctl enable ssh
+  - sudo systemctl start ssh
   - sudo apt install openjdk-17-jre-headless screen wget -y
   - mkdir -p /home/ubuntu/minecraft && cd /home/ubuntu/minecraft
   - wget https://launcher.mojang.com/v1/objects/$(wget -qO- https://launchermeta.mojang.com/mc/game/version_manifest.json | jq -r '.latest.release' | xargs -I {} wget -qO- https://launchermeta.mojang.com/mc/game/version_manifest.json | jq -r --arg v "{}" '.versions[] | select(.id==$v) | .url' | xargs wget -qO- | jq -r '.downloads.server.url') -O server.jar
