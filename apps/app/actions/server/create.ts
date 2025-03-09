@@ -54,8 +54,8 @@ export const createServer = async (
       },
     });
 
-    const key = new NodeRSA(publicKey);
-    const openSshKey = key.exportKey('openssh-public');
+    const nodeRsaPublicKey = new NodeRSA(publicKey);
+    const openSshKey = nodeRsaPublicKey.exportKey('openssh-public');
 
     const sshKeyResponse = await dots.sshKey.createSshKey({
       name: `ultrabeam-${game}-${Date.now()}`,
@@ -76,12 +76,15 @@ export const createServer = async (
       tags: ['ultrabeam', game],
     });
 
+    const nodeRsaPrivateKey = new NodeRSA(privateKey);
+    const openSshPrivateKey = nodeRsaPrivateKey.exportKey('openssh-private');
+
     const server = await database.server.create({
       data: {
         dropletId: response.data.droplet.id,
         game,
         ownerId: user.id,
-        privateKey,
+        privateKey: openSshPrivateKey,
         sshKeyId,
       },
     });
