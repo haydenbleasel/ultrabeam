@@ -4,9 +4,9 @@ import { z } from 'zod';
 export const keys = () =>
   createEnv({
     server: {
-      DIGITALOCEAN_API_TOKEN: z.string().min(1).startsWith('dop_v1_'),
+      DIGITALOCEAN_TOKEN: z.string().min(1).startsWith('dop_v1_'),
     },
     runtimeEnv: {
-      DIGITALOCEAN_API_TOKEN: process.env.DIGITALOCEAN_API_TOKEN,
+      DIGITALOCEAN_TOKEN: process.env.DIGITALOCEAN_TOKEN,
     },
   });

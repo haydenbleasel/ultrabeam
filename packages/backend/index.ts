@@ -1,12 +1,14 @@
 import { createApiClient } from 'dots-wrapper';
+import type { regions } from './config';
+import { keys } from './keys';
 
-const DIGITAL_OCEAN_TOKEN = process.env.DIGITAL_OCEAN_TOKEN;
+const dots = createApiClient({ token: keys().DIGITALOCEAN_TOKEN });
 
-if (!DIGITAL_OCEAN_TOKEN) {
-  throw new Error('DIGITAL_OCEAN_TOKEN is not set');
-}
+export const getSizes = async () => {
+  const response = await dots.size.listSizes({ per_page: 100 });
 
-const dots = createApiClient({ token: DIGITAL_OCEAN_TOKEN });
+  return response.data.sizes.filter((size) => size.available);
+};
 
 export const createServer = async ({
   game,
@@ -16,7 +18,7 @@ export const createServer = async ({
   cloudInitScript,
 }: {
   game: string;
-  region: string;
+  region: (typeof regions)[number]['value'];
   size: string;
   publicKey: string;
   cloudInitScript: string;

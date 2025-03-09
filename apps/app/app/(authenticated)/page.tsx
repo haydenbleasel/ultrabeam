@@ -5,7 +5,6 @@ import {
   BreadcrumbPage,
 } from '@repo/design-system/ui/breadcrumb';
 import type { Metadata } from 'next';
-import { CreateServerButton } from './components/create-server-button';
 import { ServerList } from './components/server-list';
 
 const title = 'Acme Inc';
@@ -28,8 +27,6 @@ const App = () => (
       </Breadcrumb>
     </div>
     <div className="p-4 pt-0">
-      <h2 className="font-bold text-2xl">Create a Server</h2>
-      <CreateServerButton />
       <h2 className="font-bold text-2xl">Your Servers</h2>
       <ServerList />
     </div>
