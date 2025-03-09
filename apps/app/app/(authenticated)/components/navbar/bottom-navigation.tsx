@@ -24,7 +24,7 @@ export const BottomNavigation = () => {
 
   return (
     <Tabs value={activePage?.value} onValueChange={handleValueChange}>
-      <TabsList className="h-auto w-full justify-start rounded-none border-b bg-transparent px-4 py-0">
+      <TabsList className="h-auto w-full justify-start rounded-none border-b bg-transparent p-0">
         {pages.map((page) => (
           <TabsTrigger
             key={page.value}

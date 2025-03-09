@@ -36,7 +36,7 @@ export const Navbar = async () => {
   }
   return (
     <nav className="sticky top-0 z-40 flex w-full flex-col gap-4 bg-background pt-4">
-      <div className="flex items-center justify-between px-4">
+      <div className="container mx-auto flex items-center justify-between px-4">
         <svg
           width="32"
           height="32"
@@ -55,7 +55,7 @@ export const Navbar = async () => {
         <TopNavigation servers={droplets} />
         <UserButton />
       </div>
-      <div>
+      <div className="container mx-auto px-4">
         <BottomNavigation />
       </div>
     </nav>

@@ -1,6 +1,7 @@
 import { dots } from '@/lib/digitalocean';
 import { database } from '@repo/database';
 import { notFound } from 'next/navigation';
+import { BackupTable } from './components/backup-table';
 
 type ServerProps = {
   params: Promise<{
@@ -23,12 +24,7 @@ const BackupsPage = async ({ params }: ServerProps) => {
     droplet_id: instance.dropletId,
   });
 
-  return (
-    <div className="p-4">
-      <h1>Backups</h1>
-      <pre>{JSON.stringify(backups.data.backups, null, 2)}</pre>
-    </div>
-  );
+  return <BackupTable data={backups.data.backups} />;
 };
 
 export default BackupsPage;
