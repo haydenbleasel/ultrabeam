@@ -1,40 +1,96 @@
 'use client';
 
-import { Tabs, TabsList, TabsTrigger } from '@repo/design-system/ui/tabs';
+import { cn } from '@repo/design-system/lib/utils';
+import { Button } from '@repo/design-system/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@repo/design-system/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@repo/design-system/ui/popover';
+import { CheckIcon, ChevronDownIcon } from 'lucide-react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
-
-const pages = [
-  { value: '', label: 'Overview' },
-  { value: '/files', label: 'Files' },
-  { value: '/console', label: 'Console' },
-  { value: '/backups', label: 'Backups' },
-  { value: '/settings', label: 'Settings' },
-  { value: '/danger', label: 'Danger' },
-];
+import { useId, useState } from 'react';
 
 export const BottomNavigation = () => {
+  const id = useId();
+  const [open, setOpen] = useState(false);
   const params = useParams();
   const router = useRouter();
   const pathname = usePathname();
+  const pages = [
+    { value: `/${params.server}`, label: 'Overview' },
+    { value: `/${params.server}/files`, label: 'Files' },
+    { value: `/${params.server}/console`, label: 'Console' },
+    { value: `/${params.server}/backups`, label: 'Backups' },
+    { value: `/${params.server}/settings`, label: 'Settings' },
+    { value: `/${params.server}/danger`, label: 'Danger' },
+  ];
+
   const activePage = pages.find((page) => pathname.endsWith(page.value));
 
   const handleValueChange = (value: string) => {
-    router.push(`/${params.server}${value}`);
+    router.push(value);
   };
 
   return (
-    <Tabs value={activePage?.value} onValueChange={handleValueChange}>
-      <TabsList className="h-auto w-full justify-start rounded-none border-b bg-transparent p-0">
-        {pages.map((page) => (
-          <TabsTrigger
-            key={page.value}
-            value={page.value}
-            className="relative rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:after:bg-primary"
+    <div className="*:not-first:mt-2">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            id={id}
+            variant="outline"
+            aria-expanded={open}
+            className="w-full justify-between border-input bg-background px-3 font-normal outline-none outline-offset-0 hover:bg-background focus-visible:outline-[3px]"
           >
-            {page.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-    </Tabs>
+            <span
+              className={cn('truncate', !activePage && 'text-muted-foreground')}
+            >
+              {activePage ? activePage.label : 'Select page'}
+            </span>
+            <ChevronDownIcon
+              size={16}
+              className="shrink-0 text-muted-foreground/80"
+              aria-hidden="true"
+            />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-full min-w-[var(--radix-popper-anchor-width)] border-input p-0"
+          align="start"
+        >
+          <Command>
+            <CommandInput placeholder="Search pages..." />
+            <CommandList>
+              <CommandEmpty>No pages found.</CommandEmpty>
+              <CommandGroup>
+                {pages.map((page) => (
+                  <CommandItem
+                    key={page.value}
+                    value={page.value}
+                    onSelect={(currentValue) => {
+                      setOpen(false);
+                      handleValueChange(currentValue);
+                    }}
+                  >
+                    {page.label}
+                    {activePage?.value === page.value && (
+                      <CheckIcon size={16} className="ml-auto" />
+                    )}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 };

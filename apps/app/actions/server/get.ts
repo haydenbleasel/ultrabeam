@@ -1,10 +1,11 @@
 'use server';
 
 import { dots } from '@/lib/digitalocean';
+import type { IDroplet } from 'dots-wrapper/dist/droplet';
 
 type GetServerResponse =
   | {
-      data: object;
+      data: IDroplet;
     }
   | {
       error: string;

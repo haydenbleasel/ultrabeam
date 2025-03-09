@@ -1,7 +1,8 @@
+import { dots } from '@/lib/digitalocean';
 import { database } from '@repo/database';
-import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import SFTPClient from 'ssh2-sftp-client';
+import FileTable from './components/file-table';
 
 type ServerProps = {
   params: Promise<{
@@ -11,7 +12,7 @@ type ServerProps = {
 
 const FilesPage = async ({ params }: ServerProps) => {
   const { server } = await params;
-  const headersList = await headers();
+  const sftp = new SFTPClient();
 
   const instance = await database.server.findFirst({
     where: { id: server },
@@ -21,13 +22,15 @@ const FilesPage = async ({ params }: ServerProps) => {
     notFound();
   }
 
-  const sftp = new SFTPClient();
-  const privateKey = instance.privateKey.replace(/\\n/g, '\n');
+  const droplet = await dots.droplet.getDroplet({
+    droplet_id: instance.dropletId,
+  });
 
   await sftp.connect({
-    host: headersList.get('x-forwarded-for') ?? '127.0.0.1',
-    username: 'ubuntu',
-    privateKey,
+    host: droplet.data.droplet.networks.v4[0].ip_address,
+    port: 22,
+    username: 'root',
+    privateKey: Buffer.from(instance.privateKey.trim()),
   });
 
   const fileList = await sftp.list('/');
@@ -36,7 +39,7 @@ const FilesPage = async ({ params }: ServerProps) => {
   return (
     <div className="p-4">
       <h1>Files</h1>
-      <pre>{JSON.stringify(fileList, null, 2)}</pre>
+      <FileTable data={fileList} />
     </div>
   );
 };

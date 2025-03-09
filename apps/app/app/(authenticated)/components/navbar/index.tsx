@@ -35,28 +35,28 @@ export const Navbar = async () => {
     });
   }
   return (
-    <nav className="sticky top-0 z-40 flex w-full flex-col gap-4 bg-background pt-4">
-      <div className="container mx-auto flex items-center justify-between px-4">
-        <svg
-          width="32"
-          height="32"
-          viewBox="0 0 546 400"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <title>Ultrabeam Logo</title>
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M222.224 0H177.778V177.778H0V222.222H177.778V400H222.224V222.222H545.391V177.778H222.224V0ZM222.224 177.778H177.778V222.222H222.224V177.778Z"
-            fill="black"
-          />
-        </svg>
-        <TopNavigation servers={droplets} />
+    <nav className="sticky top-0 z-40 flex w-full flex-col gap-4 border-b bg-background/80 py-4 backdrop-blur-sm">
+      <div className="flex items-center justify-between px-4">
+        <div className="flex items-center gap-4">
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 546 400"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <title>Ultrabeam Logo</title>
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M222.224 0H177.778V177.778H0V222.222H177.778V400H222.224V222.222H545.391V177.778H222.224V0ZM222.224 177.778H177.778V222.222H222.224V177.778Z"
+              fill="black"
+            />
+          </svg>
+          <TopNavigation servers={droplets} />
+          <BottomNavigation />
+        </div>
         <UserButton />
-      </div>
-      <div className="container mx-auto px-4">
-        <BottomNavigation />
       </div>
     </nav>
   );

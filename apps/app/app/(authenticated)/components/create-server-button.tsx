@@ -1,7 +1,7 @@
 'use client';
 
 import { createServer } from '@/actions/server/create';
-import { handleError } from '@repo/design-system/lib/utils';
+import { handleError } from '@repo/design-system/lib/error';
 import { Button } from '@repo/design-system/ui/button';
 import {
   Select,
