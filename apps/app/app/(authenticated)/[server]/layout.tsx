@@ -2,17 +2,9 @@ import { dots } from '@/lib/digitalocean';
 import { currentUser } from '@repo/auth/server';
 import { database } from '@repo/database';
 import { Badge } from '@repo/design-system/components/ui/badge';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from '@repo/design-system/components/ui/breadcrumb';
+import {} from '@repo/design-system/components/ui/breadcrumb';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { ServerPagePicker } from './components/server-page-picker';
-import { ServerPicker } from './components/server-picker';
 
 type ServerLayoutProps = {
   children: ReactNode;
@@ -46,30 +38,10 @@ const ServerLayout = async ({ children, params }: ServerLayoutProps) => {
   });
 
   return (
-    <div className="divide-y">
-      <div className="flex items-center gap-2 p-4">
-        <Breadcrumb className="flex-1">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/">Home</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
-            <BreadcrumbItem>
-              <ServerPicker data={instances} />
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
-            <BreadcrumbItem>
-              <ServerPagePicker
-                data={instance}
-                status={droplet.data.droplet.status}
-              />
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <Badge variant="outline">{droplet.data.droplet.status}</Badge>
-      </div>
+    <>
+      <Badge variant="outline">{droplet.data.droplet.status}</Badge>
       {children}
-    </div>
+    </>
   );
 };
 

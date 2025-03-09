@@ -50,8 +50,6 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
 
       conn.on('error', reject);
 
-      console.log(server.privateKey);
-
       conn.connect({
         host: droplet.data.droplet.networks.v4[0].ip_address,
         port: 22,

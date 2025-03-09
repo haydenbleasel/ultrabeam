@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@repo/design-system/components/ui/select';
-import { usePathname, useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 type ServerPickerProps = {
   data: {
@@ -17,21 +17,24 @@ type ServerPickerProps = {
 };
 
 export const ServerPicker = ({ data }: ServerPickerProps) => {
-  const pathname = usePathname();
+  const params = useParams();
   const router = useRouter();
 
   const handleValueChange = (value: string) => {
-    router.push(value);
+    router.push(`/${value}`);
   };
 
   return (
-    <Select value={pathname} onValueChange={handleValueChange}>
+    <Select
+      value={params.server as string | undefined}
+      onValueChange={handleValueChange}
+    >
       <SelectTrigger>
         <SelectValue placeholder="Select a server" />
       </SelectTrigger>
       <SelectContent>
         {data.map((instance) => (
-          <SelectItem key={instance.id} value={`/${instance.id}`}>
+          <SelectItem key={instance.id} value={instance.id}>
             {instance.game}
           </SelectItem>
         ))}
