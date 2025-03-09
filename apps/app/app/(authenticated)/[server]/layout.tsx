@@ -63,7 +63,10 @@ const ServerLayout = async ({ children, params }: ServerLayoutProps) => {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden md:block" />
             <BreadcrumbItem>
-              <ServerPagePicker data={instance} />
+              <ServerPagePicker
+                data={instance}
+                status={droplet.data.droplet.status}
+              />
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

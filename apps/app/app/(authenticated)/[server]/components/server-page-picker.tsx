@@ -14,9 +14,10 @@ type ServerPagePickerProps = {
     id: string;
     game: string;
   };
+  status: string;
 };
 
-export const ServerPagePicker = ({ data }: ServerPagePickerProps) => {
+export const ServerPagePicker = ({ data, status }: ServerPagePickerProps) => {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -25,7 +26,11 @@ export const ServerPagePicker = ({ data }: ServerPagePickerProps) => {
   };
 
   return (
-    <Select value={pathname} onValueChange={handleValueChange}>
+    <Select
+      value={pathname}
+      onValueChange={handleValueChange}
+      disabled={status !== 'active'}
+    >
       <SelectTrigger>
         <SelectValue placeholder="Select a page" />
       </SelectTrigger>

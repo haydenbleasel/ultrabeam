@@ -1,6 +1,5 @@
 'use server';
 
-import { generateKeyPairSync } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { dots } from '@/lib/digitalocean';
@@ -42,24 +41,14 @@ export const createServer = async (
     }
 
     const cloudInitScript = getCloudInitScript(game);
-    const { publicKey, privateKey } = generateKeyPairSync('rsa', {
-      modulusLength: 2048,
-      publicKeyEncoding: {
-        type: 'spki',
-        format: 'pem',
-      },
-      privateKeyEncoding: {
-        type: 'pkcs8',
-        format: 'pem',
-      },
-    });
 
-    const nodeRsaPublicKey = new NodeRSA(publicKey);
-    const openSshKey = nodeRsaPublicKey.exportKey('openssh-public');
+    const key = new NodeRSA({ b: 4096 });
+    const publicKey = key.exportKey('openssh-public');
+    const privateKey = key.exportKey('openssh-private');
 
     const sshKeyResponse = await dots.sshKey.createSshKey({
       name: `ultrabeam-${game}-${Date.now()}`,
-      public_key: `ssh-rsa ${openSshKey} ${user.id}`,
+      public_key: publicKey.trim(),
     });
 
     const sshKeyId = sshKeyResponse.data.ssh_key.id;
@@ -76,15 +65,12 @@ export const createServer = async (
       tags: ['ultrabeam', game],
     });
 
-    const nodeRsaPrivateKey = new NodeRSA(privateKey);
-    const openSshPrivateKey = nodeRsaPrivateKey.exportKey('openssh-private');
-
     const server = await database.server.create({
       data: {
         dropletId: response.data.droplet.id,
         game,
         ownerId: user.id,
-        privateKey: openSshPrivateKey,
+        privateKey,
         sshKeyId,
       },
     });
