@@ -2,9 +2,15 @@
 
 import { dots } from '@/lib/digitalocean';
 
-export const getServer = async (
-  id: number
-): Promise<{ data: object } | { error: string }> => {
+type GetServerResponse =
+  | {
+      data: object;
+    }
+  | {
+      error: string;
+    };
+
+export const getServer = async (id: number): Promise<GetServerResponse> => {
   try {
     const response = await dots.droplet.getDroplet({
       droplet_id: id,

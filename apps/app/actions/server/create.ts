@@ -8,11 +8,19 @@ import { database } from '@repo/database';
 
 type Game = 'minecraft' | 'palworld';
 
+type CreateServerResponse =
+  | {
+      data: object;
+    }
+  | {
+      error: string;
+    };
+
 export const createServer = async (
   game: Game,
   region: string,
   size: string
-): Promise<{ data: object } | { error: string }> => {
+): Promise<CreateServerResponse> => {
   try {
     const user = await currentUser();
 

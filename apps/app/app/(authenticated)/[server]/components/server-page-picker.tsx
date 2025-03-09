@@ -35,6 +35,7 @@ export const ServerPagePicker = ({ data }: ServerPagePickerProps) => {
         <SelectItem value={`/${data.id}/console`}>Console</SelectItem>
         <SelectItem value={`/${data.id}/backups`}>Backups</SelectItem>
         <SelectItem value={`/${data.id}/settings`}>Settings</SelectItem>
+        <SelectItem value={`/${data.id}/danger`}>Danger</SelectItem>
       </SelectContent>
     </Select>
   );
