@@ -4,8 +4,6 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from '@repo/design-system/components/ui/breadcrumb';
-import { Separator } from '@repo/design-system/components/ui/separator';
-import { SidebarTrigger } from '@repo/design-system/components/ui/sidebar';
 import type { Metadata } from 'next';
 import { CreateServerButton } from './components/create-server-button';
 import { ServerList } from './components/server-list';
@@ -21,8 +19,6 @@ export const metadata: Metadata = {
 const App = () => (
   <>
     <div className="flex items-center gap-2 p-4">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="mr-2 h-4" />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

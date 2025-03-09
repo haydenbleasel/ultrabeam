@@ -9,8 +9,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@repo/design-system/components/ui/breadcrumb';
-import { Separator } from '@repo/design-system/components/ui/separator';
-import { SidebarTrigger } from '@repo/design-system/components/ui/sidebar';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { ServerPagePicker } from './components/server-page-picker';
@@ -50,8 +48,6 @@ const ServerLayout = async ({ children, params }: ServerLayoutProps) => {
   return (
     <div className="divide-y">
       <div className="flex items-center gap-2 p-4">
-        <SidebarTrigger className="-ml-1 shrink-0" />
-        <Separator orientation="vertical" className="mr-2 h-4 shrink-0" />
         <Breadcrumb className="flex-1">
           <BreadcrumbList>
             <BreadcrumbItem>
