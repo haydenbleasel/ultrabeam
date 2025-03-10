@@ -19,7 +19,7 @@ model Server {
   updatedAt  DateTime @updatedAt
   ownerId    String
   game       String
-  dropletId  Int      @unique
+  backendId  String
   privateKey String
   sshKeyId   Int
 }

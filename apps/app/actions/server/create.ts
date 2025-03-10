@@ -45,7 +45,7 @@ export const createGameServer = async (
     const publicKey = key.exportKey('openssh-public');
     const privateKey = key.exportKey('openssh-private');
 
-    const backendId = await createServer({
+    const { backendId, sshKeyId } = await createServer({
       game,
       region,
       size,
@@ -55,10 +55,11 @@ export const createGameServer = async (
 
     const server = await database.server.create({
       data: {
-        backendId,
+        backendId: `${backendId}`,
         game,
         ownerId: user.id,
         privateKey,
+        sshKeyId,
       },
     });
 

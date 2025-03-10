@@ -22,7 +22,7 @@ const FilesPage = async ({ params }: ServerProps) => {
     notFound();
   }
 
-  const gameServer = await getServer(instance.dropletId);
+  const gameServer = await getServer(instance.backendId);
 
   await sftp.connect({
     host: gameServer.networks.v4[0].ip_address,

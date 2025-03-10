@@ -1,5 +1,4 @@
 import { createApiClient } from 'dots-wrapper';
-import type { regions } from './config';
 import { keys } from './keys';
 
 const dots = createApiClient({ token: keys().DIGITALOCEAN_TOKEN });
@@ -18,7 +17,7 @@ export const createServer = async ({
   cloudInitScript,
 }: {
   game: string;
-  region: (typeof regions)[number]['value'];
+  region: string;
   size: string;
   publicKey: string;
   cloudInitScript: string;
@@ -42,30 +41,35 @@ export const createServer = async ({
     tags: ['ultrabeam', game],
   });
 
-  return response.data.droplet.id;
+  const backendId = response.data.droplet.id;
+
+  return {
+    backendId,
+    sshKeyId,
+  };
 };
 
-export const getServer = async (id: number) => {
+export const getServer = async (id: string) => {
   const response = await dots.droplet.getDroplet({
-    droplet_id: id,
+    droplet_id: Number.parseInt(id),
   });
 
   return response.data.droplet;
 };
 
-export const deleteServer = async (id: number, sshKeyId: number) => {
+export const deleteServer = async (id: string, sshKeyId: string) => {
   await dots.sshKey.destroySshKey({
     ssh_key_id: sshKeyId,
   });
 
   await dots.droplet.deleteDroplet({
-    droplet_id: id,
+    droplet_id: Number.parseInt(id),
   });
 };
 
-export const getBackups = async (id: number) => {
+export const getBackups = async (id: string) => {
   const response = await dots.droplet.listDropletBackups({
-    droplet_id: id,
+    droplet_id: Number.parseInt(id),
   });
 
   return response.data.backups;

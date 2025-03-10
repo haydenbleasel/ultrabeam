@@ -20,7 +20,7 @@ const BackupsPage = async ({ params }: ServerProps) => {
     notFound();
   }
 
-  const gameServer = await getServer(instance.dropletId);
+  const gameServer = await getServer(instance.backendId);
   const backups = await getBackups(gameServer.id);
 
   return (

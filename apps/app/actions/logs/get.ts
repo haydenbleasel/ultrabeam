@@ -22,7 +22,7 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
       throw new Error('Server not found');
     }
 
-    const droplet = await getServer(server.dropletId);
+    const droplet = await getServer(server.backendId);
 
     const conn = new Client();
 
@@ -49,7 +49,7 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
       conn.on('error', reject);
 
       conn.connect({
-        host: droplet.data.droplet.networks.v4[0].ip_address,
+        host: droplet.networks.v4[0].ip_address,
         port: 22,
         username: 'root',
         privateKey: Buffer.from(server.privateKey.trim()),

@@ -23,7 +23,7 @@ export const deleteGameServer = async (
       throw new Error('Server not found');
     }
 
-    await deleteServer(server.dropletId, server.sshKeyId);
+    await deleteServer(server.backendId, server.sshKeyId);
 
     await database.server.delete({
       where: { id },

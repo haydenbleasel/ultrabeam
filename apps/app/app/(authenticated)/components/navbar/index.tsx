@@ -24,7 +24,7 @@ export const Navbar = async () => {
   }[] = [];
 
   for (const server of servers) {
-    const gameServer = await getServer(server.dropletId);
+    const gameServer = await getServer(server.backendId);
 
     droplets.push({
       id: server.id,

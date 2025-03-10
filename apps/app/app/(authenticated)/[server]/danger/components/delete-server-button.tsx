@@ -1,7 +1,7 @@
 'use client';
 
-import { deleteServer } from '@/actions/server/delete';
-import { handleError } from '@repo/design-system/lib/utils';
+import { deleteGameServer } from '@/actions/server/delete';
+import { handleError } from '@repo/design-system/lib/error';
 import { Button } from '@repo/design-system/ui/button';
 import { useRouter } from 'next/navigation';
 
@@ -14,7 +14,7 @@ export const DeleteServerButton = ({ serverId }: DeleteServerButtonProps) => {
 
   const handleDeleteServer = async () => {
     try {
-      const response = await deleteServer(serverId);
+      const response = await deleteGameServer(serverId);
 
       if ('error' in response) {
         throw new Error(response.error);

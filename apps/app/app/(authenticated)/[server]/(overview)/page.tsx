@@ -34,7 +34,7 @@ const ServerPage = async ({ params }: Server) => {
     notFound();
   }
 
-  const gameServer = await getServer(instance.dropletId);
+  const gameServer = await getServer(instance.backendId);
 
   if ('error' in gameServer) {
     notFound();
