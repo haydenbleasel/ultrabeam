@@ -32,7 +32,7 @@ const AppLayout = async ({ children }: AppLayoutProperties) => {
           Beta feature now available
         </div>
       )}
-      {children}
+      <div className="rounded-lg border bg-card shadow-xs">{children}</div>
       <PostHogIdentifier />
     </NotificationsProvider>
   );

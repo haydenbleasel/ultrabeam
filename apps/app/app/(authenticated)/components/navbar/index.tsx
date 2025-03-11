@@ -2,6 +2,11 @@ import { UserButton } from '@repo/auth/client';
 import { currentUser } from '@repo/auth/server';
 import { getServer } from '@repo/backend';
 import { database } from '@repo/database';
+import { ModeToggle } from '@repo/design-system/components/mode-toggle';
+import { Button } from '@repo/design-system/ui/button';
+import { PlusIcon } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BottomNavigation } from './bottom-navigation';
 import { TopNavigation } from './top-navigation';
@@ -33,28 +38,22 @@ export const Navbar = async () => {
     });
   }
   return (
-    <nav className="sticky top-0 z-40 flex w-full flex-col gap-4 border-b bg-background/80 py-4 backdrop-blur-sm">
-      <div className="flex items-center justify-between px-4">
+    <nav className="top-0 z-40 flex w-full flex-col gap-4 py-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <svg
-            width="32"
-            height="32"
-            viewBox="0 0 546 400"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <title>Ultrabeam Logo</title>
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M222.224 0H177.778V177.778H0V222.222H177.778V400H222.224V222.222H545.391V177.778H222.224V0ZM222.224 177.778H177.778V222.222H222.224V177.778Z"
-              fill="black"
-            />
-          </svg>
+          <Image src="/logo.svg" alt="Logo" width={20} height={20} />
           <TopNavigation servers={droplets} />
           <BottomNavigation />
         </div>
-        <UserButton />
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" asChild size="icon">
+            <Link href="/create">
+              <PlusIcon size={16} />
+            </Link>
+          </Button>
+          <ModeToggle />
+          <UserButton />
+        </div>
       </div>
     </nav>
   );

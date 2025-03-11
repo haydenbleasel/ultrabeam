@@ -1,11 +1,14 @@
 'use client';
 
 import { createGameServer } from '@/actions/server/create';
+import { games } from '@/games';
 import type { getSizes } from '@repo/backend';
+import { getRegion } from '@repo/backend/utils';
 import { handleError } from '@repo/design-system/lib/error';
 import { Badge } from '@repo/design-system/ui/badge';
 import { Button } from '@repo/design-system/ui/button';
 import { Label } from '@repo/design-system/ui/label';
+import { RadioGroup, RadioGroupItem } from '@repo/design-system/ui/radio-group';
 import {
   Select,
   SelectContent,
@@ -13,9 +16,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@repo/design-system/ui/select';
-import createGlobe from 'cobe';
+import {
+  CheckIcon,
+  CpuIcon,
+  HardDriveIcon,
+  MemoryStickIcon,
+  MinusIcon,
+} from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { type FormEventHandler, useEffect, useRef, useState } from 'react';
+import { type FormEventHandler, useState } from 'react';
+import { Globe } from './globe';
 
 type CreateServerFormProps = {
   sizes: Awaited<ReturnType<typeof getSizes>>;
@@ -28,7 +39,6 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const selectedSize = sizes.find(({ slug }) => slug === size);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleCreateServer: FormEventHandler<HTMLFormElement> = async (
     event
@@ -56,65 +66,55 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
     }
   };
 
-  useEffect(() => {
-    let phi = 0;
-
-    if (!canvasRef.current) {
-      return;
-    }
-
-    const globe = createGlobe(canvasRef.current, {
-      devicePixelRatio: 2,
-      width: 600 * 2,
-      height: 600 * 2,
-      phi: 0,
-      theta: 0,
-      dark: 0,
-      diffuse: 1.2,
-      mapSamples: 16000,
-      mapBrightness: 6,
-      baseColor: [1, 1, 1],
-      markerColor: [0.9, 0.9, 0.9],
-      glowColor: [1, 1, 1],
-      markers: [
-        // longitude latitude
-        { location: [37.7595, -122.4367], size: 0.03 },
-        { location: [40.7128, -74.006], size: 0.1 },
-      ],
-      onRender: (state) => {
-        // Called on every animation frame.
-        // `state` will be an empty object, return updated params.
-        state.phi = phi;
-        phi += 0.001;
-      },
-    });
-
-    return () => {
-      globe.destroy();
-    };
-  }, []);
-
   return (
     <div className="grid grid-cols-2 items-start divide-x">
-      <form onSubmit={handleCreateServer} className="grid gap-4 p-8">
+      <form onSubmit={handleCreateServer} className="grid gap-8 p-8">
         <div className="grid gap-1">
           <h2 className="font-bold text-2xl">Create Server</h2>
           <p className="text-muted-foreground text-sm">
             Choose a game and size to create a new server.
           </p>
         </div>
-        <fieldset className="grid gap-4">
+        <fieldset className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="game">Game</Label>
-            <Select value={game} onValueChange={setGame}>
-              <SelectTrigger id="game">
-                <SelectValue placeholder="Select a game" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="minecraft">Minecraft</SelectItem>
-                <SelectItem value="palworld">Palworld</SelectItem>
-              </SelectContent>
-            </Select>
+            <legend className="font-medium text-foreground text-sm leading-none">
+              Game
+            </legend>
+            <RadioGroup
+              className="flex gap-3"
+              value={game}
+              onValueChange={setGame}
+            >
+              {games.map((game) => (
+                <label key={game.id} htmlFor={game.id}>
+                  <RadioGroupItem
+                    id={game.id}
+                    value={game.id}
+                    className="peer sr-only after:absolute after:inset-0"
+                  />
+                  <Image
+                    src={game.image}
+                    alt={game.name}
+                    width={600}
+                    height={600}
+                    className="relative cursor-pointer overflow-hidden rounded-md border border-input shadow-xs outline-none transition-[color,box-shadow] peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50 peer-data-disabled:cursor-not-allowed peer-data-[state=checked]:border-ring peer-data-[state=checked]:bg-accent peer-data-disabled:opacity-50"
+                  />
+                  <span className="group mt-2 flex items-center gap-1 peer-data-[state=unchecked]:text-muted-foreground/70">
+                    <CheckIcon
+                      size={16}
+                      className="group-peer-data-[state=unchecked]:hidden"
+                      aria-hidden="true"
+                    />
+                    <MinusIcon
+                      size={16}
+                      className="group-peer-data-[state=checked]:hidden"
+                      aria-hidden="true"
+                    />
+                    <span className="font-medium text-xs">{game.name}</span>
+                  </span>
+                </label>
+              ))}
+            </RadioGroup>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="size">Size</Label>
@@ -125,16 +125,20 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
               <SelectContent>
                 {sizes.map((size) => (
                   <SelectItem key={size.slug} value={size.slug}>
-                    {size.description}
-                    <Badge variant="secondary" className="ml-2">
-                      {size.memory}GB
-                    </Badge>
-                    <Badge variant="secondary" className="ml-2">
-                      {size.vcpus} vCPUs
-                    </Badge>
-                    <Badge variant="secondary" className="ml-2">
-                      {size.disk}GB
-                    </Badge>
+                    <div className="flex items-center gap-1">
+                      <Badge variant="secondary">
+                        <MemoryStickIcon size={16} />
+                        {size.memory}GB
+                      </Badge>
+                      <Badge variant="secondary">
+                        <CpuIcon size={16} />
+                        {size.vcpus} vCPUs
+                      </Badge>
+                      <Badge variant="secondary">
+                        <HardDriveIcon size={16} />
+                        {size.disk}GB
+                      </Badge>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -153,25 +157,21 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
               <SelectContent>
                 {selectedSize?.regions.map((region) => (
                   <SelectItem key={region} value={region}>
-                    {region}
+                    {getRegion(region)?.flag} {getRegion(region)?.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading
-              ? 'Creating...'
-              : `Create Server for $${selectedSize?.price_monthly}/month`}
-          </Button>
         </fieldset>
-        <details>
-          <summary>json</summary>
-          <pre>{JSON.stringify(sizes, null, 2)}</pre>
-        </details>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading
+            ? 'Creating...'
+            : `Create Server for $${selectedSize?.price_monthly}/month`}
+        </Button>
       </form>
-      <div className="relative flex items-center justify-center">
-        <canvas ref={canvasRef} className="size-[600px]" />
+      <div className="relative flex h-full items-center justify-center">
+        <Globe lat={getRegion(region)?.lat} long={getRegion(region)?.lng} />
       </div>
     </div>
   );

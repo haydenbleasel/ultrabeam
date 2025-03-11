@@ -36,6 +36,7 @@
     "node-rsa": "^1.1.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "react-spring": "^9.7.5",
     "require-in-the-middle": "^7.5.2",
     "ssh2": "^1.16.0",
     "ssh2-sftp-client": "^11.0.0",

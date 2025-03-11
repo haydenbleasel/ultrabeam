@@ -6,7 +6,9 @@ const dots = createApiClient({ token: keys().DIGITALOCEAN_TOKEN });
 export const getSizes = async () => {
   const response = await dots.size.listSizes({ per_page: 100 });
 
-  return response.data.sizes.filter((size) => size.available);
+  return response.data.sizes.filter(
+    (size) => size.available && size.description === 'Basic'
+  );
 };
 
 export const createServer = async ({
