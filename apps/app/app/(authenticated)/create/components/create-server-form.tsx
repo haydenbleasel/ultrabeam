@@ -7,6 +7,7 @@ import { getRegion } from '@repo/backend/utils';
 import { handleError } from '@repo/design-system/lib/error';
 import { Badge } from '@repo/design-system/ui/badge';
 import { Button } from '@repo/design-system/ui/button';
+import { Input } from '@repo/design-system/ui/input';
 import { Label } from '@repo/design-system/ui/label';
 import { RadioGroup, RadioGroupItem } from '@repo/design-system/ui/radio-group';
 import {
@@ -20,6 +21,7 @@ import {
   CheckIcon,
   CpuIcon,
   HardDriveIcon,
+  Loader2Icon,
   MemoryStickIcon,
   MinusIcon,
 } from 'lucide-react';
@@ -57,6 +59,7 @@ const parseRegions = (regions: string[]) => {
 };
 
 export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
+  const [name, setName] = useState<string>('');
   const [game, setGame] = useState<string>('minecraft');
   const [size, setSize] = useState<string>(sizes[0].slug);
   const selectedSize = sizes.find(({ slug }) => slug === size);
@@ -77,7 +80,12 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
     setIsLoading(true);
 
     try {
-      const response = await createGameServer(game as never, region, size);
+      const response = await createGameServer(
+        name,
+        game as never,
+        region,
+        size
+      );
 
       if ('error' in response) {
         throw new Error(response.error);
@@ -86,7 +94,6 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
       router.push(`/${response.id}`);
     } catch (error) {
       handleError(error);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -99,6 +106,15 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
           <p className="text-muted-foreground text-sm">
             Choose a game and size to create a new server.
           </p>
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            placeholder="My server"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
         </div>
         <fieldset className="space-y-4">
           <div className="grid gap-2">
@@ -192,9 +208,11 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
           )}
         </fieldset>
         <Button className="w-fit" type="submit" disabled={isLoading}>
-          {isLoading
-            ? 'Creating...'
-            : `Create server for $${selectedSize?.price_monthly}/month`}
+          {isLoading ? (
+            <Loader2Icon size={16} className="animate-spin" />
+          ) : (
+            `Create server for $${selectedSize?.price_monthly}/month`
+          )}
         </Button>
       </form>
       <div className="relative flex h-full items-center justify-center">

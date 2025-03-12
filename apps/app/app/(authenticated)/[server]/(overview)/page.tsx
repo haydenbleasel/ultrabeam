@@ -1,7 +1,10 @@
+import { games } from '@/games';
 import { currentUser } from '@repo/auth/server';
 import { getServer } from '@repo/backend';
 import { database } from '@repo/database';
 import { Badge } from '@repo/design-system/ui/badge';
+import { Input } from '@repo/design-system/ui/input';
+import { Label } from '@repo/design-system/ui/label';
 import {
   CpuIcon,
   DockIcon,
@@ -10,7 +13,9 @@ import {
   HardDriveIcon,
   MemoryStickIcon,
 } from 'lucide-react';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { Status } from '../../components/status';
 
 type Server = {
   params: Promise<{
@@ -35,21 +40,25 @@ const ServerPage = async ({ params }: Server) => {
   }
 
   const gameServer = await getServer(instance.backendId);
+  const activeGame = games.find((game) => game.id === instance.game);
 
-  if ('error' in gameServer) {
+  if ('error' in gameServer || !activeGame) {
     notFound();
   }
 
   return (
     <div className="grid grid-cols-2 divide-x">
-      <div className="aspect-square bg-muted" />
+      <Image
+        src={activeGame.image}
+        alt={instance.game}
+        width={600}
+        height={600}
+        className="aspect-square"
+      />
       <div className="p-8">
         <div className="flex items-center gap-2">
-          <h1 className="font-bold text-2xl">{instance.game}</h1>
-          <Badge variant="secondary" className="flex items-center gap-2">
-            <div className="size-2 rounded-full bg-amber-500" />
-            {gameServer.status}
-          </Badge>
+          <h1 className="font-bold text-2xl">{instance.name}</h1>
+          <Status status={gameServer.status} />
         </div>
         <div className="my-4 flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="flex items-center gap-2">
@@ -77,7 +86,14 @@ const ServerPage = async ({ params }: Server) => {
             {gameServer.size.price_hourly} / hour
           </Badge>
         </div>
-        <pre>{JSON.stringify(gameServer, null, 2)}</pre>
+        <div className="grid gap-2">
+          <Label>IP Address</Label>
+          <Input value={gameServer.networks.v4[0].ip_address} />
+        </div>
+        <details className="mt-4">
+          <summary className="text-muted-foreground text-sm">JSON</summary>
+          <pre>{JSON.stringify(gameServer, null, 2)}</pre>
+        </details>
       </div>
     </div>
   );

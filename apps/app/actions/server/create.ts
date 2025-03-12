@@ -1,6 +1,6 @@
 'use server';
 
-import fs from 'node:fs';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import { currentUser } from '@repo/auth/server';
 import { createServer } from '@repo/backend';
@@ -8,7 +8,7 @@ import { database } from '@repo/database';
 import { log } from '@repo/observability/log';
 import NodeRSA from 'node-rsa';
 
-type Game = 'minecraft' | 'palworld';
+type Game = 'minecraft' | 'palworld' | 'valheim';
 
 type CreateGameServerResponse =
   | {
@@ -18,17 +18,18 @@ type CreateGameServerResponse =
       error: string;
     };
 
-const getCloudInitScript = (game: Game) => {
-  const cloudInitPath = path.join(process.cwd(), 'games', `${game}.yml`);
+const getCloudInitScript = async (game: Game) => {
+  const cloudInitPath = path.join(process.cwd(), 'games', game, 'config.yml');
 
-  if (!fs.existsSync(cloudInitPath)) {
+  if (!(await fs.stat(cloudInitPath).catch(() => false))) {
     throw new Error(`No Cloud-Init script found for game: ${game}`);
   }
 
-  return fs.readFileSync(cloudInitPath, 'utf-8');
+  return await fs.readFile(cloudInitPath, 'utf-8');
 };
 
 export const createGameServer = async (
+  name: string,
   game: Game,
   region: string,
   size: string
@@ -40,7 +41,7 @@ export const createGameServer = async (
       throw new Error('User not found');
     }
 
-    const cloudInitScript = getCloudInitScript(game);
+    const cloudInitScript = await getCloudInitScript(game);
     const key = new NodeRSA({ b: 4096 });
     const publicKey = key.exportKey('openssh-public');
     const privateKey = key.exportKey('openssh-private');
@@ -55,6 +56,7 @@ export const createGameServer = async (
 
     const server = await database.server.create({
       data: {
+        name,
         backendId: `${backendId}`,
         game,
         ownerId: user.id,
@@ -68,8 +70,6 @@ export const createGameServer = async (
     return { id: server.id };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-
-    console.error(error);
 
     return { error: message };
   }

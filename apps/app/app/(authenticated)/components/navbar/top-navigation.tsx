@@ -1,5 +1,6 @@
 'use client';
 
+import { games } from '@/games';
 import { cn } from '@repo/design-system/lib/utils';
 import { Button } from '@repo/design-system/ui/button';
 import {
@@ -16,14 +17,17 @@ import {
   PopoverTrigger,
 } from '@repo/design-system/ui/popover';
 import { CheckIcon, ChevronDownIcon } from 'lucide-react';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
+import { Status } from '../status';
 
 type TopNavigationProperties = {
   servers: {
     id: string;
     game: string;
     status: string;
+    name: string;
   }[];
 };
 
@@ -33,10 +37,16 @@ export const TopNavigation = ({ servers }: TopNavigationProperties) => {
   const id = useId();
   const [open, setOpen] = useState<boolean>(false);
   const [value, setValue] = useState<string>(params.server as string);
+  const activeServer = servers.find((server) => server.id === value);
+  const activeGame = games.find((game) => game.id === activeServer?.game);
 
   const handleValueChange = (value: string) => {
     router.push(`/${value}`);
   };
+
+  useEffect(() => {
+    setValue(params.server as string);
+  }, [params.server]);
 
   return (
     <div className="*:not-first:mt-2">
@@ -50,9 +60,21 @@ export const TopNavigation = ({ servers }: TopNavigationProperties) => {
             disabled={!servers.length}
           >
             <span className={cn('truncate', !value && 'text-muted-foreground')}>
-              {value
-                ? servers.find((server) => server.id === value)?.game
-                : 'Select server'}
+              {activeServer && activeGame ? (
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={activeGame.image}
+                    alt={activeServer.game}
+                    width={16}
+                    height={16}
+                    className="rounded-xs"
+                  />
+                  {activeServer.name}
+                  <Status status={activeServer.status} />
+                </div>
+              ) : (
+                'Select server'
+              )}
             </span>
             <ChevronDownIcon
               size={16}
@@ -80,7 +102,7 @@ export const TopNavigation = ({ servers }: TopNavigationProperties) => {
                       handleValueChange(currentValue);
                     }}
                   >
-                    {server.game}
+                    {server.name}
                     {value === server.id && (
                       <CheckIcon size={16} className="ml-auto" />
                     )}

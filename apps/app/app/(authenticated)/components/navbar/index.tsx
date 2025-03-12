@@ -24,6 +24,7 @@ export const Navbar = async () => {
 
   const droplets: {
     id: string;
+    name: string;
     game: string;
     status: string;
   }[] = [];
@@ -32,6 +33,7 @@ export const Navbar = async () => {
     const gameServer = await getServer(server.backendId);
 
     droplets.push({
+      name: server.name,
       id: server.id,
       game: server.game,
       status: gameServer.status,
@@ -44,7 +46,13 @@ export const Navbar = async () => {
         <div className="flex items-center">
           <div className="pr-4">
             <Link href="/">
-              <Image src="/logo.svg" alt="Logo" width={20} height={20} />
+              <Image
+                src="/logo.svg"
+                alt="Logo"
+                width={32}
+                height={32}
+                className="size-4"
+              />
             </Link>
           </div>
           <span className="text-muted-foreground opacity-50">/</span>

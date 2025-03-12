@@ -18,6 +18,7 @@ model Server {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   ownerId    String
+  name       String
   game       String
   backendId  String
   privateKey String
