@@ -107,16 +107,16 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
             Choose a game and size to create a new server.
           </p>
         </div>
-        <div className="grid gap-2">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
-            placeholder="My server"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
         <fieldset className="space-y-4">
+          <div className="grid gap-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              placeholder="My server"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
           <div className="grid gap-2">
             <legend className="font-medium text-foreground text-sm leading-none">
               Game
