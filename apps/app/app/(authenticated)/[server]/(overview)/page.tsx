@@ -4,8 +4,6 @@ import { getServer } from '@repo/backend';
 import { database } from '@repo/database';
 import { Badge } from '@repo/design-system/ui/badge';
 import { Button } from '@repo/design-system/ui/button';
-import { Input } from '@repo/design-system/ui/input';
-import { Label } from '@repo/design-system/ui/label';
 import {
   Tooltip,
   TooltipContent,
@@ -23,6 +21,7 @@ import {
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Status } from '../../components/status';
+import { Connect } from './components/connect';
 
 type Server = {
   params: Promise<{
@@ -80,38 +79,49 @@ const ServerPage = async ({ params }: Server) => {
           </Tooltip>
         </div>
         <div className="my-4 flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="flex items-center gap-2">
+          <Badge
+            variant="secondary"
+            className="flex items-center gap-2 px-3 py-1"
+          >
             <MemoryStickIcon size={16} />
             {new Intl.NumberFormat().format(gameServer.memory / 4)}GB
           </Badge>
-          <Badge variant="secondary" className="flex items-center gap-2">
+          <Badge
+            variant="secondary"
+            className="flex items-center gap-2 px-3 py-1"
+          >
             <CpuIcon size={16} />
             {new Intl.NumberFormat().format(gameServer.vcpus)} vCPUs
           </Badge>
-          <Badge variant="secondary" className="flex items-center gap-2">
+          <Badge
+            variant="secondary"
+            className="flex items-center gap-2 px-3 py-1"
+          >
             <HardDriveIcon size={16} />
             {new Intl.NumberFormat().format(gameServer.disk)}GB
           </Badge>
-          <Badge variant="secondary" className="flex items-center gap-2">
+          <Badge
+            variant="secondary"
+            className="flex items-center gap-2 px-3 py-1"
+          >
             <DockIcon size={16} />
             {gameServer.image.distribution} {gameServer.image.name}
           </Badge>
-          <Badge variant="secondary" className="flex items-center gap-2">
+          <Badge
+            variant="secondary"
+            className="flex items-center gap-2 px-3 py-1"
+          >
+            <DollarSignIcon size={16} />${gameServer.size.price_monthly} / month
+          </Badge>
+          <Badge
+            variant="secondary"
+            className="flex items-center gap-2 px-3 py-1"
+          >
             <GlobeIcon size={16} />
             {gameServer.region.name}
           </Badge>
-          <Badge variant="secondary" className="flex items-center gap-2">
-            <DollarSignIcon size={16} />${gameServer.size.price_monthly} / month
-          </Badge>
         </div>
-        <div className="grid gap-2">
-          <Label>IP Address</Label>
-          <Input value={gameServer.networks.v4[0].ip_address} />
-        </div>
-        <details className="mt-4">
-          <summary className="text-muted-foreground text-sm">JSON</summary>
-          <pre>{JSON.stringify(gameServer, null, 2)}</pre>
-        </details>
+        <Connect ip={gameServer.networks.v4[0].ip_address} />
       </div>
     </div>
   );
