@@ -1,6 +1,7 @@
 'use client';
 
 import { getLogs } from '@/actions/logs/get';
+import { diffLines } from 'diff';
 import { useEffect, useState } from 'react';
 
 type ConsoleProps = {
@@ -13,20 +14,23 @@ export const Console = ({ serverId, defaultValue }: ConsoleProps) => {
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      const logs = await getLogs(serverId);
+      const newLogs = await getLogs(serverId);
 
-      if ('error' in logs) {
-        console.error(logs.error);
+      if ('error' in newLogs) {
+        console.error(newLogs.error);
       } else {
-        setLogs((prev) => prev + logs.data);
+        const diff = diffLines(logs, newLogs.data);
+        const newLog = diff.map((change) => change.value).join('');
+
+        setLogs((prev) => prev + newLog);
       }
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [serverId]);
+  }, [serverId, logs]);
 
   return (
-    <pre className="max-h-[500px] w-full overflow-auto bg-black p-4 text-sm text-white text-xs">
+    <pre className="max-h-[500px] w-full overflow-auto bg-black p-4 text-white text-xs">
       {logs}
     </pre>
   );

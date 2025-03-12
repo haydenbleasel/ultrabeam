@@ -80,7 +80,7 @@ importers:
         version: 0.12.0(typescript@5.8.2)(zod@3.24.2)
       next:
         specifier: 15.1.7
-        version: 15.1.7(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 15.1.7(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react:
         specifier: 19.0.0
         version: 19.0.0
@@ -169,6 +169,9 @@ importers:
       cobe:
         specifier: ^0.6.3
         version: 0.6.3
+      diff:
+        specifier: ^7.0.0
+        version: 7.0.0
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
@@ -221,6 +224,9 @@ importers:
       '@testing-library/react':
         specifier: ^16.2.0
         version: 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@types/diff':
+        specifier: ^7.0.1
+        version: 7.0.1
       '@types/node':
         specifier: 22.13.9
         version: 22.13.9
@@ -356,7 +362,7 @@ importers:
         version: 10.1.1(acorn@8.14.1)(esbuild@0.25.0)
       next:
         specifier: 15.1.7
-        version: 15.1.7(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 15.1.7(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react:
         specifier: 19.0.0
         version: 19.0.0
@@ -572,7 +578,7 @@ importers:
         version: 19.0.4(@types/react@19.0.10)
       next:
         specifier: 15.1.7
-        version: 15.1.7(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 15.1.7(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
   packages/database:
     dependencies:
@@ -866,7 +872,7 @@ importers:
         version: 3.1.1(@opentelemetry/api@1.9.0)(next@15.1.7(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       next:
         specifier: 15.1.7
-        version: 15.1.7(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 15.1.7(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react:
         specifier: ^19.0.0
         version: 19.0.0
@@ -919,7 +925,7 @@ importers:
         version: 19.0.4(@types/react@19.0.10)
       next:
         specifier: 15.1.7
-        version: 15.1.7(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 15.1.7(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
   packages/next-config:
     dependencies:
@@ -944,7 +950,7 @@ importers:
         version: link:../typescript-config
       next:
         specifier: 15.1.7
-        version: 15.1.7(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 15.1.7(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
   packages/notifications:
     dependencies:
@@ -1115,7 +1121,7 @@ importers:
         version: 19.0.4(@types/react@19.0.10)
       next:
         specifier: 15.1.7
-        version: 15.1.7(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 15.1.7(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
   packages/storage:
     dependencies:
@@ -5048,6 +5054,9 @@ packages:
   '@types/diff-match-patch@1.0.36':
     resolution: {integrity: sha512-xFdR6tkm0MWvBfO8xXCSsinYxHcqkQUlcHeSpMC2ukzOb6lwQAfDmW+Qt0AvlGd8HpsS28qKsB+oPeJn9I39jg==}
 
+  '@types/diff@7.0.1':
+    resolution: {integrity: sha512-R/BHQFripuhW6XPXy05hIvXJQdQ4540KnTvEFHSLjXfHYM41liOLKgIJEyYYiQe796xpaMHfe4Uj/p7Uvng2vA==}
+
   '@types/eslint-scope@3.7.7':
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
 
@@ -6308,6 +6317,10 @@ packages:
 
   diff@4.0.2:
     resolution: {integrity: sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==}
+    engines: {node: '>=0.3.1'}
+
+  diff@7.0.0:
+    resolution: {integrity: sha512-PJWHUb1RFevKCwaFA9RlG5tCd+FO5iRh9A8HEtkmBH2Li03iJriB6m6JIN4rGz3K3JLawI7/veA1xzRKP6ISBw==}
     engines: {node: '>=0.3.1'}
 
   dir-glob@3.0.1:
@@ -14963,6 +14976,8 @@ snapshots:
 
   '@types/diff-match-patch@1.0.36': {}
 
+  '@types/diff@7.0.1': {}
+
   '@types/eslint-scope@3.7.7':
     dependencies:
       '@types/eslint': 9.6.1
@@ -16328,6 +16343,8 @@ snapshots:
   diff-match-patch@1.0.5: {}
 
   diff@4.0.2: {}
+
+  diff@7.0.0: {}
 
   dir-glob@3.0.1:
     dependencies:
@@ -18996,7 +19013,7 @@ snapshots:
       postcss: 8.4.31
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
-      styled-jsx: 5.1.6(@babel/core@7.24.5)(react@19.0.0)
+      styled-jsx: 5.1.6(react@19.0.0)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.1.7
       '@next/swc-darwin-x64': 15.1.7
@@ -20737,6 +20754,11 @@ snapshots:
       react: 19.0.0
     optionalDependencies:
       '@babel/core': 7.26.9
+
+  styled-jsx@5.1.6(react@19.0.0):
+    dependencies:
+      client-only: 0.0.1
+      react: 19.0.0
 
   sucrase@3.35.0:
     dependencies:
