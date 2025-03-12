@@ -41,11 +41,15 @@ export const Navbar = async () => {
   return (
     <nav className="top-0 z-40 flex w-full flex-col gap-4 py-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Image src="/logo.svg" alt="Logo" width={20} height={20} />
-          <span className="text-muted-foreground">/</span>
+        <div className="flex items-center">
+          <div className="pr-4">
+            <Link href="/">
+              <Image src="/logo.svg" alt="Logo" width={20} height={20} />
+            </Link>
+          </div>
+          <span className="text-muted-foreground opacity-50">/</span>
           <TopNavigation servers={droplets} />
-          <span className="text-muted-foreground">/</span>
+          <span className="text-muted-foreground opacity-50">/</span>
           <BottomNavigation />
         </div>
         <div className="flex items-center gap-4">

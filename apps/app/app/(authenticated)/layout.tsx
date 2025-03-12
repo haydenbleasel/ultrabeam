@@ -1,8 +1,9 @@
 import { env } from '@/env';
-import { auth, currentUser } from '@repo/auth/server';
+import { currentUser } from '@repo/auth/server';
 import { showBetaFeature } from '@repo/feature-flags';
 import { NotificationsProvider } from '@repo/notifications/components/provider';
 import { secure } from '@repo/security';
+import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { Navbar } from './components/navbar';
 import { PostHogIdentifier } from './components/posthog-identifier';
@@ -17,11 +18,10 @@ const AppLayout = async ({ children }: AppLayoutProperties) => {
   }
 
   const user = await currentUser();
-  const { redirectToSignIn } = await auth();
   const betaFeature = await showBetaFeature();
 
   if (!user) {
-    return redirectToSignIn();
+    notFound();
   }
 
   return (

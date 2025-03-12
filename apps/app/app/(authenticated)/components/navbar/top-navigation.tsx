@@ -46,7 +46,8 @@ export const TopNavigation = ({ servers }: TopNavigationProperties) => {
             id={id}
             variant="outline"
             aria-expanded={open}
-            className="w-full justify-between border-input bg-background px-3 font-normal outline-none outline-offset-0 hover:bg-background focus-visible:outline-[3px]"
+            className="border-transparent bg-transparent shadow-none"
+            disabled={!servers.length}
           >
             <span className={cn('truncate', !value && 'text-muted-foreground')}>
               {value
