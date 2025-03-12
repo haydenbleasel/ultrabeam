@@ -59,11 +59,11 @@ const parseRegions = (regions: string[]) => {
 export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
   const [game, setGame] = useState<string>('minecraft');
   const [size, setSize] = useState<string>(sizes[0].slug);
-  const [region, setRegion] = useState<string>(sizes[0].regions[0]);
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const selectedSize = sizes.find(({ slug }) => slug === size);
   const hydratedRegions = parseRegions(selectedSize?.regions ?? []);
+  const [region, setRegion] = useState<string>(hydratedRegions[0].slug);
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleCreateServer: FormEventHandler<HTMLFormElement> = async (
     event
@@ -191,10 +191,10 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
             </div>
           )}
         </fieldset>
-        <Button type="submit" disabled={isLoading}>
+        <Button className="w-fit" type="submit" disabled={isLoading}>
           {isLoading
             ? 'Creating...'
-            : `Create Server for $${selectedSize?.price_monthly}/month`}
+            : `Create server for $${selectedSize?.price_monthly}/month`}
         </Button>
       </form>
       <div className="relative flex h-full items-center justify-center">
