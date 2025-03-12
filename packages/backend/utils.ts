@@ -66,3 +66,15 @@ export const regions = [
 
 export const getRegion = (region: string) =>
   regions.find((r) => region.startsWith(r.slug));
+
+export const formatBytes = (bytes: number) => {
+  let newBytes = bytes;
+  let i = 0;
+
+  while (newBytes > 1024) {
+    newBytes /= 1024;
+    i++;
+  }
+
+  return `${newBytes.toFixed(2)} ${['B', 'KB', 'MB', 'GB', 'TB', 'PB'][i]}`;
+};

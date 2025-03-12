@@ -36,7 +36,6 @@ const FilesPage = async ({ params }: ServerProps) => {
 
   return (
     <div className="p-4">
-      <h1>Files</h1>
       <FileTable data={fileList} />
     </div>
   );

@@ -1,5 +1,6 @@
 'use client';
 
+import { formatBytes } from '@repo/backend/utils';
 import { cn } from '@repo/design-system/lib/utils';
 import {
   AlertDialog,
@@ -12,6 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@repo/design-system/ui/alert-dialog';
+import { Badge } from '@repo/design-system/ui/badge';
 import { Button } from '@repo/design-system/ui/button';
 import { Checkbox } from '@repo/design-system/ui/checkbox';
 import {
@@ -46,6 +48,11 @@ import {
   TableRow,
 } from '@repo/design-system/ui/table';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@repo/design-system/ui/tooltip';
+import {
   type ColumnDef,
   type ColumnFiltersState,
   type FilterFn,
@@ -67,10 +74,12 @@ import {
   CircleXIcon,
   Columns3Icon,
   EllipsisIcon,
+  FileIcon,
   FilterIcon,
+  FolderIcon,
   ListFilterIcon,
-  PlusIcon,
   TrashIcon,
+  UploadCloudIcon,
 } from 'lucide-react';
 import { useId, useMemo, useRef, useState } from 'react';
 import type { FileInfo } from 'ssh2-sftp-client';
@@ -128,22 +137,72 @@ const columns: ColumnDef<FileInfo>[] = [
     header: 'Name',
     accessorKey: 'name',
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue('name')}</div>
+      <div className="flex items-center gap-2 font-medium">
+        {row.getValue('type') === 'd' ? (
+          <FolderIcon size={16} />
+        ) : (
+          <FileIcon size={16} />
+        )}
+        {row.getValue('name')}
+      </div>
     ),
     size: 180,
     filterFn: multiColumnFilterFn,
     enableHiding: false,
   },
   {
-    header: 'Email',
-    accessorKey: 'email',
-    size: 220,
+    header: 'Rights',
+    accessorKey: 'rights',
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2 font-medium">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge variant="secondary" className="bg-emerald-100">
+              G
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            <span className="font-mono">{row.original.rights.group}</span>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge variant="secondary" className="bg-blue-100">
+              U
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            <span className="font-mono">{row.original.rights.user}</span>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge variant="secondary" className="bg-purple-100">
+              O
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            <span className="font-mono">{row.original.rights.other}</span>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    ),
   },
   {
     header: 'Size',
     accessorKey: 'size',
-    cell: ({ row }) => <div>{row.getValue('size')}</div>,
-    size: 180,
+    cell: ({ row }) => (
+      <div className="font-medium">{formatBytes(row.getValue('size'))}</div>
+    ),
+  },
+  {
+    header: 'Modified',
+    accessorKey: 'modifyTime',
+    cell: ({ row }) => (
+      <div className="font-medium">
+        {new Date(row.getValue('modifyTime')).toLocaleDateString()}
+      </div>
+    ),
   },
   {
     id: 'actions',
@@ -256,9 +315,9 @@ export default function FileTable({ data }: FileTableProps) {
               onChange={(e) =>
                 table.getColumn('name')?.setFilterValue(e.target.value)
               }
-              placeholder="Filter by name or email..."
+              placeholder="Start typing..."
               type="text"
-              aria-label="Filter by name or email"
+              aria-label="Filter by name"
             />
             <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
               <ListFilterIcon size={16} aria-hidden="true" />
@@ -410,12 +469,12 @@ export default function FileTable({ data }: FileTableProps) {
           )}
           {/* Add user button */}
           <Button className="ml-auto" variant="outline">
-            <PlusIcon
+            <UploadCloudIcon
               className="-ms-1 opacity-60"
               size={16}
               aria-hidden="true"
             />
-            Add user
+            Upload
           </Button>
         </div>
       </div>
