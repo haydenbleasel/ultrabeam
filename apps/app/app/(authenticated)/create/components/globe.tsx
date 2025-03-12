@@ -66,7 +66,7 @@ export const Globe: FC<GlobeProps> = ({ lat, long }) => {
       mapSamples: 16000,
       mapBrightness: 6,
       baseColor: [1, 1, 1],
-      markerColor: [0.1, 0.4, 0.8], // blue color
+      markerColor: [0.14, 0.36, 0.92],
       glowColor: [1, 1, 1],
       markers: regions.map((region) => ({
         location: [region.lat, region.lng],

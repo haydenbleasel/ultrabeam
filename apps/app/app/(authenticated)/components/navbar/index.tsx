@@ -37,21 +37,26 @@ export const Navbar = async () => {
       status: gameServer.status,
     });
   }
+
   return (
     <nav className="top-0 z-40 flex w-full flex-col gap-4 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Image src="/logo.svg" alt="Logo" width={20} height={20} />
+          <span className="text-muted-foreground">/</span>
           <TopNavigation servers={droplets} />
+          <span className="text-muted-foreground">/</span>
           <BottomNavigation />
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" asChild size="icon">
-            <Link href="/create">
-              <PlusIcon size={16} />
-            </Link>
-          </Button>
-          <ModeToggle />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" asChild size="icon">
+              <Link href="/create">
+                <PlusIcon size={16} className="text-muted-foreground" />
+              </Link>
+            </Button>
+            <ModeToggle />
+          </div>
           <UserButton />
         </div>
       </div>
