@@ -76,3 +76,15 @@ export const getBackups = async (id: string) => {
 
   return response.data.backups;
 };
+
+export const resizeServer = async (id: string, size: string) =>
+  await dots.droplet.resizeDroplet({
+    droplet_id: Number.parseInt(id),
+    size,
+    disk: false,
+  });
+
+export const rebootServer = async (id: string) =>
+  await dots.droplet.rebootDroplet({
+    droplet_id: Number.parseInt(id),
+  });

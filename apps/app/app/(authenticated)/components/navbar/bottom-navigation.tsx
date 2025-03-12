@@ -15,7 +15,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@repo/design-system/ui/popover';
-import { CheckIcon, ChevronDownIcon } from 'lucide-react';
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  DatabaseIcon,
+  FileIcon,
+  HomeIcon,
+  SettingsIcon,
+  TerminalIcon,
+} from 'lucide-react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
 
@@ -26,12 +34,23 @@ export const BottomNavigation = () => {
   const router = useRouter();
   const pathname = usePathname();
   const pages = [
-    { value: `/${params.server}`, label: 'Overview' },
-    { value: `/${params.server}/files`, label: 'Files' },
-    { value: `/${params.server}/console`, label: 'Console' },
-    { value: `/${params.server}/backups`, label: 'Backups' },
-    { value: `/${params.server}/settings`, label: 'Settings' },
-    { value: `/${params.server}/danger`, label: 'Danger' },
+    { value: `/${params.server}`, label: 'Overview', icon: HomeIcon },
+    { value: `/${params.server}/files`, label: 'Files', icon: FileIcon },
+    {
+      value: `/${params.server}/console`,
+      label: 'Console',
+      icon: TerminalIcon,
+    },
+    {
+      value: `/${params.server}/backups`,
+      label: 'Backups',
+      icon: DatabaseIcon,
+    },
+    {
+      value: `/${params.server}/settings`,
+      label: 'Settings',
+      icon: SettingsIcon,
+    },
   ];
 
   const activePage = pages.find((page) => pathname.endsWith(page.value));
@@ -54,7 +73,17 @@ export const BottomNavigation = () => {
             <span
               className={cn('truncate', !activePage && 'text-muted-foreground')}
             >
-              {activePage ? activePage.label : 'Select page'}
+              {activePage ? (
+                <div className="flex items-center gap-2">
+                  <activePage.icon
+                    size={16}
+                    className="text-muted-foreground"
+                  />
+                  {activePage.label}
+                </div>
+              ) : (
+                'Select page'
+              )}
             </span>
             <ChevronDownIcon
               size={16}
@@ -81,7 +110,10 @@ export const BottomNavigation = () => {
                       handleValueChange(currentValue);
                     }}
                   >
-                    {page.label}
+                    <div className="flex items-center gap-2">
+                      <page.icon size={16} className="text-muted-foreground" />
+                      {page.label}
+                    </div>
                     {activePage?.value === page.value && (
                       <CheckIcon size={16} className="ml-auto" />
                     )}

@@ -9,7 +9,7 @@ type Server = {
   }>;
 };
 
-const DangerPage = async ({ params }: Server) => {
+const SettingsPage = async ({ params }: Server) => {
   const { server } = await params;
   const user = await currentUser();
 
@@ -32,4 +32,4 @@ const DangerPage = async ({ params }: Server) => {
   );
 };
 
-export default DangerPage;
+export default SettingsPage;

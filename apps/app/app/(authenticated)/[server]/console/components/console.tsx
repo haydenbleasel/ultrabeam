@@ -26,7 +26,7 @@ export const Console = ({ serverId, defaultValue }: ConsoleProps) => {
   }, [serverId]);
 
   return (
-    <pre className="w-full overflow-auto bg-black p-4 text-sm text-white">
+    <pre className="max-h-[500px] w-full overflow-auto bg-black p-4 text-sm text-white text-xs">
       {logs}
     </pre>
   );

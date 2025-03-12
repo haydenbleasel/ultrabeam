@@ -23,16 +23,7 @@ const BackupsPage = async ({ params }: ServerProps) => {
   const gameServer = await getServer(instance.backendId);
   const backups = await getBackups(gameServer.id);
 
-  return (
-    <div className="p-4">
-      <p className="text-muted-foreground text-sm">
-        Next backup:{' '}
-        {new Date(gameServer.next_backup_window.start).toLocaleString()} -{' '}
-        {new Date(gameServer.next_backup_window.end).toLocaleString()}
-      </p>
-      <BackupTable data={backups.data.backups} />
-    </div>
-  );
+  return <BackupTable data={backups} />;
 };
 
 export default BackupsPage;
