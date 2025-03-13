@@ -268,8 +268,8 @@ export const createServer = async ({
         {
           addOnType: 'StopInstanceOnIdle',
           stopInstanceOnIdleRequest: {
-            threshold: 60,
-            duration: 60,
+            threshold: '60',
+            duration: '60',
           },
         },
       ],
