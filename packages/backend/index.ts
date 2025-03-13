@@ -299,13 +299,6 @@ export const createServer = async ({
             snapshotTimeOfDay: '06:00',
           },
         },
-        {
-          addOnType: 'StopInstanceOnIdle',
-          stopInstanceOnIdleRequest: {
-            threshold: '60',
-            duration: '60',
-          },
-        },
       ],
     })
   );
