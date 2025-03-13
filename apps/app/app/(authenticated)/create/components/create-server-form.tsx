@@ -55,7 +55,7 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
     try {
       const response = await createGameServer(
         name,
-        game as never,
+        game as (typeof games)[number]['id'],
         region,
         size
       );

@@ -14,13 +14,13 @@ datasource db {
 }
 
 model Server {
-  id         String   @id @default(uuid())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  ownerId    String
-  name       String
-  game       String
-  backendId  String
-  privateKey String
-  sshKeyId   Int
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ownerId     String
+  name        String
+  game        String
+  backendId   String
+  privateKey  String
+  keyPairName String
 }

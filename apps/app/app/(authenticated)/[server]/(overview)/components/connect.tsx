@@ -13,15 +13,16 @@ import { useId, useRef, useState } from 'react';
 
 type ConnectProps = {
   ip: string;
+  port: number;
 };
 
-export const Connect = ({ ip }: ConnectProps) => {
+export const Connect = ({ ip, port }: ConnectProps) => {
   const id = useId();
   const [copied, setCopied] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(ip);
+    navigator.clipboard.writeText(`${ip}:${port}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
@@ -35,7 +36,7 @@ export const Connect = ({ ip }: ConnectProps) => {
           id={id}
           className="pe-9 font-mono"
           type="text"
-          defaultValue={ip}
+          defaultValue={`${ip}:${port}`}
           readOnly
         />
         <Tooltip>

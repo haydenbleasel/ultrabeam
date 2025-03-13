@@ -2,13 +2,11 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import type { games } from '@/games';
 import { currentUser } from '@repo/auth/server';
 import { createServer } from '@repo/backend';
 import { database } from '@repo/database';
 import { log } from '@repo/observability/log';
-import NodeRSA from 'node-rsa';
-
-type Game = 'minecraft' | 'palworld' | 'valheim';
 
 type CreateGameServerResponse =
   | {
@@ -18,7 +16,7 @@ type CreateGameServerResponse =
       error: string;
     };
 
-const getCloudInitScript = async (game: Game) => {
+const getCloudInitScript = async (game: (typeof games)[number]['id']) => {
   const cloudInitPath = path.join(process.cwd(), 'games', game, 'config.yml');
 
   if (!(await fs.stat(cloudInitPath).catch(() => false))) {
@@ -30,7 +28,7 @@ const getCloudInitScript = async (game: Game) => {
 
 export const createGameServer = async (
   name: string,
-  game: Game,
+  game: (typeof games)[number]['id'],
   region: string,
   size: string
 ): Promise<CreateGameServerResponse> => {
@@ -42,17 +40,16 @@ export const createGameServer = async (
     }
 
     const cloudInitScript = await getCloudInitScript(game);
-    const key = new NodeRSA({ b: 4096 });
-    const publicKey = key.exportKey('openssh-public');
-    const privateKey = key.exportKey('openssh-private');
-
-    const { backendId, sshKeyId } = await createServer({
+    const { backendId, privateKey } = await createServer({
       game,
       region,
       size,
-      publicKey,
       cloudInitScript,
     });
+
+    if (!backendId || !privateKey) {
+      throw new Error('Failed to create server');
+    }
 
     const server = await database.server.create({
       data: {
@@ -61,7 +58,6 @@ export const createGameServer = async (
         game,
         ownerId: user.id,
         privateKey,
-        sshKeyId,
       },
     });
 

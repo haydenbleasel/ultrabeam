@@ -9,6 +9,7 @@ export const games = [
     image: PalworldImage,
     description:
       'Fight, farm, build and work alongside mysterious creatures called "Pals" in this completely new multiplayer, open world survival and crafting game!',
+    port: 2456,
   },
   {
     id: 'minecraft',
@@ -16,6 +17,7 @@ export const games = [
     image: MinecraftImage,
     description:
       'Minecraft is a sandbox game where you can build your own world.',
+    port: 25565,
   },
   {
     id: 'valheim',
@@ -23,5 +25,6 @@ export const games = [
     image: ValheimImage,
     description:
       'Valheim is a sandbox game where you can build your own world.',
+    port: 8211,
   },
-];
+] as const;

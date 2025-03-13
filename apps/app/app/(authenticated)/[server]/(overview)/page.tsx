@@ -12,7 +12,6 @@ import {
 import {
   CpuIcon,
   DockIcon,
-  DollarSignIcon,
   GlobeIcon,
   HardDriveIcon,
   MemoryStickIcon,
@@ -48,7 +47,7 @@ const ServerPage = async ({ params }: Server) => {
   const gameServer = await getServer(instance.backendId);
   const activeGame = games.find((game) => game.id === instance.game);
 
-  if ('error' in gameServer || !activeGame) {
+  if (!gameServer || !activeGame) {
     notFound();
   }
 
@@ -65,7 +64,7 @@ const ServerPage = async ({ params }: Server) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h1 className="font-bold text-xl">{instance.name}</h1>
-            <Status status={gameServer.status} />
+            <Status status={gameServer.state?.name ?? 'pending'} />
           </div>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -84,44 +83,45 @@ const ServerPage = async ({ params }: Server) => {
             className="flex items-center gap-2 px-3 py-1"
           >
             <MemoryStickIcon size={16} />
-            {new Intl.NumberFormat().format(gameServer.memory / 4)}GB
+            {new Intl.NumberFormat().format(
+              gameServer.hardware?.ramSizeInGb ?? 0
+            )}
+            GB
           </Badge>
           <Badge
             variant="secondary"
             className="flex items-center gap-2 px-3 py-1"
           >
             <CpuIcon size={16} />
-            {new Intl.NumberFormat().format(gameServer.vcpus)} vCPUs
+            {new Intl.NumberFormat().format(gameServer.hardware?.cpuCount ?? 0)}{' '}
+            vCPUs
           </Badge>
           <Badge
             variant="secondary"
             className="flex items-center gap-2 px-3 py-1"
           >
             <HardDriveIcon size={16} />
-            {new Intl.NumberFormat().format(gameServer.disk)}GB
+            {new Intl.NumberFormat().format(
+              gameServer.hardware?.disks?.at(0)?.sizeInGb ?? 0
+            )}
+            GB
           </Badge>
           <Badge
             variant="secondary"
             className="flex items-center gap-2 px-3 py-1"
           >
             <DockIcon size={16} />
-            {gameServer.image.distribution} {gameServer.image.name}
-          </Badge>
-          <Badge
-            variant="secondary"
-            className="flex items-center gap-2 px-3 py-1"
-          >
-            <DollarSignIcon size={16} />${gameServer.size.price_monthly} / month
+            {gameServer.blueprintName}
           </Badge>
           <Badge
             variant="secondary"
             className="flex items-center gap-2 px-3 py-1"
           >
             <GlobeIcon size={16} />
-            {gameServer.region.name}
+            {gameServer.location?.regionName}
           </Badge>
         </div>
-        <Connect ip={gameServer.networks.v4[0].ip_address} />
+        <Connect ip={gameServer.publicIpAddress ?? ''} port={activeGame.port} />
       </div>
     </div>
   );

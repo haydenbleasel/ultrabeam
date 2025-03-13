@@ -244,9 +244,12 @@ export const createServer = async ({
       availabilityZone: `${region}a`,
       blueprintId: 'ubuntu_22_04',
       bundleId: size,
-      userData: cloudInitScript,
+      userData: [
+        `echo "${createKeyPairResponse.publicKeyBase64}" >> ~/.ssh/authorized_keys`,
+        cloudInitScript,
+      ].join('\n'),
       keyPairName: keyName,
-      ipAddressType: 'dualstack',
+      ipAddressType: 'ipv4',
       tags: [
         { key: 'ultrabeam', value: 'true' },
         { key: 'game', value: game },
@@ -264,9 +267,14 @@ export const createServer = async ({
 
   const backendId = createInstanceResponse.operations?.[0]?.resourceName;
 
+  if (!backendId) {
+    throw new Error('Failed to create server: no backend id');
+  }
+
   return {
     backendId,
-    publicKey: createKeyPairResponse.publicKeyBase64,
+    privateKey: createKeyPairResponse.privateKeyBase64,
+    keyPairName: keyName,
   };
 };
 
@@ -280,16 +288,19 @@ export const getServer = async (id: string) => {
   return response.instance;
 };
 
-export const deleteServer = async (id: string, sshKeyId: string) => {
+export const deleteServer = async (
+  instanceName: string,
+  keyPairName: string
+) => {
   await lightsail.send(
     new DeleteKeyPairCommand({
-      keyPairName: sshKeyId,
+      keyPairName,
     })
   );
 
   await lightsail.send(
     new DeleteInstanceCommand({
-      instanceName: id,
+      instanceName,
     })
   );
 };
