@@ -1,4 +1,6 @@
 import {
+  AttachDiskCommand,
+  CreateDiskCommand,
   CreateInstanceSnapshotCommand,
   CreateInstancesCommand,
   CreateKeyPairCommand,
@@ -229,10 +231,12 @@ export const createServer = async ({
   size: string;
   cloudInitScript: string;
 }) => {
-  const serverName = `ultrabeam-${game}-${Date.now()}`;
+  const suffix = `ultrabeam-${game}-${Date.now()}`;
+  const serverName = `server-${suffix}`;
+  const keyName = `key-${suffix}`;
+  const diskName = `disk-${suffix}`;
 
   // Create a key pair
-  const keyName = `user-key-${serverName}`;
   const createKeyPairResponse = await lightsail.send(
     new CreateKeyPairCommand({ keyPairName: keyName })
   );
@@ -261,7 +265,32 @@ export const createServer = async ({
             snapshotTimeOfDay: '06:00',
           },
         },
+        {
+          addOnType: 'StopInstanceOnIdle',
+          stopInstanceOnIdleRequest: {
+            threshold: 60,
+            duration: 60,
+          },
+        },
       ],
+    })
+  );
+
+  // Create a block storage disk
+  await lightsail.send(
+    new CreateDiskCommand({
+      diskName,
+      availabilityZone: `${region}`,
+      sizeInGb: 20,
+    })
+  );
+
+  // Attach the disk to the instance
+  await lightsail.send(
+    new AttachDiskCommand({
+      diskName,
+      instanceName: serverName,
+      diskPath: '/dev/xvdf',
     })
   );
 
