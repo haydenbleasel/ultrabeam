@@ -4,9 +4,11 @@ import { z } from 'zod';
 export const keys = () =>
   createEnv({
     server: {
-      DIGITALOCEAN_TOKEN: z.string().min(1).startsWith('dop_v1_'),
+      AWS_ACCESS_KEY: z.string().min(1),
+      AWS_SECRET_KEY: z.string().min(1),
     },
     runtimeEnv: {
-      DIGITALOCEAN_TOKEN: process.env.DIGITALOCEAN_TOKEN,
+      AWS_ACCESS_KEY: process.env.AWS_ACCESS_KEY,
+      AWS_SECRET_KEY: process.env.AWS_SECRET_KEY,
     },
   });

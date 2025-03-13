@@ -2,10 +2,9 @@
 
 import { createGameServer } from '@/actions/server/create';
 import { games } from '@/games';
-import type { getSizes } from '@repo/backend';
-import { getRegion } from '@repo/backend/utils';
+import type { getRegions, getSizes } from '@repo/backend';
+import { formatBytes } from '@repo/backend/utils';
 import { handleError } from '@repo/design-system/lib/error';
-import { Badge } from '@repo/design-system/ui/badge';
 import { Button } from '@repo/design-system/ui/button';
 import { Input } from '@repo/design-system/ui/input';
 import { Label } from '@repo/design-system/ui/label';
@@ -13,18 +12,13 @@ import { RadioGroup, RadioGroupItem } from '@repo/design-system/ui/radio-group';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@repo/design-system/ui/select';
-import {
-  CheckIcon,
-  CpuIcon,
-  HardDriveIcon,
-  Loader2Icon,
-  MemoryStickIcon,
-  MinusIcon,
-} from 'lucide-react';
+import { CheckIcon, Loader2Icon, MinusIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { type FormEventHandler, useState } from 'react';
@@ -32,39 +26,18 @@ import { Globe } from './globe';
 
 type CreateServerFormProps = {
   sizes: Awaited<ReturnType<typeof getSizes>>;
+  regions: Awaited<ReturnType<typeof getRegions>>;
 };
 
-const parseRegions = (regions: string[]) => {
-  const newRegions: {
-    slug: string;
-    name: string;
-    flag: string;
-    lat: number;
-    lng: number;
-  }[] = [];
-
-  for (const region of regions) {
-    const regionPrefix = region.slice(0, 3);
-    const regionData = getRegion(regionPrefix);
-
-    if (regionData && !newRegions.find((r) => r.slug === regionPrefix)) {
-      newRegions.push({
-        ...regionData,
-        slug: regionPrefix,
-      });
-    }
-  }
-
-  return newRegions;
-};
-
-export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
+export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
   const [name, setName] = useState<string>('');
   const [game, setGame] = useState<string>('minecraft');
-  const [size, setSize] = useState<string>(sizes[0].slug);
-  const selectedSize = sizes.find(({ slug }) => slug === size);
-  const hydratedRegions = parseRegions(selectedSize?.regions ?? []);
-  const [region, setRegion] = useState<string>(hydratedRegions[0].slug);
+  const recommendedSizes = sizes.filter(
+    ({ cpu, memory }) => cpu === 2 && memory === 4
+  );
+  const [size, setSize] = useState<string>(recommendedSizes[0].id);
+  const selectedSize = sizes.find(({ id }) => id === size);
+  const [region, setRegion] = useState<string>(regions[0].id);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -160,28 +133,43 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
           <div className="grid gap-2">
             <Label htmlFor="size">Size</Label>
             <Select value={size} onValueChange={setSize}>
-              <SelectTrigger id="size">
+              <SelectTrigger
+                id="size"
+                className="[&>span]:flex [&>span]:items-center [&>span]:gap-2 [&>span_svg]:shrink-0 [&>span_svg]:text-muted-foreground/80"
+              >
                 <SelectValue placeholder="Select a size" />
               </SelectTrigger>
-              <SelectContent>
-                {sizes.map((size) => (
-                  <SelectItem key={size.slug} value={size.slug}>
-                    <div className="flex items-center gap-1">
-                      <Badge variant="secondary">
-                        <MemoryStickIcon size={16} />
-                        {size.memory}GB
-                      </Badge>
-                      <Badge variant="secondary">
-                        <CpuIcon size={16} />
-                        {size.vcpus} vCPUs
-                      </Badge>
-                      <Badge variant="secondary">
-                        <HardDriveIcon size={16} />
-                        {size.disk}GB
-                      </Badge>
-                    </div>
-                  </SelectItem>
-                ))}
+              <SelectContent className="[&_*[role=option]>span>svg]:shrink-0 [&_*[role=option]>span>svg]:text-muted-foreground/80 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2 [&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 [&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8">
+                <SelectGroup>
+                  <SelectLabel className="ps-2">Recommended</SelectLabel>
+                  {recommendedSizes.map((size) => (
+                    <SelectItem key={size.id} value={size.id}>
+                      <div className="flex items-center gap-2">
+                        {size.name}
+                        <p className="text-muted-foreground text-xs">
+                          {size.memory}GB RAM • {size.cpu} vCPUs •{' '}
+                          {formatBytes(size.storage * 1024 * 1024 * 1024)} SSD
+                        </p>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+                <SelectGroup>
+                  <SelectLabel className="ps-2">Other</SelectLabel>
+                  {sizes
+                    .filter((size) => !recommendedSizes.includes(size))
+                    .map((size) => (
+                      <SelectItem key={size.id} value={size.id}>
+                        <div className="flex items-center gap-2">
+                          {size.name}
+                          <p className="text-muted-foreground text-xs">
+                            {size.memory}GB RAM • {size.cpu} vCPUs •{' '}
+                            {formatBytes(size.storage * 1024 * 1024 * 1024)} SSD
+                          </p>
+                        </div>
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
               </SelectContent>
             </Select>
           </div>
@@ -193,12 +181,15 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
                 onValueChange={setRegion}
                 disabled={!selectedSize}
               >
-                <SelectTrigger id="region">
+                <SelectTrigger
+                  id="region"
+                  className="[&>span]:flex [&>span]:items-center [&>span]:gap-2 [&>span_svg]:shrink-0 [&>span_svg]:text-muted-foreground/80"
+                >
                   <SelectValue placeholder="Select a region" />
                 </SelectTrigger>
-                <SelectContent>
-                  {hydratedRegions.map((region) => (
-                    <SelectItem key={region.slug} value={region.slug}>
+                <SelectContent className="[&_*[role=option]>span>svg]:shrink-0 [&_*[role=option]>span>svg]:text-muted-foreground/80 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2 [&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 [&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8">
+                  {regions.map((region) => (
+                    <SelectItem key={region.id} value={region.id}>
                       {region.flag} {region.name}
                     </SelectItem>
                   ))}
@@ -211,12 +202,15 @@ export const CreateServerForm = ({ sizes }: CreateServerFormProps) => {
           {isLoading ? (
             <Loader2Icon size={16} className="animate-spin" />
           ) : (
-            `Create server for $${selectedSize?.price_monthly}/month`
+            `Create server for $${selectedSize?.price}/month`
           )}
         </Button>
       </form>
       <div className="relative flex h-full items-center justify-center">
-        <Globe lat={getRegion(region)?.lat} long={getRegion(region)?.lng} />
+        <Globe
+          lat={regions.find((r) => r.id === region)?.lat ?? 0}
+          long={regions.find((r) => r.id === region)?.lng ?? 0}
+        />
       </div>
     </div>
   );

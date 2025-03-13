@@ -76,5 +76,5 @@ export const formatBytes = (bytes: number) => {
     i++;
   }
 
-  return `${newBytes.toFixed(2)} ${['B', 'KB', 'MB', 'GB', 'TB', 'PB'][i]}`;
+  return `${newBytes.toFixed(0)} ${['B', 'KB', 'MB', 'GB', 'TB', 'PB'][i]}`;
 };
