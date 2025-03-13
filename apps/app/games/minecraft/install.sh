@@ -24,7 +24,7 @@ After=network.target
 [Service]
 User=minecraft
 WorkingDirectory=/home/minecraft/minecraft
-ExecStart=/usr/bin/java -Xmx2G -Xms1G -jar server.jar nogui
+ExecStart=/usr/bin/java -Xmx2G -Xms1G -jar server.jar --world-dir /mnt/gamedata/minecraft nogui
 Restart=always
 RestartSec=10
 

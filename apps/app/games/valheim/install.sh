@@ -23,7 +23,7 @@ After=network.target
 [Service]
 User=valheim
 WorkingDirectory=/home/valheim/valheim
-ExecStart=/home/valheim/valheim/valheim_server.x86_64 -name "MyValheimServer" -port 2456 -world "Dedicated" -password "mypassword" -public 1
+ExecStart=/home/valheim/valheim/valheim_server.x86_64 -name "MyValheimServer" -port 2456 -world "/mnt/gamedata/valheim" -password "mypassword" -public 1
 Restart=always
 RestartSec=10
 

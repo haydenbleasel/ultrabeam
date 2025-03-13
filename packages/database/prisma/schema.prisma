@@ -23,4 +23,6 @@ model Server {
   backendId   String
   privateKey  String
   keyPairName String
+  diskName    String
+  serverName  String
 }

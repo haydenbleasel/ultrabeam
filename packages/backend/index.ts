@@ -4,6 +4,7 @@ import {
   CreateInstanceSnapshotCommand,
   CreateInstancesCommand,
   CreateKeyPairCommand,
+  DeleteDiskCommand,
   DeleteInstanceCommand,
   DeleteKeyPairCommand,
   GetBundlesCommand,
@@ -14,6 +15,7 @@ import {
   RebootInstanceCommand,
   StopInstanceCommand,
 } from '@aws-sdk/client-lightsail';
+import { nanoid } from 'nanoid';
 import { keys } from './keys';
 
 const lightsail = new LightsailClient({
@@ -192,6 +194,32 @@ const regionData = {
   },
 };
 
+const sshInitScript = (publicKey: string) =>
+  `echo "${publicKey}" >> ~/.ssh/authorized_keys`;
+
+const mountVolumeScript = `
+#!/bin/bash
+
+# Update system
+apt update && apt upgrade -y
+
+# Format the disk if not already formatted
+if ! lsblk | grep -q xvdf; then
+  mkfs.ext4 /dev/xvdf
+fi
+
+# Create a mount point
+mkdir -p /mnt/gamedata
+
+# Mount the volume
+mount /dev/xvdf /mnt/gamedata
+
+# Ensure it mounts automatically on reboot
+echo "/dev/xvdf /mnt/gamedata ext4 defaults,nofail 0 2" >> /etc/fstab
+
+# Change ownership to the game server user (e.g., valheim)
+chown -R valheim:valheim /mnt/gamedata`;
+
 export const getRegions = async () => {
   const response = await lightsail.send(new GetRegionsCommand({}));
   const regions: {
@@ -231,15 +259,20 @@ export const createServer = async ({
   size: string;
   cloudInitScript: string;
 }) => {
-  const suffix = `ultrabeam-${game}-${Date.now()}`;
+  const id = nanoid();
+  const suffix = `ultrabeam-${game}-${id}`;
   const serverName = `server-${suffix}`;
-  const keyName = `key-${suffix}`;
+  const keyPairName = `key-${suffix}`;
   const diskName = `disk-${suffix}`;
 
   // Create a key pair
   const createKeyPairResponse = await lightsail.send(
-    new CreateKeyPairCommand({ keyPairName: keyName })
+    new CreateKeyPairCommand({ keyPairName })
   );
+
+  if (!createKeyPairResponse.publicKeyBase64) {
+    throw new Error('Failed to create key pair: no public key');
+  }
 
   // Create the instance
   const createInstanceResponse = await lightsail.send(
@@ -249,10 +282,11 @@ export const createServer = async ({
       blueprintId: 'ubuntu_22_04',
       bundleId: size,
       userData: [
-        `echo "${createKeyPairResponse.publicKeyBase64}" >> ~/.ssh/authorized_keys`,
+        sshInitScript(createKeyPairResponse.publicKeyBase64),
+        mountVolumeScript,
         cloudInitScript,
       ].join('\n'),
-      keyPairName: keyName,
+      keyPairName,
       ipAddressType: 'ipv4',
       tags: [
         { key: 'ultrabeam', value: 'true' },
@@ -303,7 +337,9 @@ export const createServer = async ({
   return {
     backendId,
     privateKey: createKeyPairResponse.privateKeyBase64,
-    keyPairName: keyName,
+    keyPairName,
+    serverName,
+    diskName,
   };
 };
 
@@ -319,7 +355,8 @@ export const getServer = async (id: string) => {
 
 export const deleteServer = async (
   instanceName: string,
-  keyPairName: string
+  keyPairName: string,
+  diskName: string
 ) => {
   await lightsail.send(
     new DeleteKeyPairCommand({
@@ -330,6 +367,12 @@ export const deleteServer = async (
   await lightsail.send(
     new DeleteInstanceCommand({
       instanceName,
+    })
+  );
+
+  await lightsail.send(
+    new DeleteDiskCommand({
+      diskName,
     })
   );
 };

@@ -23,7 +23,7 @@ After=network.target
 [Service]
 User=palworld
 WorkingDirectory=/home/palworld/palworld
-ExecStart=/home/palworld/palworld/PalServer.sh -log
+ExecStart=/home/palworld/palworld/PalServer.sh -savedir "/mnt/gamedata/palworld" -log
 Restart=always
 RestartSec=10
 
