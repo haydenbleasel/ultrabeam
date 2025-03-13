@@ -1,6 +1,7 @@
 'use client';
 
 import { MoonIcon, SunIcon } from '@radix-ui/react-icons';
+import { MonitorIcon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '../ui/button';
 import {
@@ -11,9 +12,9 @@ import {
 } from '../ui/dropdown-menu';
 
 const themes = [
-  { label: 'Light', value: 'light' },
-  { label: 'Dark', value: 'dark' },
-  { label: 'System', value: 'system' },
+  { label: 'Light', value: 'light', icon: SunIcon },
+  { label: 'Dark', value: 'dark', icon: MoonIcon },
+  { label: 'System', value: 'system', icon: MonitorIcon },
 ];
 
 export const ModeToggle = () => {
@@ -33,9 +34,10 @@ export const ModeToggle = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {themes.map(({ label, value }) => (
+        {themes.map(({ label, value, icon: Icon }) => (
           <DropdownMenuItem key={value} onClick={() => setTheme(value)}>
-            {label}
+            <Icon size={16} className="text-muted-foreground" />
+            <span>{label}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
