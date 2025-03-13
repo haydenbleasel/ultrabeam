@@ -32,6 +32,10 @@ export const Navbar = async () => {
   }[] = [];
 
   for (const server of servers) {
+    if (!server.backendId) {
+      continue;
+    }
+
     const gameServer = await getServer(server.backendId);
     const game = games.find((game) => game.id === server.game);
 
@@ -43,7 +47,7 @@ export const Navbar = async () => {
       name: server.name,
       id: server.id,
       game: server.game,
-      status: gameServer.status,
+      status: gameServer?.state ?? 'pending',
       image: game.image,
     });
   }

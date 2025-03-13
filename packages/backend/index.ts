@@ -15,7 +15,6 @@ import {
   RebootInstanceCommand,
   StopInstanceCommand,
 } from '@aws-sdk/client-lightsail';
-import { nanoid } from 'nanoid';
 import { keys } from './keys';
 
 const lightsail = new LightsailClient({
@@ -248,23 +247,47 @@ export const getRegions = async () => {
   return regions;
 };
 
+const waitForInstanceReady = async (instanceName: string) => {
+  let isReady = false;
+  console.log(`Waiting for instance ${instanceName} to be ready...`);
+
+  while (!isReady) {
+    const instanceResponse = await lightsail.send(
+      new GetInstanceCommand({
+        instanceName,
+      })
+    );
+
+    const state = instanceResponse.instance?.state?.name;
+
+    if (state === 'running') {
+      isReady = true;
+      console.log(`Instance ${instanceName} is now ready.`);
+    } else {
+      console.log(`Instance state: ${state}. Waiting...`);
+      // Wait for 10 seconds before checking again
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+    }
+  }
+};
+
 export const createServer = async ({
   game,
   region,
   size,
   cloudInitScript,
+  serverName,
+  keyPairName,
+  diskName,
 }: {
   game: string;
   region: string;
   size: string;
   cloudInitScript: string;
+  serverName: string;
+  keyPairName: string;
+  diskName: string;
 }) => {
-  const id = nanoid();
-  const suffix = `ultrabeam-${game}-${id}`;
-  const serverName = `server-${suffix}`;
-  const keyPairName = `key-${suffix}`;
-  const diskName = `disk-${suffix}`;
-
   // Create a key pair
   const createKeyPairResponse = await lightsail.send(
     new CreateKeyPairCommand({ keyPairName })
@@ -312,6 +335,9 @@ export const createServer = async ({
     })
   );
 
+  // Wait for the instance to be ready before attaching the disk
+  await waitForInstanceReady(serverName);
+
   // Attach the disk to the instance
   await lightsail.send(
     new AttachDiskCommand({
@@ -336,10 +362,10 @@ export const createServer = async ({
   };
 };
 
-export const getServer = async (id: string) => {
+export const getServer = async (instanceName: string) => {
   const response = await lightsail.send(
     new GetInstanceCommand({
-      instanceName: id,
+      instanceName,
     })
   );
 
@@ -360,12 +386,14 @@ export const deleteServer = async (
   await lightsail.send(
     new DeleteInstanceCommand({
       instanceName,
+      forceDeleteAddOns: true,
     })
   );
 
   await lightsail.send(
     new DeleteDiskCommand({
       diskName,
+      forceDeleteAddOns: true,
     })
   );
 };

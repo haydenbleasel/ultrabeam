@@ -18,14 +18,18 @@ const FilesPage = async ({ params }: ServerProps) => {
     where: { id: server },
   });
 
-  if (!instance) {
+  if (!instance || !instance.backendId || !instance.privateKey) {
     notFound();
   }
 
   const gameServer = await getServer(instance.backendId);
 
+  if (!gameServer) {
+    notFound();
+  }
+
   await sftp.connect({
-    host: gameServer.networks.v4[0].ip_address,
+    host: gameServer.publicIpAddress,
     port: 22,
     username: 'root',
     privateKey: Buffer.from(instance.privateKey.trim()),

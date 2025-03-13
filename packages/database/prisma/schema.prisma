@@ -20,8 +20,8 @@ model Server {
   ownerId     String
   name        String
   game        String
-  backendId   String
-  privateKey  String
+  backendId   String?
+  privateKey  String?
   keyPairName String
   diskName    String
   serverName  String

@@ -40,7 +40,9 @@ const ServerPage = async ({ params }: Server) => {
     where: { id: server },
   });
 
-  if (!instance) {
+  console.log(instance?.backendId, 'backendId');
+
+  if (!instance || !instance.backendId) {
     notFound();
   }
 

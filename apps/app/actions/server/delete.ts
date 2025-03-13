@@ -23,7 +23,11 @@ export const deleteGameServer = async (
       throw new Error('Server not found');
     }
 
-    await deleteServer(server.backendId, server.keyPairName);
+    if (!server.backendId || !server.keyPairName || !server.diskName) {
+      throw new Error('Server is missing required fields');
+    }
+
+    await deleteServer(server.backendId, server.keyPairName, server.diskName);
 
     await database.server.delete({
       where: { id },
