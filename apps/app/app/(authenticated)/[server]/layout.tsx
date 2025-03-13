@@ -1,5 +1,7 @@
 import { database } from '@repo/database';
+import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
+import { Provisioning } from './components/provisioning';
 
 type ServerLayoutProps = {
   children: ReactNode;
@@ -24,6 +26,26 @@ export const generateMetadata = async ({ params }: ServerLayoutProps) => {
   };
 };
 
-const ServerLayout = ({ children }: ServerLayoutProps) => children;
+const ServerLayout = async ({ children, params }: ServerLayoutProps) => {
+  const { server } = await params;
+  const instance = await database.server.findFirst({
+    where: { id: server },
+  });
+
+  if (!instance) {
+    notFound();
+  }
+
+  if (!instance.backendId || !instance.privateKey) {
+    return (
+      <Provisioning
+        backendId={instance.backendId}
+        createdAt={instance.createdAt}
+      />
+    );
+  }
+
+  return children;
+};
 
 export default ServerLayout;

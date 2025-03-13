@@ -47,7 +47,7 @@ export const Navbar = async () => {
       name: server.name,
       id: server.id,
       game: server.game,
-      status: gameServer?.state ?? 'pending',
+      status: gameServer?.state?.name ?? 'pending',
       image: game.image,
     });
   }
