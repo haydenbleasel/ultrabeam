@@ -314,7 +314,7 @@ export const createServer = async ({
   await lightsail.send(
     new CreateDiskCommand({
       diskName,
-      availabilityZone: `${region}`,
+      availabilityZone: `${region}a`,
       sizeInGb: 20,
     })
   );

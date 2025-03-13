@@ -17,7 +17,7 @@ type CreateGameServerResponse =
     };
 
 const getCloudInitScript = async (game: (typeof games)[number]['id']) => {
-  const cloudInitPath = path.join(process.cwd(), 'games', game, 'config.yml');
+  const cloudInitPath = path.join(process.cwd(), 'games', game, 'install.sh');
 
   if (!(await fs.stat(cloudInitPath).catch(() => false))) {
     throw new Error(`No Cloud-Init script found for game: ${game}`);

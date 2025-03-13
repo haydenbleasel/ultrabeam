@@ -210,6 +210,10 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
         <Globe
           lat={regions.find((r) => r.id === region)?.lat ?? 0}
           long={regions.find((r) => r.id === region)?.lng ?? 0}
+          markers={regions.map((reg) => ({
+            location: [reg.lat, reg.lng],
+            size: reg.id === region ? 0.2 : 0,
+          }))}
         />
       </div>
     </div>

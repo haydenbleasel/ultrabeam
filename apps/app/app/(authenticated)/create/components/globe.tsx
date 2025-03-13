@@ -1,5 +1,4 @@
-import { regions } from '@repo/backend/utils';
-import createGlobe from 'cobe';
+import createGlobe, { type Marker } from 'cobe';
 import { useEffect, useRef } from 'react';
 import type { FC } from 'react';
 import { useSpring } from 'react-spring';
@@ -7,6 +6,7 @@ import { useSpring } from 'react-spring';
 type GlobeProps = {
   readonly lat?: number;
   readonly long?: number;
+  readonly markers?: Marker[];
 };
 
 const locationToAngles = (lat: number, long: number) => [
@@ -14,7 +14,7 @@ const locationToAngles = (lat: number, long: number) => [
   (lat * Math.PI) / 180,
 ];
 
-export const Globe: FC<GlobeProps> = ({ lat, long }) => {
+export const Globe: FC<GlobeProps> = ({ lat, long, markers }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const focusRef = useRef([0, 0]);
   const pointerInteracting = useRef<number | null>(null);
@@ -68,10 +68,7 @@ export const Globe: FC<GlobeProps> = ({ lat, long }) => {
       baseColor: [1, 1, 1],
       markerColor: [0.14, 0.36, 0.92],
       glowColor: [1, 1, 1],
-      markers: regions.map((region) => ({
-        location: [region.lat, region.lng],
-        size: 0.1,
-      })),
+      markers: markers ?? [],
       onRender: (state) => {
         if (!pointerInteracting.current || !focusRef.current[0]) {
           currentPhi += 0.003;
@@ -105,7 +102,7 @@ export const Globe: FC<GlobeProps> = ({ lat, long }) => {
     }, 200);
 
     return () => globe.destroy();
-  }, [r]);
+  }, [r, markers]);
 
   return (
     <div className="relative aspect-square w-full">
