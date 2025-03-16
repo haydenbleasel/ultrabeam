@@ -38,10 +38,9 @@ const ServerLayout = async ({ children, params }: ServerLayoutProps) => {
 
   if (!instance.backendId || !instance.privateKey) {
     return (
-      <Provisioning
-        backendId={instance.backendId}
-        createdAt={instance.createdAt}
-      />
+      <div className="p-8">
+        <Provisioning createdAt={instance.createdAt} id={server} />
+      </div>
     );
   }
 

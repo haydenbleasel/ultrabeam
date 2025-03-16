@@ -1,6 +1,6 @@
 'use client';
 
-import { getServer } from '@repo/backend';
+import { getGameServer } from '@/actions/server/get';
 import {
   Timeline,
   TimelineContent,
@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react';
 
 type ProvisioningProps = {
   createdAt: Date;
-  backendId: string;
+  id: string;
 };
 
 const calculateState = (backendId?: string, state?: string) => {
@@ -36,7 +36,7 @@ const calculateState = (backendId?: string, state?: string) => {
   return 1;
 };
 
-export const Provisioning = ({ createdAt, backendId }: ProvisioningProps) => {
+export const Provisioning = ({ createdAt, id }: ProvisioningProps) => {
   const router = useRouter();
   const [value, setValue] = useState(1);
 
@@ -73,8 +73,16 @@ export const Provisioning = ({ createdAt, backendId }: ProvisioningProps) => {
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      const server = await getServer(backendId);
-      const state = calculateState(backendId, server?.state?.name);
+      const response = await getGameServer(id);
+
+      if ('error' in response) {
+        throw new Error(response.error);
+      }
+
+      const state = calculateState(
+        response.data?.bundleId,
+        response.data?.state?.name
+      );
 
       setValue(state);
 
@@ -85,7 +93,7 @@ export const Provisioning = ({ createdAt, backendId }: ProvisioningProps) => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [backendId, router]);
+  }, [id, router]);
 
   return (
     <Timeline value={value}>
