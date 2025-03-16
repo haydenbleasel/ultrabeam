@@ -4,10 +4,10 @@ import {
   CreateInstanceSnapshotCommand,
   CreateInstancesCommand,
   CreateKeyPairCommand,
-  DeleteDiskCommand,
   DeleteInstanceCommand,
   DeleteKeyPairCommand,
   GetBundlesCommand,
+  GetDiskCommand,
   GetInstanceCommand,
   GetInstanceSnapshotsCommand,
   GetRegionsCommand,
@@ -15,6 +15,7 @@ import {
   RebootInstanceCommand,
   StopInstanceCommand,
 } from '@aws-sdk/client-lightsail';
+import { SSMClient, SendCommandCommand } from '@aws-sdk/client-ssm';
 import { keys } from './keys';
 
 const lightsail = new LightsailClient({
@@ -196,28 +197,34 @@ const regionData = {
 const sshInitScript = (publicKey: string) =>
   `echo "${publicKey}" >> ~/.ssh/authorized_keys`;
 
-const mountVolumeScript = `
-#!/bin/bash
-
-# Update system
+const bootstrapScript = `
+# Update and install required dependencies
 apt update && apt upgrade -y
 
-# Format the disk if not already formatted
-if ! lsblk | grep -q xvdf; then
-  mkfs.ext4 /dev/xvdf
-fi
+# Create a dedicated user for the game
+useradd -m -s /bin/bash ultrabeam`;
 
-# Create a mount point
-mkdir -p /mnt/gamedata
+const mountVolumeScript = `
+#!/bin/bash
+set -e
 
-# Mount the volume
-mount /dev/xvdf /mnt/gamedata
+# Find attached disk
+lsblk
 
-# Ensure it mounts automatically on reboot
-echo "/dev/xvdf /mnt/gamedata ext4 defaults,nofail 0 2" >> /etc/fstab
+# Format the disk (if it's a new disk)
+sudo mkfs -t ext4 /dev/xvdf
 
-# Change ownership to the game server user (e.g., valheim)
-chown -R valheim:valheim /mnt/gamedata`;
+# Create a mount directory
+sudo mkdir -p /mnt/gamedata
+
+# Mount the disk
+sudo mount /dev/xvdf /mnt/gamedata
+
+# Make it persistent after reboot
+echo '/dev/xvdf /mnt/gamedata ext4 defaults,nofail 0 2' | sudo tee -a /etc/fstab
+
+# Change ownership of the mount directory
+chown -R ultrabeam:ultrabeam /mnt/gamedata`;
 
 export const getRegions = async () => {
   const response = await lightsail.send(new GetRegionsCommand({}));
@@ -247,28 +254,55 @@ export const getRegions = async () => {
   return regions;
 };
 
-const waitForInstanceReady = async (instanceName: string) => {
-  let isReady = false;
+const waitForInstanceReady = (instanceName: string) => {
   console.log(`Waiting for instance ${instanceName} to be ready...`);
 
-  while (!isReady) {
-    const instanceResponse = await lightsail.send(
-      new GetInstanceCommand({
-        instanceName,
-      })
-    );
+  return new Promise<void>((resolve) => {
+    const checkInstanceState = async () => {
+      const instanceResponse = await lightsail.send(
+        new GetInstanceCommand({
+          instanceName,
+        })
+      );
 
-    const state = instanceResponse.instance?.state?.name;
+      const state = instanceResponse.instance?.state?.name;
 
-    if (state === 'running') {
-      isReady = true;
-      console.log(`Instance ${instanceName} is now ready.`);
-    } else {
-      console.log(`Instance state: ${state}. Waiting...`);
-      // Wait for 10 seconds before checking again
-      await new Promise((resolve) => setTimeout(resolve, 10000));
-    }
-  }
+      if (state === 'running') {
+        console.log(`Instance ${instanceName} is now ready.`);
+        resolve();
+      } else {
+        console.log(`Instance state: ${state}. Waiting...`);
+        // Wait for 10 seconds before checking again
+        setTimeout(checkInstanceState, 10000);
+      }
+    };
+
+    checkInstanceState();
+  });
+};
+
+const waitForDiskAttached = (diskName: string) => {
+  console.log(`Waiting for disk ${diskName} to be attached...`);
+
+  return new Promise<void>((resolve) => {
+    const checkDiskStatus = async () => {
+      const response = await lightsail.send(
+        new GetDiskCommand({
+          diskName,
+        })
+      );
+
+      if (response.disk?.state === 'in-use') {
+        console.log(`Disk ${diskName} is now attached.`);
+        resolve();
+      } else {
+        console.log(`Disk state: ${response.disk?.state}. Waiting...`);
+        setTimeout(checkDiskStatus, 10000);
+      }
+    };
+
+    checkDiskStatus();
+  });
 };
 
 export const createServer = async ({
@@ -304,11 +338,9 @@ export const createServer = async ({
       availabilityZone: `${region}a`,
       blueprintId: 'ubuntu_22_04',
       bundleId: size,
-      userData: [
-        sshInitScript(createKeyPairResponse.publicKeyBase64),
-        mountVolumeScript,
-        cloudInitScript,
-      ].join('\n'),
+      userData: [sshInitScript(createKeyPairResponse.publicKeyBase64)].join(
+        '\n'
+      ),
       keyPairName,
       ipAddressType: 'ipv4',
       tags: [
@@ -347,6 +379,28 @@ export const createServer = async ({
     })
   );
 
+  // Wait for the disk to be attached
+  await waitForDiskAttached(diskName);
+
+  // Mount the disk
+  const ssm = new SSMClient({
+    region,
+    credentials: {
+      accessKeyId: keys().AWS_ACCESS_KEY,
+      secretAccessKey: keys().AWS_SECRET_KEY,
+    },
+  });
+
+  await ssm.send(
+    new SendCommandCommand({
+      InstanceIds: [serverName],
+      DocumentName: 'AWS-RunShellScript',
+      Parameters: {
+        commands: [bootstrapScript, mountVolumeScript, cloudInitScript],
+      },
+    })
+  );
+
   const backendId = createInstanceResponse.operations?.[0]?.resourceName;
 
   if (!backendId) {
@@ -377,22 +431,17 @@ export const deleteServer = async (
   keyPairName: string,
   diskName: string
 ) => {
+  console.log('Deleting key pair...');
   await lightsail.send(
     new DeleteKeyPairCommand({
       keyPairName,
     })
   );
 
+  console.log('Deleting instance...');
   await lightsail.send(
     new DeleteInstanceCommand({
       instanceName,
-      forceDeleteAddOns: true,
-    })
-  );
-
-  await lightsail.send(
-    new DeleteDiskCommand({
-      diskName,
       forceDeleteAddOns: true,
     })
   );
@@ -421,13 +470,23 @@ export const resizeServer = async (instanceName: string, size: string) => {
     })
   );
 
+  console.log('Get the old instance...');
+  const oldInstance = await getServer(instanceName);
+
+  if (!oldInstance) {
+    throw new Error('Failed to resize server: no old instance');
+  }
+
   console.log('Creating a new instance with the new size...');
-  await createServer({
-    game: 'test',
-    region: 'us-east-1',
-    size: size,
-    cloudInitScript: '',
-  });
+  // await createServer({
+  //   region: oldInstance?.location?.availabilityZone ?? '',
+  //   game: oldInstance?.tags?.find((tag) => tag.key === 'game')?.value ?? '',
+  //   size,
+  //   cloudInitScript: '',
+  //   serverName: instanceName,
+  //   keyPairName: oldInstance?.keyPairName ?? '',
+  //   diskName: oldInstance?.disks?.[0]?.name ?? '',
+  // });
 
   console.log('Deleting the old instance...');
   await lightsail.send(

@@ -1,14 +1,10 @@
 #!/bin/bash
 
 # Update and install required dependencies
-apt update && apt upgrade -y
 apt install -y software-properties-common curl wget file unzip tar bzip2 gzip bsdmainutils python3 socat jq tmux lib32gcc-s1 steamcmd
 
-# Create a dedicated user for Valheim
-useradd -m -s /bin/bash valheim
-
 # Switch to the Valheim user and install server
-su - valheim << 'EOF'
+su - ultrabeam << 'EOF'
 mkdir ~/valheim
 cd ~/valheim
 steamcmd +login anonymous +force_install_dir ~/valheim +app_update 896660 validate +quit
@@ -21,9 +17,9 @@ Description=Valheim Dedicated Server
 After=network.target
 
 [Service]
-User=valheim
-WorkingDirectory=/home/valheim/valheim
-ExecStart=/home/valheim/valheim/valheim_server.x86_64 -name "MyValheimServer" -port 2456 -world "/mnt/gamedata/valheim" -password "mypassword" -public 1
+User=ultrabeam
+WorkingDirectory=/home/ultrabeam/valheim
+ExecStart=/home/ultrabeam/valheim/valheim_server.x86_64 -name "MyValheimServer" -port 2456 -world "/mnt/gamedata/valheim/world" -password "mypassword" -public 1
 Restart=always
 RestartSec=10
 

@@ -18,10 +18,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@repo/design-system/ui/select';
+import type { Marker } from 'cobe';
 import { CheckIcon, Loader2Icon, MinusIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { type FormEventHandler, useState } from 'react';
+import { type FormEventHandler, useMemo, useState } from 'react';
 import { Globe } from './globe';
 
 type CreateServerFormProps = {
@@ -70,6 +71,19 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
       setIsLoading(false);
     }
   };
+
+  const selectedRegion = regions.find((r) => r.id === region);
+
+  const globeProps = useMemo(() => {
+    return {
+      lat: selectedRegion?.lat ?? 0,
+      long: selectedRegion?.lng ?? 0,
+      markers: regions.map((reg) => ({
+        location: [reg.lat, reg.lng],
+        size: reg.id === region ? 0.15 : 0,
+      })) as Marker[],
+    };
+  }, [region, regions, selectedRegion]);
 
   return (
     <div className="grid grid-cols-2 items-start divide-x">
@@ -208,12 +222,9 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
       </form>
       <div className="relative flex h-full items-center justify-center">
         <Globe
-          lat={regions.find((r) => r.id === region)?.lat ?? 0}
-          long={regions.find((r) => r.id === region)?.lng ?? 0}
-          markers={regions.map((reg) => ({
-            location: [reg.lat, reg.lng],
-            size: reg.id === region ? 0.15 : 0,
-          }))}
+          lat={globeProps.lat}
+          long={globeProps.long}
+          markers={globeProps.markers}
         />
       </div>
     </div>
