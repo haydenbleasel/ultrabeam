@@ -68,6 +68,7 @@ export const createGameServer = async (
         serverName,
         keyPairName,
         diskName,
+        userId: user.id,
       });
 
       if (!backendId || !privateKey) {

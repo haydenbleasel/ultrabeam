@@ -313,6 +313,7 @@ export const createServer = async ({
   serverName,
   keyPairName,
   diskName,
+  userId,
 }: {
   game: string;
   region: string;
@@ -321,6 +322,7 @@ export const createServer = async ({
   serverName: string;
   keyPairName: string;
   diskName: string;
+  userId: string;
 }) => {
   // Create a key pair
   const createKeyPairResponse = await lightsail.send(
@@ -344,6 +346,7 @@ export const createServer = async ({
       keyPairName,
       ipAddressType: 'ipv4',
       tags: [
+        { key: 'user', value: userId },
         { key: 'ultrabeam', value: 'true' },
         { key: 'game', value: game },
       ],
