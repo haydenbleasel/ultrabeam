@@ -1,5 +1,5 @@
-import { currentUser } from '@repo/auth/server';
-import { database } from '@repo/database';
+import { database } from '@/lib/database';
+import { currentUser } from '@clerk/nextjs/server';
 import { notFound } from 'next/navigation';
 import { DeleteServerButton } from './components/delete-server-button';
 

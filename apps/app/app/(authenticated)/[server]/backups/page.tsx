@@ -1,5 +1,5 @@
-import { getBackups, getServer } from '@repo/backend';
-import { database } from '@repo/database';
+import { getBackups, getServer } from '@/lib/backend';
+import { database } from '@/lib/database';
 import { notFound } from 'next/navigation';
 import { BackupTable } from './components/backup-table';
 

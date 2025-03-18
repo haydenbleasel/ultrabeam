@@ -1,12 +1,12 @@
-import { currentUser } from '@repo/auth/server';
-import { database } from '@repo/database';
+import { database } from '@/lib/database';
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
-} from '@repo/design-system/ui/breadcrumb';
-import { Button } from '@repo/design-system/ui/button';
+} from '@/ui/breadcrumb';
+import { Button } from '@/ui/button';
+import { currentUser } from '@clerk/nextjs/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';

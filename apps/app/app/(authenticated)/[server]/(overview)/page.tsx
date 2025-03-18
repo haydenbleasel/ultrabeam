@@ -1,14 +1,10 @@
 import { games } from '@/games';
-import { currentUser } from '@repo/auth/server';
-import { getServer } from '@repo/backend';
-import { database } from '@repo/database';
-import { Badge } from '@repo/design-system/ui/badge';
-import { Button } from '@repo/design-system/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@repo/design-system/ui/tooltip';
+import { getServer } from '@/lib/backend';
+import { database } from '@/lib/database';
+import { Badge } from '@/ui/badge';
+import { Button } from '@/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/tooltip';
+import { currentUser } from '@clerk/nextjs/server';
 import {
   CpuIcon,
   DockIcon,

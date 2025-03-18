@@ -4,7 +4,7 @@ import {
   type OrganizationMembership,
   auth,
   clerkClient,
-} from '@repo/auth/server';
+} from '@clerk/nextjs/server';
 import Fuse from 'fuse.js';
 
 const getName = (user: OrganizationMembership): string | undefined => {

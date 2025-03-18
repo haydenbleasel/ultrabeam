@@ -2,13 +2,13 @@
 
 import { createGameServer } from '@/actions/server/create';
 import { games } from '@/games';
-import type { getRegions, getSizes } from '@repo/backend';
-import { formatBytes } from '@repo/backend/utils';
-import { handleError } from '@repo/design-system/lib/error';
-import { Button } from '@repo/design-system/ui/button';
-import { Input } from '@repo/design-system/ui/input';
-import { Label } from '@repo/design-system/ui/label';
-import { RadioGroup, RadioGroupItem } from '@repo/design-system/ui/radio-group';
+import type { getRegions, getSizes } from '@/lib/backend';
+import { formatBytes } from '@/lib/backend/utils';
+import { handleError } from '@/lib/error';
+import { Button } from '@/ui/button';
+import { Input } from '@/ui/input';
+import { Label } from '@/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/ui/radio-group';
 import {
   Select,
   SelectContent,
@@ -17,7 +17,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@repo/design-system/ui/select';
+} from '@/ui/select';
 import type { Marker } from 'cobe';
 import { CheckIcon, Loader2Icon, MinusIcon } from 'lucide-react';
 import Image from 'next/image';

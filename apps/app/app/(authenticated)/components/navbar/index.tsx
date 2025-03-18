@@ -1,10 +1,10 @@
+import { ModeToggle } from '@/components/mode-toggle';
 import { games } from '@/games';
-import { UserButton } from '@repo/auth/client';
-import { currentUser } from '@repo/auth/server';
-import { getServer } from '@repo/backend';
-import { database } from '@repo/database';
-import { ModeToggle } from '@repo/design-system/components/mode-toggle';
-import { Button } from '@repo/design-system/ui/button';
+import { getServer } from '@/lib/backend';
+import { database } from '@/lib/database';
+import { Button } from '@/ui/button';
+import { UserButton } from '@clerk/nextjs/client';
+import { currentUser } from '@clerk/nextjs/server';
 import { PlusIcon } from 'lucide-react';
 import Image, { type StaticImageData } from 'next/image';
 import Link from 'next/link';

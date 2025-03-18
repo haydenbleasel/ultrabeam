@@ -1,6 +1,10 @@
+import { AuthProvider } from '@/providers/auth';
 import './styles.css';
-import { DesignSystemProvider } from '@repo/design-system';
-import { fonts } from '@repo/design-system/lib/fonts';
+import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { AnalyticsProvider } from '@/lib/analytics';
+import { fonts } from '@/lib/fonts';
+import { ThemeProvider } from '@/providers/theme';
 import type { ReactNode } from 'react';
 
 type RootLayoutProperties = {
@@ -10,9 +14,16 @@ type RootLayoutProperties = {
 const RootLayout = ({ children }: RootLayoutProperties) => (
   <html lang="en" className={fonts} suppressHydrationWarning>
     <body className="bg-secondary">
-      <DesignSystemProvider>
-        <main className="container mx-auto max-w-3xl!">{children}</main>
-      </DesignSystemProvider>
+      <AuthProvider>
+        <ThemeProvider {...properties}>
+          <AnalyticsProvider>
+            <TooltipProvider>
+              <main className="container mx-auto max-w-3xl!">{children}</main>
+            </TooltipProvider>
+            <Toaster />
+          </AnalyticsProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </body>
   </html>
 );

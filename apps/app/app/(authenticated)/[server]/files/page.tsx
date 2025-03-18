@@ -1,5 +1,5 @@
-import { getServer } from '@repo/backend';
-import { database } from '@repo/database';
+import { getServer } from '@/lib/backend';
+import { database } from '@/lib/database';
 import { notFound } from 'next/navigation';
 import SFTPClient from 'ssh2-sftp-client';
 import FileTable from './components/file-table';

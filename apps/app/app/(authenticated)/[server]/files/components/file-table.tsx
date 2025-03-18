@@ -1,7 +1,7 @@
 'use client';
 
-import { formatBytes } from '@repo/backend/utils';
-import { cn } from '@repo/design-system/lib/utils';
+import { formatBytes } from '@/lib/backend/utils';
+import { cn } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,10 +12,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@repo/design-system/ui/alert-dialog';
-import { Badge } from '@repo/design-system/ui/badge';
-import { Button } from '@repo/design-system/ui/button';
-import { Checkbox } from '@repo/design-system/ui/checkbox';
+} from '@/ui/alert-dialog';
+import { Badge } from '@/ui/badge';
+import { Button } from '@/ui/button';
+import { Checkbox } from '@/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -30,15 +30,11 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '@repo/design-system/ui/dropdown-menu';
-import { Input } from '@repo/design-system/ui/input';
-import { Label } from '@repo/design-system/ui/label';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@repo/design-system/ui/popover';
-import {} from '@repo/design-system/ui/select';
+} from '@/ui/dropdown-menu';
+import { Input } from '@/ui/input';
+import { Label } from '@/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/ui/popover';
+import {} from '@/ui/select';
 import {
   Table,
   TableBody,
@@ -46,12 +42,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@repo/design-system/ui/table';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@repo/design-system/ui/tooltip';
+} from '@/ui/table';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/tooltip';
 import {
   type ColumnDef,
   type ColumnFiltersState,

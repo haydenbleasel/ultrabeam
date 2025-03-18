@@ -1,4 +1,4 @@
-import { database } from '@repo/database';
+import { database } from '@/lib/database';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { Provisioning } from './components/provisioning';

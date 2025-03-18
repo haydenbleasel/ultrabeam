@@ -1,8 +1,8 @@
 'use client';
 
 import { deleteGameServer } from '@/actions/server/delete';
-import { handleError } from '@repo/design-system/lib/error';
-import { Button } from '@repo/design-system/ui/button';
+import { handleError } from '@/lib/error';
+import { Button } from '@/ui/button';
 import { useRouter } from 'next/navigation';
 
 type DeleteServerButtonProps = {

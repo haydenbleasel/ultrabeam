@@ -1,7 +1,7 @@
 'use server';
 
-import { getServer } from '@repo/backend';
-import { database } from '@repo/database';
+import { getServer } from '@/lib/backend';
+import { database } from '@/lib/database';
 import { Client } from 'ssh2';
 
 type GetServerResponse =

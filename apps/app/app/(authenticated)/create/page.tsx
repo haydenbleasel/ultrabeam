@@ -1,4 +1,4 @@
-import { getRegions, getSizes } from '@repo/backend';
+import { getRegions, getSizes } from '@/lib/backend';
 import { CreateServerForm } from './components/create-server-form';
 
 const CreatePage = async () => {

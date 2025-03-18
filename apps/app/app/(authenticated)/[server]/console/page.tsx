@@ -1,5 +1,5 @@
 import { getLogs } from '@/actions/logs/get';
-import { database } from '@repo/database';
+import { database } from '@/lib/database';
 import { notFound } from 'next/navigation';
 import { Console } from './components/console';
 

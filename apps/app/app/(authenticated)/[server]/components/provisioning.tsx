@@ -10,7 +10,7 @@ import {
   TimelineItem,
   TimelineSeparator,
   TimelineTitle,
-} from '@repo/design-system/ui/timeline';
+} from '@/ui/timeline';
 import { CheckIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';

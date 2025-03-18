@@ -4,7 +4,7 @@ import {
   type OrganizationMembership,
   auth,
   clerkClient,
-} from '@repo/auth/server';
+} from '@clerk/nextjs/server';
 
 const getName = (user: OrganizationMembership): string | undefined => {
   let name = user.publicUserData?.firstName;

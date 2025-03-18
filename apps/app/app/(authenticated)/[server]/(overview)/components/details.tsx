@@ -1,9 +1,4 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from '@repo/design-system/ui/table';
+import { Table, TableBody, TableCell, TableRow } from '@/ui/table';
 
 type DetailsProps = {
   cores: number;

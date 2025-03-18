@@ -3,10 +3,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { games } from '@/games';
-import { currentUser } from '@repo/auth/server';
-import { createServer } from '@repo/backend';
-import { database } from '@repo/database';
-import { log } from '@repo/observability/log';
+import { createServer } from '@/lib/backend';
+import { database } from '@/lib/database';
+import { log } from '@/lib/observability/log';
+import { currentUser } from '@clerk/nextjs/server';
 import { waitUntil } from '@vercel/functions';
 import { nanoid } from 'nanoid';
 

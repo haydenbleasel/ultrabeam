@@ -1,6 +1,6 @@
 'use client';
-import { cn } from '@repo/design-system/lib/utils';
-import { Button } from '@repo/design-system/ui/button';
+import { cn } from '@/lib/utils';
+import { Button } from '@/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -8,12 +8,8 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@repo/design-system/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@repo/design-system/ui/popover';
+} from '@/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/ui/popover';
 import { CheckIcon, ChevronDownIcon } from 'lucide-react';
 import Image, { type StaticImageData } from 'next/image';
 import { useParams, useRouter } from 'next/navigation';

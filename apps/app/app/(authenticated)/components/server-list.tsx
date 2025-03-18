@@ -1,4 +1,4 @@
-import type { Server } from '@repo/database';
+import type { Server } from '@/lib/database';
 import Link from 'next/link';
 
 type ServerListProps = {

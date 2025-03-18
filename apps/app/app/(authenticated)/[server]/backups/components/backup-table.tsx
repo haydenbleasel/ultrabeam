@@ -1,8 +1,8 @@
 'use client';
 
-import { cn } from '@repo/design-system/lib/utils';
-import { Checkbox } from '@repo/design-system/ui/checkbox';
-import {} from '@repo/design-system/ui/select';
+import { cn } from '@/lib/utils';
+import { Checkbox } from '@/ui/checkbox';
+import {} from '@/ui/select';
 import {
   Table,
   TableBody,
@@ -10,7 +10,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@repo/design-system/ui/table';
+} from '@/ui/table';
 import {
   type ColumnDef,
   type ColumnFiltersState,

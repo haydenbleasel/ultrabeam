@@ -1,5 +1,5 @@
-import { RedirectToSignIn } from '@repo/auth/client';
-import { currentUser } from '@repo/auth/server';
+import { RedirectToSignIn } from '@clerk/nextjs/client';
+import { currentUser } from '@clerk/nextjs/server';
 import type { ReactNode } from 'react';
 import { Navbar } from './components/navbar';
 import { PostHogIdentifier } from './components/posthog-identifier';

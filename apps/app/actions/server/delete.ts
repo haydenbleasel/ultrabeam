@@ -1,7 +1,7 @@
 'use server';
 
-import { deleteServer } from '@repo/backend';
-import { database } from '@repo/database';
+import { deleteServer } from '@/lib/backend';
+import { database } from '@/lib/database';
 
 type DeleteGameServerResponse =
   | {
