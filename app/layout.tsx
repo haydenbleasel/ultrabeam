@@ -6,26 +6,38 @@ import { AnalyticsProvider } from '@/lib/analytics';
 import { fonts } from '@/lib/fonts';
 import { ThemeProvider } from '@/providers/theme';
 import type { ReactNode } from 'react';
+import { currentUser } from '@clerk/nextjs/server';
 
 type RootLayoutProperties = {
-  readonly children: ReactNode;
+  readonly authenticated: ReactNode;
+  readonly unauthenticated: ReactNode;
 };
 
-const RootLayout = ({ children }: RootLayoutProperties) => (
-  <html lang="en" className={fonts} suppressHydrationWarning>
-    <body className="bg-secondary">
-      <AuthProvider>
+const RootLayout = async ({
+  authenticated,
+  unauthenticated,
+}: RootLayoutProperties) => {
+  const user = await currentUser();
+  const children = user ? authenticated : unauthenticated;
+
+  return (
+    <html lang="en" className={fonts} suppressHydrationWarning>
+      <body className="bg-secondary">
+        <AuthProvider>
         <ThemeProvider>
           <AnalyticsProvider>
             <TooltipProvider>
-              <main className="container mx-auto max-w-3xl!">{children}</main>
+              <main className="container mx-auto max-w-3xl!">
+                {children}
+              </main>
             </TooltipProvider>
             <Toaster />
           </AnalyticsProvider>
         </ThemeProvider>
-      </AuthProvider>
-    </body>
-  </html>
-);
+        </AuthProvider>
+      </body>
+    </html>
+  );
+};
 
 export default RootLayout;
