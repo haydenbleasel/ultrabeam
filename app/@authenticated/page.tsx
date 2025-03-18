@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description,
 };
 
-const App = async () => {
+const Overview = async () => {
   const user = await currentUser();
 
   if (!user) {
@@ -61,4 +61,4 @@ const App = async () => {
   );
 };
 
-export default App;
+export default Overview;
