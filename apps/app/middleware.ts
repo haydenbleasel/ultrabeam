@@ -1,17 +1,29 @@
-import { authMiddleware } from '@repo/auth/middleware';
+import { clerkMiddleware } from '@clerk/nextjs/server';
 import {
-  noseconeMiddleware,
-  noseconeOptions,
-  noseconeOptionsWithToolbar,
-} from '@repo/security/middleware';
+  type NoseconeOptions,
+  createMiddleware,
+  defaults,
+  withVercelToolbar,
+} from '@nosecone/next';
 import type { NextMiddleware } from 'next/server';
-import { env } from './env';
 
-const securityHeaders = env.FLAGS_SECRET
-  ? noseconeMiddleware(noseconeOptionsWithToolbar)
-  : noseconeMiddleware(noseconeOptions);
+// Nosecone security headers configuration
+// https://docs.arcjet.com/nosecone/quick-start
+export const noseconeOptions: NoseconeOptions = {
+  ...defaults,
+  // Content Security Policy (CSP) is disabled by default because the values
+  // depend on which Next Forge features are enabled. See
+  // https://docs.next-forge.com/features/security/headers for guidance on how
+  // to configure it.
+  contentSecurityPolicy: false,
+};
 
-export default authMiddleware(() =>
+export const noseconeOptionsWithToolbar: NoseconeOptions =
+  withVercelToolbar(noseconeOptions);
+
+const securityHeaders = createMiddleware(noseconeOptions);
+
+export default clerkMiddleware(() =>
   securityHeaders()
 ) as unknown as NextMiddleware;
 

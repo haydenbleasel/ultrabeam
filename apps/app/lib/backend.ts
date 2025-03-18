@@ -1,3 +1,4 @@
+import { env } from '@/env';
 import {
   AttachDiskCommand,
   CreateDiskCommand,
@@ -16,13 +17,12 @@ import {
   StopInstanceCommand,
 } from '@aws-sdk/client-lightsail';
 import { SSMClient, SendCommandCommand } from '@aws-sdk/client-ssm';
-import { keys } from './keys';
 
 const lightsail = new LightsailClient({
   region: 'us-east-1',
   credentials: {
-    accessKeyId: keys().AWS_ACCESS_KEY,
-    secretAccessKey: keys().AWS_SECRET_KEY,
+    accessKeyId: env.AWS_ACCESS_KEY,
+    secretAccessKey: env.AWS_SECRET_KEY,
   },
 });
 
