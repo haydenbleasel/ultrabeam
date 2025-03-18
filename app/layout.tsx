@@ -1,7 +1,7 @@
 import { AuthProvider } from '@/providers/auth';
 import './styles.css';
-import { Toaster } from '@/components/ui/sonner';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { Toaster } from '@/ui/sonner';
+import { TooltipProvider } from '@/ui/tooltip';
 import { AnalyticsProvider } from '@/lib/analytics';
 import { fonts } from '@/lib/fonts';
 import { ThemeProvider } from '@/providers/theme';
@@ -15,7 +15,7 @@ const RootLayout = ({ children }: RootLayoutProperties) => (
   <html lang="en" className={fonts} suppressHydrationWarning>
     <body className="bg-secondary">
       <AuthProvider>
-        <ThemeProvider {...properties}>
+        <ThemeProvider>
           <AnalyticsProvider>
             <TooltipProvider>
               <main className="container mx-auto max-w-3xl!">{children}</main>

@@ -1,4 +1,4 @@
-import { RedirectToSignIn } from '@clerk/nextjs/client';
+import { RedirectToSignIn } from '@clerk/nextjs';
 import { currentUser } from '@clerk/nextjs/server';
 import type { ReactNode } from 'react';
 import { Navbar } from './components/navbar';

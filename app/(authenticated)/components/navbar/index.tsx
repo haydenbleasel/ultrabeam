@@ -3,7 +3,7 @@ import { games } from '@/games';
 import { getServer } from '@/lib/backend';
 import { database } from '@/lib/database';
 import { Button } from '@/ui/button';
-import { UserButton } from '@clerk/nextjs/client';
+import { UserButton } from '@clerk/nextjs';
 import { currentUser } from '@clerk/nextjs/server';
 import { PlusIcon } from 'lucide-react';
 import Image, { type StaticImageData } from 'next/image';

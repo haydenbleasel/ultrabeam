@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { XIcon } from "lucide-react";
 import * as React from "react";
 
-import { cn } from "../../../apps/app/lib/utils";
+import { cn } from "@/lib/utils";
 const ToastProvider = ToastPrimitives.Provider;
 
 function ToastViewport({

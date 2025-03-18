@@ -6,7 +6,7 @@ import * as React from 'react';
 import { useEffect } from 'react';
 
 import { Command, CommandGroup, CommandItem, CommandList } from '@/ui/command';
-import { cn } from '../../../apps/app/lib/utils';
+import { cn } from '@/lib/utils';
 
 export interface Option {
   value: string;

@@ -6,7 +6,8 @@
     "build": "next build",
     "start": "next start",
     "analyze": "ANALYZE=true pnpm build",
-    "studio": "prisma studio --schema --port 3005"
+    "studio": "prisma studio --schema --port 3005",
+    "generate": "prisma format && prisma generate --no-hints"
   },
   "dependencies": {
     "@aws-sdk/client-lightsail": "^3.758.0",
