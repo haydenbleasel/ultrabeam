@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/cron/keep-alive",
-      "schedule": "0 1 * * *"
-    }
-  ]
-}
