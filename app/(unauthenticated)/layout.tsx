@@ -1,4 +1,4 @@
-import { env } from '@/env';
+import { env } from '@/lib/env';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 

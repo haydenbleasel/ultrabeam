@@ -1,5 +1,5 @@
 import 'server-only';
-import { env } from '@/env';
+import { env } from '@/lib/env';
 import { PostHog } from 'posthog-node';
 
 export const analytics = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {

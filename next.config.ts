@@ -1,4 +1,4 @@
-import { env } from '@/env';
+import { env } from '@/lib/env';
 import { withLogtail } from '@logtail/next';
 import withBundleAnalyzer from '@next/bundle-analyzer';
 import { withSentryConfig } from '@sentry/nextjs';
