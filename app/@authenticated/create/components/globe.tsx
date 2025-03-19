@@ -1,3 +1,5 @@
+'use client';
+
 import createGlobe, { type Marker } from 'cobe';
 import { useEffect, useRef } from 'react';
 import type { FC } from 'react';

@@ -1,3 +1,6 @@
+import { Globe } from '@/app/@authenticated/create/components/globe';
+import { Speedometer } from './speedometer';
+
 export const Features = () => (
   <div className="grid gap-8">
     <div className="grid gap-6">
@@ -12,11 +15,10 @@ export const Features = () => (
       <div className="relative">
         <div className="absolute inset-px rounded-lg bg-background max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]" />
         <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius)+1px)] max-lg:rounded-t-[calc(2rem+1px)] lg:rounded-tl-[calc(2rem+1px)]">
-          <img
-            alt=""
-            src="https://tailwindcss.com/plus-assets/img/component-images/bento-01-performance.png"
-            className="h-80 object-cover object-left"
-          />
+          <div className="relative aspect-[3/2] w-full overflow-hidden p-10">
+            <Speedometer />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/0 to-background/100" />
+          </div>
           <div className="p-10 pt-4">
             <h3 className="font-semibold text-primary text-sm/4">
               Performance
@@ -36,20 +38,19 @@ export const Features = () => (
       <div className="relative">
         <div className="absolute inset-px rounded-lg bg-background lg:rounded-tr-[2rem]" />
         <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius)+1px)] lg:rounded-tr-[calc(2rem+1px)]">
-          <img
-            alt=""
-            src="https://tailwindcss.com/plus-assets/img/component-images/bento-01-releases.png"
-            className="h-80 object-cover object-left lg:object-right"
-          />
+          <div className="relative aspect-[3/2] w-full overflow-hidden">
+            <Globe />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/0 to-background/100" />
+          </div>
           <div className="p-10 pt-4">
             <h3 className="font-semibold text-primary text-sm/4">Simplicity</h3>
             <p className="mt-2 font-medium text-foreground text-lg tracking-tight">
-              One-click deployment
+              One-click global deployment
             </p>
             <p className="mt-2 max-w-lg text-muted-foreground text-sm/6">
-              Launch your Minecraft, Valheim, or Palworld server in minutes with
-              our intuitive interface. No technical expertise required—just
-              select your game and start playing.
+              Launch your Minecraft, Valheim, or Palworld server instantly in
+              any AWS region around the world. Choose the location closest to
+              your players for optimal performance.
             </p>
           </div>
         </div>
