@@ -1,4 +1,5 @@
 import { Globe } from '@/app/@authenticated/create/components/globe';
+import { Diagram } from './diagram';
 import { Speedometer } from './speedometer';
 
 export const Features = () => (
@@ -8,7 +9,9 @@ export const Features = () => (
         Powerful game servers at your fingertips
       </h2>
       <p className="text-lg text-muted-foreground">
-        Powered by AWS Lightsail infrastructure, Ultrabeam...
+        Powered by AWS Lightsail infrastructure, Ultrabeam is a game server
+        management platform that allows you to deploy, manage, and scale your
+        game servers with ease.
       </p>
     </div>
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -59,20 +62,20 @@ export const Features = () => (
       <div className="relative lg:col-span-2">
         <div className="absolute inset-px rounded-lg bg-background lg:rounded-b-[2rem]" />
         <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius)+1px)] lg:rounded-b-[calc(2rem+1px)]">
-          <img
-            alt=""
-            src="https://tailwindcss.com/plus-assets/img/component-images/bento-01-speed.png"
-            className="h-80 object-cover object-left"
-          />
+          <div className="relative aspect-[5/2] w-full overflow-hidden p-10">
+            <Diagram />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/0 to-background/100" />
+          </div>
           <div className="p-10 pt-4">
-            <h3 className="font-semibold text-primary text-sm/4">Control</h3>
+            <h3 className="font-semibold text-primary text-sm/4">Security</h3>
             <p className="mt-2 font-medium text-foreground text-lg tracking-tight">
-              Complete server management
+              Enterprise-grade protection
             </p>
             <p className="mt-2 max-w-lg text-muted-foreground text-sm/6">
-              Customize your gaming experience with full access to server
-              settings, mods, and player management. Your world, your rules—all
-              through our intuitive dashboard.
+              Your game servers are protected by SSH key authentication,
+              ensuring only you can access your servers through Ultrabeam. No
+              password vulnerabilities, no unauthorized access—just secure,
+              private gaming for you and your friends.
             </p>
           </div>
         </div>
