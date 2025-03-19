@@ -95,6 +95,8 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "ultracite": "^4.1.20",
     "@clerk/types": "^4.47.0",
     "@next/bundle-analyzer": "^15.2.3",
     "@tailwindcss/postcss": "^4.0.0",

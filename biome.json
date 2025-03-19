@@ -1,15 +1,9 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "extends": ["ultracite"],
-  "javascript": {
-    "globals": ["Liveblocks"]
-  },
   "files": {
     "ignore": [
-      "packages/design-system/ui/**",
-      "packages/design-system/lib/**",
-      "packages/design-system/hooks/**",
-      "apps/email/.react-email/**"
+      "ui/**"
     ]
   }
 }

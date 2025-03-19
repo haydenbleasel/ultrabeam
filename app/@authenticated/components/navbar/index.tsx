@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BottomNavigation } from './bottom-navigation';
 import { TopNavigation } from './top-navigation';
+import { Logo } from '@/components/logo';
 
 export const Navbar = async () => {
   const user = await currentUser();
@@ -58,13 +59,7 @@ export const Navbar = async () => {
         <div className="flex items-center">
           <div className="pr-4">
             <Link href="/">
-              <Image
-                src="/logo.svg"
-                alt="Logo"
-                width={32}
-                height={32}
-                className="size-4"
-              />
+              <Logo />
             </Link>
           </div>
           <span className="text-muted-foreground opacity-50">/</span>

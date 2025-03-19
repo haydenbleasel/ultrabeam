@@ -8,7 +8,7 @@ export const games = [
     name: 'Palworld',
     image: PalworldImage,
     description:
-      'Fight, farm, build and work alongside mysterious creatures called "Pals" in this completely new multiplayer, open world survival and crafting game!',
+      'Fight, farm, build and work alongside mysterious creatures called "Pals".',
     port: 2456,
   },
   {
