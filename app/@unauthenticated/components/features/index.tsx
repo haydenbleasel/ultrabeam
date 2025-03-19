@@ -11,7 +11,7 @@ export const Features = () => (
         Powered by AWS Lightsail infrastructure, Ultrabeam...
       </p>
     </div>
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:grid-rows-2">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <div className="relative">
         <div className="absolute inset-px rounded-lg bg-background max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]" />
         <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius)+1px)] max-lg:rounded-t-[calc(2rem+1px)] lg:rounded-tl-[calc(2rem+1px)]">

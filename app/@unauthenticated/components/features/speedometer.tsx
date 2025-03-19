@@ -52,7 +52,7 @@ export const Speedometer = () => {
         cy="100"
         r="90"
         fill="none"
-        stroke="#E5E7EB"
+        stroke="var(--secondary)"
         strokeWidth="16"
         strokeLinecap="round"
       />
@@ -63,7 +63,7 @@ export const Speedometer = () => {
         cy="100"
         r="90"
         fill="none"
-        stroke="#6366F1"
+        stroke="var(--primary)"
         strokeWidth="16"
         strokeLinecap="round"
         strokeDasharray="565.48" // 2πr where r=90
@@ -91,7 +91,7 @@ export const Speedometer = () => {
               y1={y}
               x2={x - 5 * Math.cos(theta)}
               y2={y - 5 * Math.sin(theta)}
-              stroke="#6B7280"
+              stroke="var(--border)"
               strokeWidth="1"
             />
             {showLabel && (
@@ -101,7 +101,7 @@ export const Speedometer = () => {
                 fontSize="6"
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fill="#6B7280"
+                fill="var(--muted-foreground)"
               >
                 {i * 100}
               </text>
@@ -117,11 +117,11 @@ export const Speedometer = () => {
           y1="100"
           x2="100"
           y2="30"
-          stroke="#111827"
+          stroke="var(--foreground)"
           strokeWidth="2"
           strokeLinecap="round"
         />
-        <circle cx="100" cy="100" r="5" fill="#111827" />
+        <circle cx="100" cy="100" r="5" fill="var(--foreground))" />
       </g>
     </svg>
   );
