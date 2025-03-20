@@ -6,7 +6,7 @@ export const Games = () => (
   <div className="grid gap-8">
     <div className="grid gap-6">
       <h2 className="mt-2 max-w-lg text-pretty font-semibold text-4xl text-foreground tracking-tight sm:text-5xl">
-        Spin up your favorite games
+        Spin up your favorite games in minutes
       </h2>
       <p className="text-lg text-muted-foreground">
         Ultrabeam supports Valheim, Palworld, and Minecraft.
@@ -39,8 +39,8 @@ export const Games = () => (
               width={320}
               height={320}
             />
-            <div className="p-10 pt-4">
-              <p className="mt-2 font-medium text-foreground text-lg tracking-tight">
+            <div className="p-8">
+              <p className="font-medium text-foreground text-lg tracking-tight">
                 {game.name}
               </p>
               <p className="mt-2 max-w-lg text-muted-foreground text-sm/6">

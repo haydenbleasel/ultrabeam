@@ -22,13 +22,27 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
       throw new Error('Server not found');
     }
 
-    const droplet = await getServer(server.backendId);
+    if (!server.backendId) {
+      throw new Error('Server not ready');
+    }
+
+    const { privateKey } = server;
+
+    if (!privateKey) {
+      throw new Error('Private key not found');
+    }
+
+    const instance = await getServer(server.backendId);
+
+    if (!instance) {
+      throw new Error('Instance not found');
+    }
 
     const conn = new Client();
 
     const logs = await new Promise<string>((resolve, reject) => {
       conn.on('ready', () => {
-        conn.exec(`tail -n 50 /var/log/syslog`, (err, stream) => {
+        conn.exec('tail -n 50 /var/log/syslog', (err, stream) => {
           if (err) {
             reject(new Error('Failed to execute command'));
             return;
@@ -49,10 +63,10 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
       conn.on('error', reject);
 
       conn.connect({
-        host: droplet.networks.v4[0].ip_address,
+        host: instance.publicIpAddress?.at(0),
         port: 22,
         username: 'root',
-        privateKey: Buffer.from(server.privateKey.trim()),
+        privateKey: Buffer.from(privateKey.trim()),
       });
     });
 

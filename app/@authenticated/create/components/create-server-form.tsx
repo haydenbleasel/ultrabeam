@@ -1,10 +1,11 @@
 'use client';
 
-import { createGameServer } from '@/actions/server/create';
+import { createServer } from '@/actions/server/create';
+import { Globe } from '@/components/globe';
 import { games } from '@/games';
 import type { getRegions, getSizes } from '@/lib/backend';
-import { formatBytes } from '@/lib/backend/utils';
-import { handleError } from '@/lib/error';
+import { handleError } from '@/lib/utils';
+import { formatBytes } from '@/lib/utils';
 import { Button } from '@/ui/button';
 import { Input } from '@/ui/input';
 import { Label } from '@/ui/label';
@@ -23,7 +24,6 @@ import { CheckIcon, Loader2Icon, MinusIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { type FormEventHandler, useMemo, useState } from 'react';
-import { Globe } from './globe';
 
 type CreateServerFormProps = {
   sizes: Awaited<ReturnType<typeof getSizes>>;
@@ -54,7 +54,7 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
     setIsLoading(true);
 
     try {
-      const response = await createGameServer(
+      const response = await createServer(
         name,
         game as (typeof games)[number]['id'],
         region,

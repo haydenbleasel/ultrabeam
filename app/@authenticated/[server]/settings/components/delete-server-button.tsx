@@ -1,7 +1,7 @@
 'use client';
 
 import { deleteGameServer } from '@/actions/server/delete';
-import { handleError } from '@/lib/error';
+import { handleError } from '@/lib/utils';
 import { Button } from '@/ui/button';
 import { useRouter } from 'next/navigation';
 

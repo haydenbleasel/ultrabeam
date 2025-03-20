@@ -1,7 +1,9 @@
 'use server';
 
-import { deleteServer } from '@/lib/backend';
 import { database } from '@/lib/database';
+import { lightsail } from '@/lib/lightsail';
+import { DeleteInstanceCommand } from '@aws-sdk/client-lightsail';
+import { DeleteKeyPairCommand } from '@aws-sdk/client-lightsail';
 
 type DeleteGameServerResponse =
   | {
@@ -27,7 +29,20 @@ export const deleteGameServer = async (
       throw new Error('Server is missing required fields');
     }
 
-    await deleteServer(server.backendId, server.keyPairName, server.diskName);
+    console.log('Deleting key pair...');
+    await lightsail.send(
+      new DeleteKeyPairCommand({
+        keyPairName: server.keyPairName,
+      })
+    );
+
+    console.log('Deleting instance...');
+    await lightsail.send(
+      new DeleteInstanceCommand({
+        instanceName: server.backendId,
+        forceDeleteAddOns: true,
+      })
+    );
 
     await database.server.delete({
       where: { id },

@@ -1,6 +1,6 @@
 'use client';
 
-import { formatBytes } from '@/lib/backend/utils';
+import { formatBytes } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import {
   AlertDialog,

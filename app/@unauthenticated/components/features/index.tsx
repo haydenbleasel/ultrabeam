@@ -1,4 +1,4 @@
-import { Globe } from '@/app/@authenticated/create/components/globe';
+import { Deployments } from './deployments';
 import { Diagram } from './diagram';
 import { Speedometer } from './speedometer';
 
@@ -42,7 +42,7 @@ export const Features = () => (
         <div className="absolute inset-px rounded-lg bg-background lg:rounded-tr-[2rem]" />
         <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius)+1px)] lg:rounded-tr-[calc(2rem+1px)]">
           <div className="relative aspect-[3/2] w-full overflow-hidden">
-            <Globe />
+            <Deployments />
             <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/0 to-background/100" />
           </div>
           <div className="p-10 pt-4">
