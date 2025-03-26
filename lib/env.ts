@@ -51,9 +51,6 @@ export const env = createEnv({
     // Vercel (automatically by Vercel deployment)
     NEXT_RUNTIME: z.enum(['nodejs', 'edge']).optional(),
 
-    // Node.js (automatically added by Node.js)
-    NODE_ENV: z.string().optional(),
-
     // Optional, for bundle analysis
     ANALYZE: z.string().optional(),
   },
@@ -81,6 +78,5 @@ export const env = createEnv({
     SENTRY_ORG: process.env.SENTRY_ORG,
     SENTRY_PROJECT: process.env.SENTRY_PROJECT,
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
-    NODE_ENV: process.env.NODE_ENV,
   },
 });
