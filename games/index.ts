@@ -12,8 +12,13 @@ export const games = [
     ports: [
       {
         protocol: 'udp',
-        from: 2456,
-        to: 2458,
+        from: 8211,
+        to: 8211,
+      },
+      {
+        protocol: 'udp',
+        from: 27015,
+        to: 27015,
       },
     ],
   },
@@ -40,8 +45,8 @@ export const games = [
     ports: [
       {
         protocol: 'udp',
-        from: 8211,
-        to: 8211,
+        from: 2456,
+        to: 2458,
       },
     ],
   },
