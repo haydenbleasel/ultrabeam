@@ -112,6 +112,7 @@ export const createServer = async (
     const serverName = `server-${suffix}`;
     const keyPairName = `key-${suffix}`;
     const diskName = `disk-${suffix}`;
+    const diskPath = '/dev/xvdf';
     const server = await database.server.create({
       data: {
         name,
@@ -190,29 +191,12 @@ export const createServer = async (
         new AttachDiskCommand({
           diskName,
           instanceName: serverName,
-          diskPath: '/dev/xvdf',
+          diskPath,
         })
       );
 
       // Wait for the disk to be attached
       await waitForDiskStatus(diskName, 'in-use');
-
-      // Mount the disk and run the scripts
-      await new SSMClient({
-        region: newInstance.location?.regionName,
-        credentials: {
-          accessKeyId: env.AWS_ACCESS_KEY,
-          secretAccessKey: env.AWS_SECRET_KEY,
-        },
-      }).send(
-        new SendCommandCommand({
-          InstanceIds: [serverName],
-          DocumentName: 'AWS-RunShellScript',
-          Parameters: {
-            commands: [bootstrapScript, mountVolumeScript, cloudInitScript],
-          },
-        })
-      );
 
       const backendId = newInstance.resourceName;
       const privateKey = createKeyPairResponse.privateKeyBase64;
@@ -226,6 +210,27 @@ export const createServer = async (
 
         throw new Error('Failed to create server');
       }
+
+      // Mount the disk and run the scripts
+      await new SSMClient({
+        region: newInstance.location?.regionName,
+        credentials: {
+          accessKeyId: env.AWS_ACCESS_KEY,
+          secretAccessKey: env.AWS_SECRET_KEY,
+        },
+      }).send(
+        new SendCommandCommand({
+          InstanceIds: [backendId],
+          DocumentName: 'AWS-RunShellScript',
+          Parameters: {
+            commands: [
+              bootstrapScript,
+              mountVolumeScript(diskPath),
+              cloudInitScript,
+            ],
+          },
+        })
+      );
 
       await database.server.update({
         where: {

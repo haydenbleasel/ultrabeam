@@ -25,7 +25,7 @@ apt update && apt upgrade -y
 # Create a dedicated user for the game
 useradd -m -s /bin/bash ultrabeam`;
 
-export const mountVolumeScript = `
+export const mountVolumeScript = (diskPath: string) => `
 #!/bin/bash
 set -e
 
@@ -33,16 +33,16 @@ set -e
 lsblk
 
 # Format the disk (if it's a new disk)
-sudo mkfs -t ext4 /dev/xvdf
+sudo mkfs -t ext4 ${diskPath}
 
 # Create a mount directory
 sudo mkdir -p /mnt/gamedata
 
 # Mount the disk
-sudo mount /dev/xvdf /mnt/gamedata
+sudo mount ${diskPath} /mnt/gamedata
 
 # Make it persistent after reboot
-echo '/dev/xvdf /mnt/gamedata ext4 defaults,nofail 0 2' | sudo tee -a /etc/fstab
+echo '${diskPath} /mnt/gamedata ext4 defaults,nofail 0 2' | sudo tee -a /etc/fstab
 
 # Change ownership of the mount directory
 chown -R ultrabeam:ultrabeam /mnt/gamedata`;
