@@ -7,7 +7,6 @@ import { lightsail } from '@/lib/lightsail';
 import { log } from '@/lib/observability/log';
 import {
   bootstrapScript,
-  getCloudInitScript,
   mountVolumeScript,
   sshInitScript,
 } from '@/lib/scripts';
@@ -97,6 +96,7 @@ const waitForDiskStatus = (diskName: string, status: DiskState) => {
 
 export const createServer = async (
   name: string,
+  password: string,
   game: (typeof games)[number]['id'],
   region: string,
   size: string
@@ -132,8 +132,6 @@ export const createServer = async (
     });
 
     const promise = async () => {
-      const cloudInitScript = await getCloudInitScript(game);
-
       // Create a key pair
       const createKeyPairResponse = await lightsail.send(
         new CreateKeyPairCommand({ keyPairName })
@@ -150,9 +148,10 @@ export const createServer = async (
           availabilityZone: `${region}a`,
           blueprintId: 'ubuntu_22_04',
           bundleId: size,
-          userData: [sshInitScript(createKeyPairResponse.publicKeyBase64)].join(
-            '\n'
-          ),
+          userData: [
+            sshInitScript(createKeyPairResponse.publicKeyBase64),
+            bootstrapScript,
+          ].join('\n'),
           keyPairName,
           ipAddressType: 'ipv4',
           tags: [
@@ -233,6 +232,14 @@ export const createServer = async (
         throw new Error('Failed to create server');
       }
 
+      // Get the game script
+      const installModule = await import(`../../games/${game}/install`);
+      const installScript = installModule.default;
+
+      if (typeof installScript !== 'function') {
+        throw new Error(`Invalid install script for game: ${game}`);
+      }
+
       // Mount the disk and run the scripts
       await new SSMClient({
         region: newInstance.location?.regionName,
@@ -246,9 +253,8 @@ export const createServer = async (
           DocumentName: 'AWS-RunShellScript',
           Parameters: {
             commands: [
-              bootstrapScript,
               mountVolumeScript(diskPath),
-              cloudInitScript,
+              installScript(serverName, password, 'America/New_York'),
             ],
           },
         })

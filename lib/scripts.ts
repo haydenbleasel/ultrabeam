@@ -1,25 +1,16 @@
 import 'server-only';
-import type { games } from '../games';
 
-export const getCloudInitScript = async (
-  game: (typeof games)[number]['id']
-) => {
-  const installModule = await import(`../games/${game}/install`);
-  const installScript = installModule.default;
+export const sshInitScript = (publicKey: string) => `
+#!/bin/bash
+set -e
 
-  if (typeof installScript !== 'function') {
-    throw new Error(`Invalid install script for game: ${game}`);
-  }
-
-  // Call the install function with any required parameters
-  // The function signature may vary based on the game
-  return installScript();
-};
-
-export const sshInitScript = (publicKey: string) =>
-  `echo "${publicKey}" >> ~/.ssh/authorized_keys`;
+echo "${publicKey}" >> ~/.ssh/authorized_keys
+`;
 
 export const bootstrapScript = `
+#!/bin/bash
+set -e
+
 # Update and install required dependencies
 apt update && apt upgrade -y
 

@@ -32,6 +32,7 @@ type CreateServerFormProps = {
 
 export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
   const [name, setName] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [game, setGame] = useState<string>('minecraft');
   const recommendedSizes = sizes.filter(
     ({ cpu, memory }) => cpu === 2 && memory === 4
@@ -56,6 +57,7 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
     try {
       const response = await createServer(
         name,
+        password,
         game as (typeof games)[number]['id'],
         region,
         size
@@ -102,6 +104,15 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
               placeholder="My server"
               value={name}
               onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <div className="grid gap-2">
