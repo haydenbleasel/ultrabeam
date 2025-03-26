@@ -1,18 +1,19 @@
 import 'server-only';
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import type { games } from '../games';
 
 export const getCloudInitScript = async (
   game: (typeof games)[number]['id']
 ) => {
-  const cloudInitPath = path.join(process.cwd(), 'games', game, 'install.sh');
+  const installModule = await import(`../games/${game}/install`);
+  const installScript = installModule.default;
 
-  if (!(await fs.stat(cloudInitPath).catch(() => false))) {
-    throw new Error(`No Cloud-Init script found for game: ${game}`);
+  if (typeof installScript !== 'function') {
+    throw new Error(`Invalid install script for game: ${game}`);
   }
 
-  return await fs.readFile(cloudInitPath, 'utf-8');
+  // Call the install function with any required parameters
+  // The function signature may vary based on the game
+  return installScript();
 };
 
 export const sshInitScript = (publicKey: string) =>
@@ -21,6 +22,11 @@ export const sshInitScript = (publicKey: string) =>
 export const bootstrapScript = `
 # Update and install required dependencies
 apt update && apt upgrade -y
+
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo apt install docker-compose
 
 # Create a dedicated user for the game
 useradd -m -s /bin/bash ultrabeam`;
