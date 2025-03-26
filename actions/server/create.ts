@@ -16,8 +16,10 @@ import {
   CreateDiskCommand,
   CreateInstancesCommand,
   CreateKeyPairCommand,
+  type DiskState,
   GetDiskCommand,
   GetInstanceCommand,
+  type InstanceState,
 } from '@aws-sdk/client-lightsail';
 import { SSMClient, SendCommandCommand } from '@aws-sdk/client-ssm';
 import { currentUser } from '@clerk/nextjs/server';
@@ -32,10 +34,13 @@ type CreateServerResponse =
       error: string;
     };
 
-const waitForInstanceReady = (instanceName: string) => {
+const waitForInstanceStatus = (
+  instanceName: string,
+  status: InstanceState['name']
+) => {
   console.log(`Waiting for instance ${instanceName} to be ready...`);
 
-  return new Promise<void>((resolve) => {
+  return new Promise<void>((resolve, reject) => {
     const checkInstanceState = async () => {
       const instanceResponse = await lightsail.send(
         new GetInstanceCommand({
@@ -45,8 +50,10 @@ const waitForInstanceReady = (instanceName: string) => {
 
       const state = instanceResponse.instance?.state?.name;
 
-      if (state === 'running') {
-        console.log(`Instance ${instanceName} is now ready.`);
+      if (state === 'error') {
+        reject('Something went wrong with the instance.');
+      } else if (state === status) {
+        console.log(`Instance ${instanceName} is now ${status}.`);
         resolve();
       } else {
         console.log(`Instance state: ${state}. Waiting...`);
@@ -59,10 +66,10 @@ const waitForInstanceReady = (instanceName: string) => {
   });
 };
 
-const waitForDiskAttached = (diskName: string) => {
+const waitForDiskStatus = (diskName: string, status: DiskState) => {
   console.log(`Waiting for disk ${diskName} to be attached...`);
 
-  return new Promise<void>((resolve) => {
+  return new Promise<void>((resolve, reject) => {
     const checkDiskStatus = async () => {
       const response = await lightsail.send(
         new GetDiskCommand({
@@ -70,11 +77,15 @@ const waitForDiskAttached = (diskName: string) => {
         })
       );
 
-      if (response.disk?.state === 'in-use') {
-        console.log(`Disk ${diskName} is now attached.`);
+      const state = response.disk?.state;
+
+      if (state === 'error') {
+        reject('Something went wrong with the disk.');
+      } else if (state === status) {
+        console.log(`Disk ${diskName} is now ${status}.`);
         resolve();
       } else {
-        console.log(`Disk state: ${response.disk?.state}. Waiting...`);
+        console.log(`Disk state: ${state}. Waiting...`);
         setTimeout(checkDiskStatus, 10000);
       }
     };
@@ -152,17 +163,27 @@ export const createServer = async (
         })
       );
 
+      // Wait for the instance to be ready before attaching the disk
+      await waitForInstanceStatus(serverName, 'running');
+
+      // Get the new instance
+      const newInstance = createInstanceResponse.operations?.at(0);
+
+      if (!newInstance) {
+        throw new Error("Couldn't retrieve new instance");
+      }
+
       // Create a block storage disk
       await lightsail.send(
         new CreateDiskCommand({
           diskName,
-          availabilityZone: `${region}a`,
+          availabilityZone: newInstance.location?.availabilityZone,
           sizeInGb: 20,
         })
       );
 
-      // Wait for the instance to be ready before attaching the disk
-      await waitForInstanceReady(serverName);
+      // Wait for the disk to be ready
+      await waitForDiskStatus(diskName, 'available');
 
       // Attach the disk to the instance
       await lightsail.send(
@@ -174,18 +195,16 @@ export const createServer = async (
       );
 
       // Wait for the disk to be attached
-      await waitForDiskAttached(diskName);
+      await waitForDiskStatus(diskName, 'in-use');
 
-      // Mount the disk
-      const ssm = new SSMClient({
-        region,
+      // Mount the disk and run the scripts
+      await new SSMClient({
+        region: newInstance.location?.regionName,
         credentials: {
           accessKeyId: env.AWS_ACCESS_KEY,
           secretAccessKey: env.AWS_SECRET_KEY,
         },
-      });
-
-      await ssm.send(
+      }).send(
         new SendCommandCommand({
           InstanceIds: [serverName],
           DocumentName: 'AWS-RunShellScript',
@@ -195,12 +214,7 @@ export const createServer = async (
         })
       );
 
-      const backendId = createInstanceResponse.operations?.[0]?.resourceName;
-
-      if (!backendId) {
-        throw new Error('Failed to create server: no backend id');
-      }
-
+      const backendId = newInstance.resourceName;
       const privateKey = createKeyPairResponse.privateKeyBase64;
 
       if (!backendId || !privateKey) {
