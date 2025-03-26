@@ -1,6 +1,6 @@
 'use server';
 
-import type { games } from '@/games';
+import { games } from '@/games';
 import { database } from '@/lib/database';
 import { env } from '@/lib/env';
 import { lightsail } from '@/lib/lightsail';
@@ -20,6 +20,7 @@ import {
   GetDiskCommand,
   GetInstanceCommand,
   type InstanceState,
+  OpenInstancePublicPortsCommand,
 } from '@aws-sdk/client-lightsail';
 import { SSMClient, SendCommandCommand } from '@aws-sdk/client-ssm';
 import { currentUser } from '@clerk/nextjs/server';
@@ -107,6 +108,12 @@ export const createServer = async (
       throw new Error('User not found');
     }
 
+    const gameInfo = games.find(({ id }) => id === game);
+
+    if (!gameInfo) {
+      throw new Error('Game info not found');
+    }
+
     const id = nanoid();
     const suffix = `ultrabeam-${game}-${id}`;
     const serverName = `server-${suffix}`;
@@ -166,6 +173,21 @@ export const createServer = async (
 
       // Wait for the instance to be ready before attaching the disk
       await waitForInstanceStatus(serverName, 'running');
+
+      // Open the required ports
+
+      for (const port of gameInfo.ports) {
+        await lightsail.send(
+          new OpenInstancePublicPortsCommand({
+            instanceName: serverName,
+            portInfo: {
+              fromPort: port.from,
+              toPort: port.to,
+              protocol: port.protocol,
+            },
+          })
+        );
+      }
 
       // Get the new instance
       const newInstance = createInstanceResponse.operations?.at(0);
