@@ -1,9 +1,11 @@
 'use server';
-
-import { database } from '@/lib/database';
 import { lightsail } from '@/lib/lightsail';
-import { DeleteInstanceCommand } from '@aws-sdk/client-lightsail';
-import { DeleteKeyPairCommand } from '@aws-sdk/client-lightsail';
+import {
+  DeleteDiskCommand,
+  DeleteInstanceCommand,
+  GetDiskCommand,
+  GetInstanceCommand,
+} from '@aws-sdk/client-lightsail';
 
 type DeleteGameServerResponse =
   | {
@@ -17,36 +19,38 @@ export const deleteGameServer = async (
   id: string
 ): Promise<DeleteGameServerResponse> => {
   try {
-    const server = await database.server.findUnique({
-      where: { id },
-    });
-
-    if (!server) {
-      throw new Error('Server not found');
-    }
-
-    if (!server.backendId || !server.keyPairName || !server.diskName) {
-      throw new Error('Server is missing required fields');
-    }
-
-    console.log('Deleting key pair...');
-    await lightsail.send(
-      new DeleteKeyPairCommand({
-        keyPairName: server.keyPairName,
+    const { instance } = await lightsail.send(
+      new GetInstanceCommand({
+        instanceName: id,
       })
     );
 
-    console.log('Deleting instance...');
+    if (!instance) {
+      throw new Error('Instance not found');
+    }
+
+    const { disk } = await lightsail.send(
+      new GetDiskCommand({
+        diskName: id,
+      })
+    );
+
+    if (!disk) {
+      throw new Error('Disk not found');
+    }
+
     await lightsail.send(
       new DeleteInstanceCommand({
-        instanceName: server.backendId,
+        instanceName: id,
         forceDeleteAddOns: true,
       })
     );
 
-    await database.server.delete({
-      where: { id },
-    });
+    await lightsail.send(
+      new DeleteDiskCommand({
+        diskName: disk.name,
+      })
+    );
 
     return { message: 'Server deleted' };
   } catch (error) {

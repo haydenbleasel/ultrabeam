@@ -1,20 +1,18 @@
 'use server';
 
-import type { Server } from '@/generated/client';
-import { database } from '@/lib/database';
+import { lightsail } from '@/lib/lightsail';
+import { GetInstanceCommand, type Instance } from '@aws-sdk/client-lightsail';
 import { currentUser } from '@clerk/nextjs/server';
 
-type GetGameServerResponse =
+type GetServerResponse =
   | {
-      data: Server;
+      data: Instance;
     }
   | {
       error: string;
     };
 
-export const getGameServer = async (
-  id: string
-): Promise<GetGameServerResponse> => {
+export const getServer = async (id: string): Promise<GetServerResponse> => {
   try {
     const user = await currentUser();
 
@@ -22,15 +20,17 @@ export const getGameServer = async (
       throw new Error('User not found');
     }
 
-    const server = await database.server.findFirst({
-      where: { id },
-    });
+    const { instance } = await lightsail.send(
+      new GetInstanceCommand({
+        instanceName: id,
+      })
+    );
 
-    if (!server) {
+    if (!instance) {
       throw new Error('Server not found');
     }
 
-    return { data: server };
+    return { data: instance };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
 

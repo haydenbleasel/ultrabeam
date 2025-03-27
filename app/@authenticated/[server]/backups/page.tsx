@@ -1,7 +1,5 @@
-import { database } from '@/lib/database';
 import { lightsail } from '@/lib/lightsail';
 import { GetInstanceSnapshotsCommand } from '@aws-sdk/client-lightsail';
-import { notFound } from 'next/navigation';
 import { BackupTable } from './components/backup-table';
 
 type ServerProps = {
@@ -11,21 +9,17 @@ type ServerProps = {
 };
 
 const BackupsPage = async ({ params }: ServerProps) => {
-  const { server } = await params;
-  const instance = await database.server.findFirst({
-    where: { id: server },
-  });
+  const { server: serverId } = await params;
 
-  if (!instance) {
-    notFound();
-  }
-
-  const response = await lightsail.send(new GetInstanceSnapshotsCommand());
-  const instanceSnapshots = response.instanceSnapshots?.filter(
-    (snapshot) => snapshot.fromInstanceName === instance.backendId
+  const { instanceSnapshots } = await lightsail.send(
+    new GetInstanceSnapshotsCommand()
   );
 
-  return <BackupTable data={instanceSnapshots} />;
+  const data = instanceSnapshots?.filter(
+    (snapshot) => snapshot.fromInstanceName === serverId
+  );
+
+  return <BackupTable data={data} />;
 };
 
 export default BackupsPage;

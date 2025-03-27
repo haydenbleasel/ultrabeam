@@ -1,10 +1,10 @@
 import { games } from '@/games';
-import { getServer } from '@/lib/backend';
-import { database } from '@/lib/database';
+import { lightsail } from '@/lib/lightsail';
 import { Badge } from '@/ui/badge';
 import { Button } from '@/ui/button';
 import { Input } from '@/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/tooltip';
+import { GetInstanceCommand } from '@aws-sdk/client-lightsail';
 import { currentUser } from '@clerk/nextjs/server';
 import {
   CpuIcon,
@@ -26,27 +26,30 @@ type Server = {
 };
 
 const ServerPage = async ({ params }: Server) => {
-  const { server } = await params;
+  const { server: serverId } = await params;
   const user = await currentUser();
 
   if (!user) {
     notFound();
   }
 
-  const instance = await database.server.findUnique({
-    where: { id: server },
-  });
+  const { instance } = await lightsail.send(
+    new GetInstanceCommand({ instanceName: serverId })
+  );
 
-  console.log(instance?.backendId, 'backendId');
-
-  if (!instance || !instance.backendId) {
+  if (!instance) {
     notFound();
   }
 
-  const gameServer = await getServer(instance.backendId);
-  const activeGame = games.find((game) => game.id === instance.game);
+  const gameTag = instance.tags?.find((tag) => tag.key === 'game');
 
-  if (!gameServer || !activeGame) {
+  if (!gameTag) {
+    notFound();
+  }
+
+  const activeGame = games.find((game) => game.id === gameTag.value);
+
+  if (!activeGame) {
     notFound();
   }
 
@@ -54,7 +57,7 @@ const ServerPage = async ({ params }: Server) => {
     <div className="grid grid-cols-2 divide-x">
       <Image
         src={activeGame.image}
-        alt={instance.game}
+        alt={activeGame.name}
         width={600}
         height={600}
         className="aspect-square"
@@ -63,7 +66,7 @@ const ServerPage = async ({ params }: Server) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h1 className="font-bold text-xl">{instance.name}</h1>
-            <Status status={gameServer.state?.name ?? 'pending'} />
+            <Status status={instance.state?.name ?? 'pending'} />
           </div>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -83,7 +86,7 @@ const ServerPage = async ({ params }: Server) => {
           >
             <MemoryStickIcon size={16} />
             {new Intl.NumberFormat().format(
-              gameServer.hardware?.ramSizeInGb ?? 0
+              instance.hardware?.ramSizeInGb ?? 0
             )}
             GB
           </Badge>
@@ -92,7 +95,7 @@ const ServerPage = async ({ params }: Server) => {
             className="flex items-center gap-2 px-3 py-1"
           >
             <CpuIcon size={16} />
-            {new Intl.NumberFormat().format(gameServer.hardware?.cpuCount ?? 0)}{' '}
+            {new Intl.NumberFormat().format(instance.hardware?.cpuCount ?? 0)}{' '}
             vCPUs
           </Badge>
           <Badge
@@ -101,7 +104,7 @@ const ServerPage = async ({ params }: Server) => {
           >
             <HardDriveIcon size={16} />
             {new Intl.NumberFormat().format(
-              gameServer.hardware?.disks?.at(0)?.sizeInGb ?? 0
+              instance.hardware?.disks?.at(0)?.sizeInGb ?? 0
             )}
             GB
           </Badge>
@@ -110,24 +113,23 @@ const ServerPage = async ({ params }: Server) => {
             className="flex items-center gap-2 px-3 py-1"
           >
             <DockIcon size={16} />
-            {gameServer.blueprintName}
+            {instance.blueprintName}
           </Badge>
           <Badge
             variant="secondary"
             className="flex items-center gap-2 px-3 py-1"
           >
             <GlobeIcon size={16} />
-            {gameServer.location?.regionName}
+            {instance.location?.regionName}
           </Badge>
         </div>
         <Input
-          type="password"
           placeholder="Password"
-          value={instance.password}
+          value={instance.tags?.find((tag) => tag.key === 'password')?.value}
           disabled
         />
         <Connect
-          ip={gameServer.publicIpAddress ?? ''}
+          ip={instance.publicIpAddress ?? ''}
           port={activeGame.ports[0].from}
         />
       </div>

@@ -1,5 +1,5 @@
 import { getServer } from '@/lib/backend';
-import { database } from '@/lib/database';
+import { currentUser } from '@clerk/nextjs/server';
 import { notFound } from 'next/navigation';
 import SFTPClient from 'ssh2-sftp-client';
 import FileTable from './components/file-table';
@@ -11,20 +11,12 @@ type ServerProps = {
 };
 
 const FilesPage = async ({ params }: ServerProps) => {
-  const { server } = await params;
+  const { server: serverId } = await params;
   const sftp = new SFTPClient();
+  const user = await currentUser();
+  const gameServer = await getServer(serverId);
 
-  const instance = await database.server.findFirst({
-    where: { id: server },
-  });
-
-  if (!instance || !instance.backendId || !instance.privateKey) {
-    notFound();
-  }
-
-  const gameServer = await getServer(instance.backendId);
-
-  if (!gameServer) {
+  if (!user || !gameServer || !user.privateMetadata.privateKey) {
     notFound();
   }
 
@@ -32,7 +24,7 @@ const FilesPage = async ({ params }: ServerProps) => {
     host: gameServer.publicIpAddress,
     port: 22,
     username: 'root',
-    privateKey: Buffer.from(instance.privateKey.trim()),
+    privateKey: user.privateMetadata.privateKey as string,
   });
 
   const fileList = await sftp.list('/');

@@ -1,7 +1,7 @@
 'use server';
 
 import { getServer } from '@/lib/backend';
-import { database } from '@/lib/database';
+import { currentUser } from '@clerk/nextjs/server';
 import { Client } from 'ssh2';
 
 type GetServerResponse =
@@ -14,28 +14,24 @@ type GetServerResponse =
 
 export const getLogs = async (id: string): Promise<GetServerResponse> => {
   try {
-    const server = await database.server.findUnique({
-      where: { id },
-    });
+    const user = await currentUser();
 
-    if (!server) {
-      throw new Error('Server not found');
+    if (!user) {
+      throw new Error('User not found');
     }
 
-    if (!server.backendId) {
-      throw new Error('Server not ready');
-    }
-
-    const { privateKey } = server;
-
-    if (!privateKey) {
-      throw new Error('Private key not found');
-    }
-
-    const instance = await getServer(server.backendId);
+    const instance = await getServer(id);
 
     if (!instance) {
       throw new Error('Instance not found');
+    }
+
+    const privateKey = instance.tags?.find(
+      (tag) => tag.key === 'private_key'
+    )?.value;
+
+    if (!privateKey) {
+      throw new Error('Private key not found');
     }
 
     const conn = new Client();

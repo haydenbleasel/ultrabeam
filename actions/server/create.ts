@@ -1,8 +1,6 @@
 'use server';
 
 import { games } from '@/games';
-import { ServerStatus } from '@/generated/client';
-import { database } from '@/lib/database';
 import { lightsail } from '@/lib/lightsail';
 import { log } from '@/lib/observability/log';
 import {
@@ -20,8 +18,9 @@ import {
   GetInstanceCommand,
   type InstanceState,
   OpenInstancePublicPortsCommand,
+  TagResourceCommand,
 } from '@aws-sdk/client-lightsail';
-import { currentUser } from '@clerk/nextjs/server';
+import { clerkClient, currentUser } from '@clerk/nextjs/server';
 import { waitUntil } from '@vercel/functions';
 import { nanoid } from 'nanoid';
 import { Client } from 'ssh2';
@@ -94,6 +93,15 @@ const waitForDiskStatus = (diskName: string, status: DiskState) => {
   });
 };
 
+const updateInstanceStatus = async (instanceName: string, status: string) => {
+  await lightsail.send(
+    new TagResourceCommand({
+      resourceName: instanceName,
+      tags: [{ key: 'status', value: status }],
+    })
+  );
+};
+
 export const createServer = async (
   name: string,
   password: string,
@@ -120,20 +128,13 @@ export const createServer = async (
     const keyPairName = `key-${suffix}`;
     const diskName = `disk-${suffix}`;
     const diskPath = '/dev/xvdf';
-    const server = await database.server.create({
-      data: {
-        name,
-        game,
-        ownerId: user.id,
-        serverName,
-        keyPairName,
-        diskName,
-        password,
-        status: ServerStatus.createdServer,
-      },
-    });
 
-    const promise = async () => {
+    let privateKey = user.privateMetadata.privateKey as string | undefined;
+    let publicKey = user.privateMetadata.publicKey as string | undefined;
+
+    if (!privateKey) {
+      const clerk = await clerkClient();
+
       // Create a key pair
       const createKeyPairResponse = await lightsail.send(
         new CreateKeyPairCommand({ keyPairName })
@@ -143,52 +144,64 @@ export const createServer = async (
         throw new Error('Failed to create key pair: no public key');
       }
 
-      await database.server.update({
-        where: { id: server.id },
-        data: { status: ServerStatus.createdKeyPair },
-      });
+      if (!createKeyPairResponse.privateKeyBase64) {
+        throw new Error('Failed to create key pair: no private key');
+      }
 
-      // Create the instance
-      await lightsail.send(
-        new CreateInstancesCommand({
-          instanceNames: [serverName],
-          availabilityZone: `${region}a`,
-          blueprintId: 'ubuntu_22_04',
-          bundleId: size,
-          userData: [
-            sshInitScript(createKeyPairResponse.publicKeyBase64),
-            bootstrapScript,
-          ].join('\n'),
-          keyPairName,
-          ipAddressType: 'ipv4',
-          tags: [
-            { key: 'user', value: user.id },
-            { key: 'ultrabeam', value: 'true' },
-            { key: 'game', value: game },
-          ],
-          addOns: [
-            {
-              addOnType: 'AutoSnapshot',
-              autoSnapshotAddOnRequest: {
-                snapshotTimeOfDay: '06:00',
-              },
+      privateKey = createKeyPairResponse.privateKeyBase64;
+      publicKey = createKeyPairResponse.publicKeyBase64;
+
+      await clerk.users.updateUserMetadata(user.id, {
+        privateMetadata: {
+          privateKey,
+          publicKey,
+        },
+      });
+    }
+
+    // Create the instance
+    const instance = await lightsail.send(
+      new CreateInstancesCommand({
+        instanceNames: [serverName],
+        availabilityZone: `${region}a`,
+        blueprintId: 'ubuntu_22_04',
+        bundleId: size,
+        userData: [sshInitScript(publicKey as string), bootstrapScript].join(
+          '\n'
+        ),
+        keyPairName,
+        ipAddressType: 'ipv4',
+        tags: [
+          { key: 'name', value: name },
+          { key: 'password', value: password },
+          { key: 'user', value: user.id },
+          { key: 'ultrabeam', value: 'true' },
+          { key: 'game', value: game },
+          { key: 'status', value: 'createdInstance' },
+        ],
+        addOns: [
+          {
+            addOnType: 'AutoSnapshot',
+            autoSnapshotAddOnRequest: {
+              snapshotTimeOfDay: '06:00',
             },
-          ],
-        })
-      );
+          },
+        ],
+      })
+    );
 
-      await database.server.update({
-        where: { id: server.id },
-        data: { status: ServerStatus.createdInstance },
-      });
+    const instanceName = instance.operations?.at(0)?.resourceName;
 
+    if (!instanceName) {
+      throw new Error('Instance ID not found');
+    }
+
+    const promise = async () => {
       // Wait for the instance to be ready before attaching the disk
       await waitForInstanceStatus(serverName, 'running');
 
-      await database.server.update({
-        where: { id: server.id },
-        data: { status: ServerStatus.instanceAvailable },
-      });
+      // Update the instance status
+      await updateInstanceStatus(instanceName, 'instanceAvailable');
 
       // Open the required ports
       for (const port of gameInfo.ports) {
@@ -204,10 +217,8 @@ export const createServer = async (
         );
       }
 
-      await database.server.update({
-        where: { id: server.id },
-        data: { status: ServerStatus.openedPorts },
-      });
+      // Update the instance status
+      await updateInstanceStatus(instanceName, 'openedPorts');
 
       // Get the instance IP address
       const { instance: newInstance } = await lightsail.send(
@@ -235,18 +246,14 @@ export const createServer = async (
         })
       );
 
-      await database.server.update({
-        where: { id: server.id },
-        data: { status: ServerStatus.createdDisk },
-      });
+      // Update the instance status
+      await updateInstanceStatus(instanceName, 'createdDisk');
 
       // Wait for the disk to be ready
       await waitForDiskStatus(diskName, 'available');
 
-      await database.server.update({
-        where: { id: server.id },
-        data: { status: ServerStatus.diskAvailable },
-      });
+      // Update the instance status
+      await updateInstanceStatus(instanceName, 'diskAvailable');
 
       // Attach the disk to the instance
       await lightsail.send(
@@ -257,18 +264,14 @@ export const createServer = async (
         })
       );
 
-      await database.server.update({
-        where: { id: server.id },
-        data: { status: ServerStatus.diskAttached },
-      });
+      // Update the instance status
+      await updateInstanceStatus(instanceName, 'diskAttached');
 
       // Wait for the disk to be attached
       await waitForDiskStatus(diskName, 'in-use');
 
-      await database.server.update({
-        where: { id: server.id },
-        data: { status: ServerStatus.diskInUse },
-      });
+      // Update the instance status
+      await updateInstanceStatus(instanceName, 'diskInUse');
 
       // Get the game script
       const installModule = await import(`../../games/${game}/install`);
@@ -327,41 +330,19 @@ export const createServer = async (
           .connect({
             host: newInstance.publicIpAddress,
             username: 'ubuntu',
-            privateKey: createKeyPairResponse.privateKeyBase64,
+            privateKey,
             port: 22,
           });
       });
 
-      const backendId = newInstance.name;
-      const privateKey = createKeyPairResponse.privateKeyBase64;
+      await updateInstanceStatus(instanceName, 'ready');
 
-      if (!backendId || !privateKey) {
-        await database.server.delete({
-          where: {
-            id: server.id,
-          },
-        });
-
-        throw new Error('Failed to create server');
-      }
-
-      await database.server.update({
-        where: {
-          id: server.id,
-        },
-        data: {
-          backendId,
-          privateKey,
-          status: ServerStatus.ready,
-        },
-      });
-
-      log.info(`Server created: ${server.id}`);
+      log.info(`Server created: ${instanceName}`);
     };
 
     waitUntil(promise());
 
-    return { id: server.id };
+    return { id: instanceName };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
 

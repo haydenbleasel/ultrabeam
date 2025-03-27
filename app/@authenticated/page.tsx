@@ -1,4 +1,4 @@
-import { database } from '@/lib/database';
+import { lightsail } from '@/lib/lightsail';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,6 +6,7 @@ import {
   BreadcrumbPage,
 } from '@/ui/breadcrumb';
 import { Button } from '@/ui/button';
+import { GetInstancesCommand } from '@aws-sdk/client-lightsail';
 import { currentUser } from '@clerk/nextjs/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -27,12 +28,12 @@ const Overview = async () => {
     notFound();
   }
 
-  const servers = await database.server.findMany({
-    where: { ownerId: user.id },
-    orderBy: { createdAt: 'desc' },
-  });
+  const { instances } = await lightsail.send(new GetInstancesCommand({}));
+  const userInstances = instances?.filter(
+    ({ tags }) => tags?.find(({ key }) => key === 'user')?.value === user.id
+  );
 
-  if (!servers.length) {
+  if (!userInstances?.length) {
     return (
       <div className="flex aspect-video items-center justify-center">
         <div className="grid gap-4">
@@ -56,7 +57,7 @@ const Overview = async () => {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <ServerList data={servers} />
+      <ServerList data={userInstances} />
     </>
   );
 };

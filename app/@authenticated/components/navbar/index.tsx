@@ -1,17 +1,17 @@
+import { Logo } from '@/components/logo';
 import { ModeToggle } from '@/components/mode-toggle';
 import { games } from '@/games';
-import { getServer } from '@/lib/backend';
-import { database } from '@/lib/database';
+import { lightsail } from '@/lib/lightsail';
 import { Button } from '@/ui/button';
+import { GetInstancesCommand } from '@aws-sdk/client-lightsail';
 import { UserButton } from '@clerk/nextjs';
 import { currentUser } from '@clerk/nextjs/server';
 import { PlusIcon } from 'lucide-react';
-import Image, { type StaticImageData } from 'next/image';
+import type { StaticImageData } from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BottomNavigation } from './bottom-navigation';
 import { TopNavigation } from './top-navigation';
-import { Logo } from '@/components/logo';
 
 export const Navbar = async () => {
   const user = await currentUser();
@@ -20,9 +20,11 @@ export const Navbar = async () => {
     notFound();
   }
 
-  const servers = await database.server.findMany({
-    where: { ownerId: user.id },
-  });
+  const servers = await lightsail.send(new GetInstancesCommand());
+
+  const userServers = servers.instances?.filter((instance) =>
+    instance.tags?.some((tag) => tag.key === 'user' && tag.value === user.id)
+  );
 
   const droplets: {
     id: string;
@@ -32,23 +34,21 @@ export const Navbar = async () => {
     image: StaticImageData;
   }[] = [];
 
-  for (const server of servers) {
-    if (!server.backendId) {
-      continue;
-    }
-
-    const gameServer = await getServer(server.backendId);
-    const game = games.find((game) => game.id === server.game);
+  for (const server of userServers ?? []) {
+    const game = games.find(
+      (game) =>
+        game.id === server.tags?.find((tag) => tag.key === 'game')?.value
+    );
 
     if (!game) {
       continue;
     }
 
     droplets.push({
-      name: server.name,
-      id: server.id,
-      game: server.game,
-      status: gameServer?.state?.name ?? 'pending',
+      name: server.name ?? '',
+      id: server.name ?? '',
+      game: game.id,
+      status: server.tags?.find((tag) => tag.key === 'status')?.value ?? '',
       image: game.image,
     });
   }

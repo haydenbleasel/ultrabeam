@@ -17,7 +17,6 @@ import {
   DatabaseIcon,
   FileIcon,
   HomeIcon,
-  SettingsIcon,
   TerminalIcon,
 } from 'lucide-react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
@@ -41,11 +40,6 @@ export const BottomNavigation = () => {
       value: `/${params.server}/backups`,
       label: 'Backups',
       icon: DatabaseIcon,
-    },
-    {
-      value: `/${params.server}/settings`,
-      label: 'Settings',
-      icon: SettingsIcon,
     },
   ];
 

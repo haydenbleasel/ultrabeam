@@ -1,6 +1,4 @@
 import { getLogs } from '@/actions/logs/get';
-import { database } from '@/lib/database';
-import { notFound } from 'next/navigation';
 import { Console } from './components/console';
 
 type ServerProps = {
@@ -10,23 +8,14 @@ type ServerProps = {
 };
 
 const ConsolePage = async ({ params }: ServerProps) => {
-  const { server } = await params;
-
-  const instance = await database.server.findFirst({
-    where: { id: server },
-  });
-
-  if (!instance) {
-    notFound();
-  }
-
-  const logs = await getLogs(instance.id);
+  const { server: serverId } = await params;
+  const logs = await getLogs(serverId);
 
   if ('error' in logs) {
     return <div className="p-4">{logs.error}</div>;
   }
 
-  return <Console defaultValue={logs.data} serverId={instance.id} />;
+  return <Console defaultValue={logs.data} serverId={serverId} />;
 };
 
 export default ConsolePage;

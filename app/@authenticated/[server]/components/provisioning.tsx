@@ -1,6 +1,6 @@
 'use client';
-import { getGameServer } from '@/actions/server/get';
-import { ServerStatus } from '@/generated/client';
+
+import { getServer } from '@/actions/server/get';
 import {
   Timeline,
   TimelineContent,
@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 type ProvisioningProps = {
-  createdAt: Date;
   id: string;
 };
 
@@ -25,57 +24,57 @@ export const Provisioning = ({ id }: ProvisioningProps) => {
 
   const items = [
     {
-      id: ServerStatus.createdServer,
+      id: 'createdServer',
       title: 'Server created',
       description: 'Infrastructure is being provisioned.',
     },
     {
-      id: ServerStatus.createdKeyPair,
+      id: 'createdKeyPair',
       title: 'Keys created',
       description: 'The keys have been created.',
     },
     {
-      id: ServerStatus.createdInstance,
+      id: 'createdInstance',
       title: 'Instance created',
       description: 'The server instance has been created.',
     },
     {
-      id: ServerStatus.instanceAvailable,
+      id: 'instanceAvailable',
       title: 'Instance available',
       description: 'The server instance is ready to use.',
     },
     {
-      id: ServerStatus.openedPorts,
+      id: 'openedPorts',
       title: 'Ports opened',
       description: 'The required ports have been opened.',
     },
     {
-      id: ServerStatus.createdDisk,
+      id: 'createdDisk',
       title: 'Disk created',
       description: 'The disk has been created.',
     },
     {
-      id: ServerStatus.diskAvailable,
+      id: 'diskAvailable',
       title: 'Disk available',
       description: 'The disk is ready to use.',
     },
     {
-      id: ServerStatus.diskAttached,
+      id: 'diskAttached',
       title: 'Disk attached',
       description: 'The disk has been attached to the server.',
     },
     {
-      id: ServerStatus.diskInUse,
+      id: 'diskInUse',
       title: 'Disk in use',
       description: 'The disk is ready to use.',
     },
     {
-      id: ServerStatus.gameInstalled,
+      id: 'gameInstalled',
       title: 'Game installed',
       description: 'The game has been installed.',
     },
     {
-      id: ServerStatus.ready,
+      id: 'ready',
       title: 'Server ready',
       description: 'The server is ready to use.',
     },
@@ -83,22 +82,26 @@ export const Provisioning = ({ id }: ProvisioningProps) => {
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      const response = await getGameServer(id);
+      const response = await getServer(id);
 
       if ('error' in response) {
         throw new Error(response.error);
       }
 
-      setValue(items.findIndex((item) => item.id === response.data.status));
+      const status = response.data.tags?.find(
+        ({ key }) => key === 'status'
+      )?.value;
 
-      if (response.data.status === ServerStatus.ready) {
+      setValue(items.findIndex((item) => item.id === status));
+
+      if (status === 'ready') {
         clearInterval(interval);
         router.refresh();
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [id, router, items.findIndex]);
+  }, [id, router]);
 
   return (
     <Timeline value={value}>
