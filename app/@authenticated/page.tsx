@@ -1,10 +1,4 @@
 import { lightsail } from '@/lib/lightsail';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from '@/ui/breadcrumb';
 import { Button } from '@/ui/button';
 import { GetInstancesCommand } from '@aws-sdk/client-lightsail';
 import { currentUser } from '@clerk/nextjs/server';
@@ -46,20 +40,7 @@ const Overview = async () => {
     );
   }
 
-  return (
-    <>
-      <div className="flex items-center gap-2 p-4">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbPage>Home</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
-      <ServerList data={userInstances} />
-    </>
-  );
+  return <ServerList data={userInstances} />;
 };
 
 export default Overview;
