@@ -17,11 +17,11 @@ import { CircleAlertIcon, TrashIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-type DeleteServerButtonProps = {
+type DeleteButtonProps = {
   serverId: string;
 };
 
-export const DeleteServerButton = ({ serverId }: DeleteServerButtonProps) => {
+export const DeleteButton = ({ serverId }: DeleteButtonProps) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 

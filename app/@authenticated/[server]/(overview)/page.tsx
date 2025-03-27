@@ -66,7 +66,10 @@ const ServerPage = async ({ params }: Server) => {
             <h1 className="font-bold text-xl">
               {instance.tags?.find((tag) => tag.key === 'name')?.value}
             </h1>
-            <Status status={instance.state?.name ?? 'pending'} />
+            <Status
+              id={serverId}
+              defaultStatus={instance.state?.name ?? 'pending'}
+            />
           </div>
           <ServerDropdownMenu id={serverId} />
         </div>

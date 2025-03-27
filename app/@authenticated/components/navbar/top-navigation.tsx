@@ -69,7 +69,10 @@ export const TopNavigation = ({ servers }: TopNavigationProperties) => {
                     className="rounded-xs"
                   />
                   {activeServer.tags?.find((tag) => tag.key === 'name')?.value}
-                  <Status status={activeServer.state?.name ?? 'unknown'} />
+                  <Status
+                    id={activeServer.name ?? ''}
+                    defaultStatus={activeServer.state?.name ?? 'pending'}
+                  />
                 </div>
               ) : (
                 'Select server'
@@ -110,7 +113,10 @@ export const TopNavigation = ({ servers }: TopNavigationProperties) => {
                         className="rounded-xs"
                       />
                       {server.tags?.find((tag) => tag.key === 'name')?.value}
-                      <Status status={server.state?.name ?? 'unknown'} />
+                      <Status
+                        id={server.name ?? ''}
+                        defaultStatus={server.state?.name ?? 'unknown'}
+                      />
                       {value === server.name && (
                         <CheckIcon size={16} className="ml-auto" />
                       )}

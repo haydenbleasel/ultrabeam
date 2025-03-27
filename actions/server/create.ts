@@ -125,19 +125,19 @@ export const createServer = async (
     const id = nanoid();
     const suffix = `ultrabeam-${game}-${id}`;
     const serverName = `server-${suffix}`;
-    const keyPairName = `key-${suffix}`;
     const diskName = `disk-${suffix}`;
     const diskPath = '/dev/xvdf';
 
-    let privateKey = user.privateMetadata.privateKey as string | undefined;
     let publicKey = user.privateMetadata.publicKey as string | undefined;
+    let privateKey = user.privateMetadata.privateKey as string | undefined;
+    let keyPairName = user.privateMetadata.keyPairName as string | undefined;
 
-    if (!privateKey) {
+    if (!privateKey || !publicKey || !keyPairName) {
       const clerk = await clerkClient();
 
       // Create a key pair
       const createKeyPairResponse = await lightsail.send(
-        new CreateKeyPairCommand({ keyPairName })
+        new CreateKeyPairCommand({ keyPairName: `keypair-${user.id}` })
       );
 
       if (!createKeyPairResponse.publicKeyBase64) {
@@ -150,11 +150,13 @@ export const createServer = async (
 
       privateKey = createKeyPairResponse.privateKeyBase64;
       publicKey = createKeyPairResponse.publicKeyBase64;
+      keyPairName = createKeyPairResponse.keyPair?.name;
 
       await clerk.users.updateUserMetadata(user.id, {
         privateMetadata: {
           privateKey,
           publicKey,
+          keyPairName,
         },
       });
     }

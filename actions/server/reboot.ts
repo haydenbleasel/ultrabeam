@@ -1,8 +1,9 @@
 'use server';
+
 import { lightsail } from '@/lib/lightsail';
 import { RebootInstanceCommand } from '@aws-sdk/client-lightsail';
 
-type GetGameServerResponse =
+type RebootServerResponse =
   | {
       success: true;
     }
@@ -10,9 +11,9 @@ type GetGameServerResponse =
       error: string;
     };
 
-export const getGameServer = async (
+export const rebootServer = async (
   instanceName: string
-): Promise<GetGameServerResponse> => {
+): Promise<RebootServerResponse> => {
   try {
     await lightsail.send(new RebootInstanceCommand({ instanceName }));
 

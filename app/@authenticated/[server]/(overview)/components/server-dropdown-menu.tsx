@@ -9,8 +9,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/ui/dropdown-menu';
-import { EllipsisIcon, RotateCcwIcon, ScalingIcon } from 'lucide-react';
-import { DeleteServerButton } from './delete-server-button';
+import { EllipsisIcon, ScalingIcon } from 'lucide-react';
+import { DeleteButton } from './delete-button';
+import { RebootButton } from './reboot-button';
 
 type ServerDropdownMenuProps = {
   id: string;
@@ -25,11 +26,10 @@ export const ServerDropdownMenu = ({ id }: ServerDropdownMenuProps) => (
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
       <DropdownMenuGroup>
-        <DropdownMenuItem>
-          <RotateCcwIcon size={16} className="opacity-60" aria-hidden="true" />
-          <span>Reboot</span>
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          <RebootButton serverId={id} />
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()} disabled>
           <ScalingIcon size={16} className="opacity-60" aria-hidden="true" />
           <span>Resize</span>
         </DropdownMenuItem>
@@ -39,7 +39,7 @@ export const ServerDropdownMenu = ({ id }: ServerDropdownMenuProps) => (
         variant="destructive"
         onSelect={(e) => e.preventDefault()}
       >
-        <DeleteServerButton serverId={id} />
+        <DeleteButton serverId={id} />
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
