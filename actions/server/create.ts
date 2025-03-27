@@ -327,10 +327,8 @@ export const createServer = async (
           .connect({
             host: newInstance.publicIpAddress,
             username: 'ubuntu',
-            privateKey: Buffer.from(
-              createKeyPairResponse.privateKeyBase64 ?? '',
-              'base64'
-            ).toString(),
+            privateKey: createKeyPairResponse.privateKeyBase64,
+            port: 22,
           });
       });
 
