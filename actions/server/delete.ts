@@ -7,7 +7,7 @@ import {
   GetInstanceCommand,
 } from '@aws-sdk/client-lightsail';
 
-type DeleteGameServerResponse =
+type DeleteServerResponse =
   | {
       message: string;
     }
@@ -15,9 +15,9 @@ type DeleteGameServerResponse =
       error: string;
     };
 
-export const deleteGameServer = async (
+export const deleteServer = async (
   id: string
-): Promise<DeleteGameServerResponse> => {
+): Promise<DeleteServerResponse> => {
   try {
     const { instance } = await lightsail.send(
       new GetInstanceCommand({
@@ -31,7 +31,7 @@ export const deleteGameServer = async (
 
     const { disk } = await lightsail.send(
       new GetDiskCommand({
-        diskName: id,
+        diskName: instance.hardware?.disks?.at(0)?.name ?? '',
       })
     );
 

@@ -1,4 +1,5 @@
 'use client';
+import { games } from '@/games';
 import { cn } from '@/lib/utils';
 import { Button } from '@/ui/button';
 import {
@@ -10,20 +11,23 @@ import {
   CommandList,
 } from '@/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/ui/popover';
+import type { Instance } from '@aws-sdk/client-lightsail';
 import { CheckIcon, ChevronDownIcon } from 'lucide-react';
-import Image, { type StaticImageData } from 'next/image';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useId, useState } from 'react';
 import { Status } from '../status';
 
 type TopNavigationProperties = {
-  servers: {
-    id: string;
-    game: string;
-    status: string;
-    name: string;
-    image: StaticImageData;
-  }[];
+  servers: Instance[];
+};
+
+const getGame = (server: Instance) => {
+  const game = games.find(
+    (game) => game.id === server.tags?.find((tag) => tag.key === 'game')?.value
+  );
+
+  return game;
 };
 
 export const TopNavigation = ({ servers }: TopNavigationProperties) => {
@@ -32,7 +36,8 @@ export const TopNavigation = ({ servers }: TopNavigationProperties) => {
   const id = useId();
   const [open, setOpen] = useState<boolean>(false);
   const [value, setValue] = useState<string>(params.server as string);
-  const activeServer = servers.find((server) => server.id === value);
+  const activeServer = servers.find((server) => server.name === value);
+  const activeGame = activeServer ? getGame(activeServer) : undefined;
 
   const handleValueChange = (value: string) => {
     router.push(`/${value}`);
@@ -54,17 +59,17 @@ export const TopNavigation = ({ servers }: TopNavigationProperties) => {
             disabled={!servers.length}
           >
             <span className={cn('truncate', !value && 'text-muted-foreground')}>
-              {activeServer ? (
+              {activeServer && activeGame ? (
                 <div className="flex items-center gap-2">
                   <Image
-                    src={activeServer.image}
-                    alt={activeServer.game}
+                    src={activeGame.image}
+                    alt={activeGame.id}
                     width={16}
                     height={16}
                     className="rounded-xs"
                   />
-                  {activeServer.name}
-                  <Status status={activeServer.status} />
+                  {activeServer.tags?.find((tag) => tag.key === 'name')?.value}
+                  <Status status={activeServer.state?.name ?? 'unknown'} />
                 </div>
               ) : (
                 'Select server'
@@ -88,8 +93,8 @@ export const TopNavigation = ({ servers }: TopNavigationProperties) => {
               <CommandGroup>
                 {servers.map((server) => (
                   <CommandItem
-                    key={server.id}
-                    value={server.id}
+                    key={server.name}
+                    value={server.name}
                     onSelect={(currentValue) => {
                       setValue(currentValue === value ? '' : currentValue);
                       setOpen(false);
@@ -98,15 +103,15 @@ export const TopNavigation = ({ servers }: TopNavigationProperties) => {
                   >
                     <div className="flex items-center gap-2">
                       <Image
-                        src={server.image}
-                        alt={server.game}
+                        src={getGame(server)?.image ?? ''}
+                        alt={getGame(server)?.id ?? ''}
                         width={16}
                         height={16}
                         className="rounded-xs"
                       />
-                      {server.name}
-                      <Status status={server.status} />
-                      {value === server.id && (
+                      {server.tags?.find((tag) => tag.key === 'name')?.value}
+                      <Status status={server.state?.name ?? 'unknown'} />
+                      {value === server.name && (
                         <CheckIcon size={16} className="ml-auto" />
                       )}
                     </div>

@@ -1,9 +1,21 @@
 'use client';
 
-import { deleteGameServer } from '@/actions/server/delete';
+import { deleteServer } from '@/actions/server/delete';
 import { handleError } from '@/lib/utils';
 import { Button } from '@/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/ui/dialog';
+import { CircleAlertIcon, TrashIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 type DeleteServerButtonProps = {
   serverId: string;
@@ -11,10 +23,17 @@ type DeleteServerButtonProps = {
 
 export const DeleteServerButton = ({ serverId }: DeleteServerButtonProps) => {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleDeleteServer = async () => {
+    if (isLoading) {
+      return;
+    }
+
     try {
-      const response = await deleteGameServer(serverId);
+      setIsLoading(true);
+
+      const response = await deleteServer(serverId);
 
       if ('error' in response) {
         throw new Error(response.error);
@@ -23,12 +42,53 @@ export const DeleteServerButton = ({ serverId }: DeleteServerButtonProps) => {
       router.push('/');
     } catch (error) {
       handleError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <Button type="submit" variant="destructive" onClick={handleDeleteServer}>
-      Delete Server
-    </Button>
+    <Dialog>
+      <DialogTrigger className="flex w-full items-center gap-2">
+        <TrashIcon size={16} aria-hidden="true" />
+        <span>Delete</span>
+      </DialogTrigger>
+      <DialogContent>
+        <div className="flex flex-col items-center gap-2">
+          <div
+            className="flex size-9 shrink-0 items-center justify-center rounded-full border"
+            aria-hidden="true"
+          >
+            <CircleAlertIcon className="opacity-80" size={16} />
+          </div>
+          <DialogHeader>
+            <DialogTitle className="sm:text-center">Are you sure?</DialogTitle>
+            <DialogDescription className="sm:text-center">
+              This action cannot be undone. This will delete both the server and
+              all the save data associated with it.
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+
+        <form className="space-y-5">
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline" className="flex-1">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              type="button"
+              className="flex-1"
+              onClick={handleDeleteServer}
+              disabled={isLoading}
+              variant="destructive"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };

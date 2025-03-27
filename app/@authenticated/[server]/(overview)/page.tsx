@@ -1,9 +1,7 @@
 import { games } from '@/games';
 import { lightsail } from '@/lib/lightsail';
 import { Badge } from '@/ui/badge';
-import { Button } from '@/ui/button';
 import { Input } from '@/ui/input';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/tooltip';
 import { GetInstanceCommand } from '@aws-sdk/client-lightsail';
 import { currentUser } from '@clerk/nextjs/server';
 import {
@@ -12,12 +10,12 @@ import {
   GlobeIcon,
   HardDriveIcon,
   MemoryStickIcon,
-  RotateCcwIcon,
 } from 'lucide-react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Status } from '../../components/status';
 import { Connect } from './components/connect';
+import { ServerDropdownMenu } from './components/server-dropdown-menu';
 
 type Server = {
   params: Promise<{
@@ -65,19 +63,12 @@ const ServerPage = async ({ params }: Server) => {
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="font-bold text-xl">{instance.name}</h1>
+            <h1 className="font-bold text-xl">
+              {instance.tags?.find((tag) => tag.key === 'name')?.value}
+            </h1>
             <Status status={instance.state?.name ?? 'pending'} />
           </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <RotateCcwIcon size={16} className="text-muted-foreground" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Reboot server</p>
-            </TooltipContent>
-          </Tooltip>
+          <ServerDropdownMenu id={serverId} />
         </div>
         <div className="my-4 flex flex-wrap items-center gap-2">
           <Badge
