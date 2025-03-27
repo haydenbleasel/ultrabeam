@@ -1,8 +1,8 @@
 'use server';
 
 import { games } from '@/games';
+import { ServerStatus } from '@/generated/client';
 import { database } from '@/lib/database';
-import { env } from '@/lib/env';
 import { lightsail } from '@/lib/lightsail';
 import { log } from '@/lib/observability/log';
 import {
@@ -21,10 +21,10 @@ import {
   type InstanceState,
   OpenInstancePublicPortsCommand,
 } from '@aws-sdk/client-lightsail';
-import { SSMClient, SendCommandCommand } from '@aws-sdk/client-ssm';
 import { currentUser } from '@clerk/nextjs/server';
 import { waitUntil } from '@vercel/functions';
 import { nanoid } from 'nanoid';
+import { Client } from 'ssh2';
 
 type CreateServerResponse =
   | {
@@ -128,6 +128,8 @@ export const createServer = async (
         serverName,
         keyPairName,
         diskName,
+        password,
+        status: ServerStatus.createdServer,
       },
     });
 
@@ -141,8 +143,13 @@ export const createServer = async (
         throw new Error('Failed to create key pair: no public key');
       }
 
+      await database.server.update({
+        where: { id: server.id },
+        data: { status: ServerStatus.createdKeyPair },
+      });
+
       // Create the instance
-      const createInstanceResponse = await lightsail.send(
+      await lightsail.send(
         new CreateInstancesCommand({
           instanceNames: [serverName],
           availabilityZone: `${region}a`,
@@ -170,11 +177,20 @@ export const createServer = async (
         })
       );
 
+      await database.server.update({
+        where: { id: server.id },
+        data: { status: ServerStatus.createdInstance },
+      });
+
       // Wait for the instance to be ready before attaching the disk
       await waitForInstanceStatus(serverName, 'running');
 
-      // Open the required ports
+      await database.server.update({
+        where: { id: server.id },
+        data: { status: ServerStatus.instanceAvailable },
+      });
 
+      // Open the required ports
       for (const port of gameInfo.ports) {
         await lightsail.send(
           new OpenInstancePublicPortsCommand({
@@ -188,11 +204,26 @@ export const createServer = async (
         );
       }
 
-      // Get the new instance
-      const newInstance = createInstanceResponse.operations?.at(0);
+      await database.server.update({
+        where: { id: server.id },
+        data: { status: ServerStatus.openedPorts },
+      });
+
+      // Get the instance IP address
+      const { instance: newInstance } = await lightsail.send(
+        new GetInstanceCommand({ instanceName: serverName })
+      );
 
       if (!newInstance) {
         throw new Error("Couldn't retrieve new instance");
+      }
+
+      if (!newInstance.location?.availabilityZone) {
+        throw new Error('Availability zone not found');
+      }
+
+      if (!newInstance.publicIpAddress) {
+        throw new Error('Public IP address not found');
       }
 
       // Create a block storage disk
@@ -204,8 +235,18 @@ export const createServer = async (
         })
       );
 
+      await database.server.update({
+        where: { id: server.id },
+        data: { status: ServerStatus.createdDisk },
+      });
+
       // Wait for the disk to be ready
       await waitForDiskStatus(diskName, 'available');
+
+      await database.server.update({
+        where: { id: server.id },
+        data: { status: ServerStatus.diskAvailable },
+      });
 
       // Attach the disk to the instance
       await lightsail.send(
@@ -216,10 +257,84 @@ export const createServer = async (
         })
       );
 
+      await database.server.update({
+        where: { id: server.id },
+        data: { status: ServerStatus.diskAttached },
+      });
+
       // Wait for the disk to be attached
       await waitForDiskStatus(diskName, 'in-use');
 
-      const backendId = newInstance.resourceName;
+      await database.server.update({
+        where: { id: server.id },
+        data: { status: ServerStatus.diskInUse },
+      });
+
+      // Get the game script
+      const installModule = await import(`../../games/${game}/install`);
+      const installScript = installModule.default;
+
+      if (typeof installScript !== 'function') {
+        throw new Error(`Invalid install script for game: ${game}`);
+      }
+
+      const ssh = new Client();
+
+      await new Promise<void>((resolve, reject) => {
+        const sshTimeout = setTimeout(
+          () => {
+            reject(new Error('SSH command timed out'));
+            ssh.end();
+          },
+          5 * 60 * 1000
+        ); // 5 minutes
+
+        ssh
+          .on('ready', () => {
+            console.log('SSH Connection ready');
+
+            ssh.exec('bash -s', (err, stream) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+
+              stream
+                .on('close', (code: number, signal: string) => {
+                  console.log(`Command exited with code ${code}`);
+                  clearTimeout(sshTimeout);
+                  ssh.end();
+                  resolve();
+                })
+                .on('data', (data: Buffer) => {
+                  console.log(`STDOUT: ${data}`);
+                })
+                .stderr.on('data', (data: Buffer) => {
+                  console.error(`STDERR: ${data}`);
+                });
+
+              // Combine mount + install scripts here
+              stream.write(`${mountVolumeScript(diskPath)}\n`);
+              stream.write(
+                `${installScript(serverName, password, 'America/New_York')}\n`
+              );
+              stream.end();
+            });
+          })
+          .on('error', (err) => {
+            reject(err);
+          })
+          .connect({
+            host: newInstance.publicIpAddress,
+            username: 'ubuntu',
+            privateKey: Buffer.from(
+              createKeyPairResponse.privateKeyBase64 ?? '',
+              'base64'
+            ).toString(),
+          });
+      });
+
+      const backendId = newInstance.name;
       const privateKey = createKeyPairResponse.privateKeyBase64;
 
       if (!backendId || !privateKey) {
@@ -232,34 +347,6 @@ export const createServer = async (
         throw new Error('Failed to create server');
       }
 
-      // Get the game script
-      const installModule = await import(`../../games/${game}/install`);
-      const installScript = installModule.default;
-
-      if (typeof installScript !== 'function') {
-        throw new Error(`Invalid install script for game: ${game}`);
-      }
-
-      // Mount the disk and run the scripts
-      await new SSMClient({
-        region: newInstance.location?.regionName,
-        credentials: {
-          accessKeyId: env.AWS_ACCESS_KEY,
-          secretAccessKey: env.AWS_SECRET_KEY,
-        },
-      }).send(
-        new SendCommandCommand({
-          InstanceIds: [backendId],
-          DocumentName: 'AWS-RunShellScript',
-          Parameters: {
-            commands: [
-              mountVolumeScript(diskPath),
-              installScript(serverName, password, 'America/New_York'),
-            ],
-          },
-        })
-      );
-
       await database.server.update({
         where: {
           id: server.id,
@@ -267,6 +354,7 @@ export const createServer = async (
         data: {
           backendId,
           privateKey,
+          status: ServerStatus.ready,
         },
       });
 

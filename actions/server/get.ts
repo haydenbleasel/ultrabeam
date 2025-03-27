@@ -1,12 +1,12 @@
 'use server';
 
-import { getServer } from '@/lib/backend';
+import type { Server } from '@/generated/client';
 import { database } from '@/lib/database';
 import { currentUser } from '@clerk/nextjs/server';
 
 type GetGameServerResponse =
   | {
-      data: Awaited<ReturnType<typeof getServer>>;
+      data: Server;
     }
   | {
       error: string;
@@ -30,17 +30,7 @@ export const getGameServer = async (
       throw new Error('Server not found');
     }
 
-    if (!server.backendId) {
-      throw new Error('Backend ID not found');
-    }
-
-    const data = await getServer(server.backendId);
-
-    if (!data) {
-      throw new Error('Server not found');
-    }
-
-    return { data };
+    return { data: server };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
 

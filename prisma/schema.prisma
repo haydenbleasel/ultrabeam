@@ -14,9 +14,9 @@ datasource db {
 }
 
 model Server {
-  id          String   @id @default(uuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id          String       @id @default(uuid())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   ownerId     String
   name        String
   game        String
@@ -25,4 +25,20 @@ model Server {
   keyPairName String
   diskName    String
   serverName  String
+  password    String
+  status      ServerStatus @default(createdServer)
+}
+
+enum ServerStatus {
+  createdServer
+  createdKeyPair
+  createdInstance
+  instanceAvailable
+  openedPorts
+  createdDisk
+  diskAvailable
+  diskAttached
+  diskInUse
+  gameInstalled
+  ready
 }

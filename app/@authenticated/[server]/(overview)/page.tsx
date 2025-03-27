@@ -3,6 +3,7 @@ import { getServer } from '@/lib/backend';
 import { database } from '@/lib/database';
 import { Badge } from '@/ui/badge';
 import { Button } from '@/ui/button';
+import { Input } from '@/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/tooltip';
 import { currentUser } from '@clerk/nextjs/server';
 import {
@@ -119,7 +120,16 @@ const ServerPage = async ({ params }: Server) => {
             {gameServer.location?.regionName}
           </Badge>
         </div>
-        <Connect ip={gameServer.publicIpAddress ?? ''} port={activeGame.port} />
+        <Input
+          type="password"
+          placeholder="Password"
+          value={instance.password}
+          disabled
+        />
+        <Connect
+          ip={gameServer.publicIpAddress ?? ''}
+          port={activeGame.ports[0].from}
+        />
       </div>
     </div>
   );

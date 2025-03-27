@@ -15,6 +15,6 @@ const adapter = new PrismaNeon(pool);
 
 export const database = globalForPrisma.prisma || new PrismaClient({ adapter });
 
-if (env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = database;
 }
