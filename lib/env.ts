@@ -31,8 +31,8 @@ export const env = createEnv({
     CLERK_SECRET_KEY: z.string().min(1).startsWith('sk_'),
 
     // AWS
-    AWS_ACCESS_KEY: z.string().min(1),
-    AWS_SECRET_KEY: z.string().min(1),
+    ULTRABEAM_AWS_ACCESS_KEY: z.string().min(1),
+    ULTRABEAM_AWS_SECRET_KEY: z.string().min(1),
 
     // Stripe
     STRIPE_SECRET_KEY: z.string().min(1),
@@ -66,8 +66,8 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL,
     ANALYZE: process.env.ANALYZE,
     NEXT_RUNTIME: process.env.NEXT_RUNTIME,
-    AWS_ACCESS_KEY: process.env.AWS_ACCESS_KEY,
-    AWS_SECRET_KEY: process.env.AWS_SECRET_KEY,
+    ULTRABEAM_AWS_ACCESS_KEY: process.env.ULTRABEAM_AWS_ACCESS_KEY,
+    ULTRABEAM_AWS_SECRET_KEY: process.env.ULTRABEAM_AWS_SECRET_KEY,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     BETTERSTACK_API_KEY: process.env.BETTERSTACK_API_KEY,
     BETTERSTACK_URL: process.env.BETTERSTACK_URL,

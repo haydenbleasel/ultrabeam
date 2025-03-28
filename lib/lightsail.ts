@@ -12,8 +12,8 @@ import { Client } from 'ssh2';
 export const lightsail = new LightsailClient({
   region: 'us-east-1',
   credentials: {
-    accessKeyId: env.AWS_ACCESS_KEY,
-    secretAccessKey: env.AWS_SECRET_KEY,
+    accessKeyId: env.ULTRABEAM_AWS_ACCESS_KEY,
+    secretAccessKey: env.ULTRABEAM_AWS_SECRET_KEY,
   },
 });
 
