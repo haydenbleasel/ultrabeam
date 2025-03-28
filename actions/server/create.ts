@@ -44,6 +44,62 @@ const updateInstanceStatus = async (instanceName: string, status: string) => {
   );
 };
 
+const runSSHCommand = async (
+  ip: string,
+  privateKey: string,
+  command: string
+) => {
+  const ssh = new Client();
+
+  await new Promise<void>((resolve, reject) => {
+    const sshTimeout = setTimeout(
+      () => {
+        reject(new Error('SSH command timed out'));
+        ssh.end();
+      },
+      10 * 60 * 1000
+    ); // 10 minutes
+
+    ssh
+      .on('ready', () => {
+        console.log('SSH Connection ready');
+
+        ssh.exec('bash -s', (err, stream) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          stream
+            .on('close', (code: number, signal: string) => {
+              console.log(`Command exited with code ${code}`);
+              clearTimeout(sshTimeout);
+              ssh.end();
+              resolve();
+            })
+            .on('data', (data: Buffer) => {
+              console.log(`STDOUT: ${data}`);
+            })
+            .stderr.on('data', (data: Buffer) => {
+              console.error(`STDERR: ${data}`);
+            });
+
+          stream.write(`${command}\n`);
+          stream.end();
+        });
+      })
+      .on('error', (err) => {
+        reject(err);
+      })
+      .connect({
+        host: ip,
+        username: 'ubuntu',
+        privateKey,
+        port: 22,
+      });
+  });
+};
+
 export const createServer = async (
   name: string,
   password: string,
@@ -223,62 +279,35 @@ export const createServer = async (
         throw new Error(`Invalid install script for game: ${game}`);
       }
 
-      const ssh = new Client();
+      // Install CloudWatch Agent
+      await runSSHCommand(
+        newInstance.publicIpAddress,
+        privateKey,
+        cloudWatchScript(instanceName)
+      );
+      await updateInstanceStatus(instanceName, 'cloudWatchInstalled');
 
-      await new Promise<void>((resolve, reject) => {
-        const sshTimeout = setTimeout(
-          () => {
-            reject(new Error('SSH command timed out'));
-            ssh.end();
-          },
-          5 * 60 * 1000
-        ); // 5 minutes
+      // Install Docker
+      await runSSHCommand(
+        newInstance.publicIpAddress,
+        privateKey,
+        bootstrapScript
+      );
+      await updateInstanceStatus(instanceName, 'dockerInstalled');
 
-        ssh
-          .on('ready', () => {
-            console.log('SSH Connection ready');
+      // Mount the volume
+      await runSSHCommand(
+        newInstance.publicIpAddress,
+        privateKey,
+        mountVolumeScript
+      );
+      await updateInstanceStatus(instanceName, 'volumeMounted');
 
-            ssh.exec('bash -s', (err, stream) => {
-              if (err) {
-                reject(err);
-                return;
-              }
-
-              stream
-                .on('close', (code: number, signal: string) => {
-                  console.log(`Command exited with code ${code}`);
-                  clearTimeout(sshTimeout);
-                  ssh.end();
-                  resolve();
-                })
-                .on('data', (data: Buffer) => {
-                  console.log(`STDOUT: ${data}`);
-                })
-                .stderr.on('data', (data: Buffer) => {
-                  console.error(`STDERR: ${data}`);
-                });
-
-              // Combine mount + install scripts here
-              stream.write(`${cloudWatchScript(instanceName)}\n`);
-              stream.write(`${bootstrapScript}\n`);
-              stream.write(`${mountVolumeScript}\n`);
-              stream.write(
-                `${installScript(instanceName, password, 'America/New_York')}\n`
-              );
-              stream.end();
-            });
-          })
-          .on('error', (err) => {
-            reject(err);
-          })
-          .connect({
-            host: newInstance.publicIpAddress,
-            username: 'ubuntu',
-            privateKey,
-            port: 22,
-          });
-      });
-
+      await runSSHCommand(
+        newInstance.publicIpAddress,
+        privateKey,
+        installScript(instanceName, password, 'America/New_York')
+      );
       await updateInstanceStatus(instanceName, 'ready');
 
       log.info(`Server created: ${instanceName}`);
