@@ -12,6 +12,7 @@ import {
   GetInstanceCommand,
   StopInstanceCommand,
 } from '@aws-sdk/client-lightsail';
+import { waitUntil } from '@vercel/functions';
 
 type DeleteServerResponse =
   | {
@@ -43,40 +44,44 @@ export const deleteServer = async (
       throw new Error('Disk name not found');
     }
 
-    // Stop the instance
-    await lightsail.send(
-      new StopInstanceCommand({
-        instanceName,
-      })
-    );
+    const promise = async () => {
+      // Stop the instance
+      await lightsail.send(
+        new StopInstanceCommand({
+          instanceName,
+        })
+      );
 
-    // Wait for the instance to be stopped
-    await waitForInstanceStatus(instanceName, 'stopped');
+      // Wait for the instance to be stopped
+      await waitForInstanceStatus(instanceName, 'stopped');
 
-    // Detach the disk
-    await lightsail.send(
-      new DetachDiskCommand({
-        diskName,
-      })
-    );
+      // Detach the disk
+      await lightsail.send(
+        new DetachDiskCommand({
+          diskName,
+        })
+      );
 
-    // Wait for the disk to be detached
-    await waitForDiskStatus(diskName, 'available');
+      // Wait for the disk to be detached
+      await waitForDiskStatus(diskName, 'available');
 
-    // Delete the instance
-    await lightsail.send(
-      new DeleteInstanceCommand({
-        instanceName,
-        forceDeleteAddOns: true,
-      })
-    );
+      // Delete the instance
+      await lightsail.send(
+        new DeleteInstanceCommand({
+          instanceName,
+          forceDeleteAddOns: true,
+        })
+      );
 
-    // Delete the disk
-    await lightsail.send(
-      new DeleteDiskCommand({
-        diskName,
-      })
-    );
+      // Delete the disk
+      await lightsail.send(
+        new DeleteDiskCommand({
+          diskName,
+        })
+      );
+    };
+
+    waitUntil(promise());
 
     return { message: 'Server deleted' };
   } catch (error) {

@@ -21,10 +21,7 @@ apt update && apt upgrade -y
 # Install Docker
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
-sudo apt install docker-compose
-
-# Create a dedicated user for the game
-useradd -m -s /bin/bash ultrabeam`;
+sudo apt install docker-compose`;
 
 export const mountVolumeScript = `
 #!/bin/bash
@@ -44,7 +41,4 @@ sudo mkdir -p /mnt/gamedata
 sudo mount "$DISK" /mnt/gamedata
 
 # Make it persistent after reboot
-echo "$DISK /mnt/gamedata ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
-
-# Change ownership of the mount directory
-chown -R ultrabeam:ultrabeam /mnt/gamedata`;
+echo "$DISK /mnt/gamedata ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab`;
