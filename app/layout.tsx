@@ -33,7 +33,7 @@ const RootLayout = async ({
                   </main>
                 </div>
               </TooltipProvider>
-              <Toaster />
+              <Toaster position="bottom-center" />
             </AnalyticsProvider>
           </ThemeProvider>
         </AuthProvider>
