@@ -14,7 +14,9 @@ import {
   sshInitScript,
 } from '@/lib/scripts';
 import {
+  AllocateStaticIpCommand,
   AttachDiskCommand,
+  AttachStaticIpCommand,
   CreateDiskCommand,
   CreateInstancesCommand,
   CreateKeyPairCommand,
@@ -157,7 +159,33 @@ export const createServer = async (
       // Update the instance status
       await updateInstanceStatus(instanceName, 'openedPorts');
 
-      // Get the instance IP address
+      // Allocate a static IP address
+      const allocateStaticIpResponse = await lightsail.send(
+        new AllocateStaticIpCommand({ staticIpName: nanoid() })
+      );
+
+      const staticIpName =
+        allocateStaticIpResponse.operations?.at(0)?.resourceName;
+
+      if (!staticIpName) {
+        throw new Error('Failed to allocate static IP address');
+      }
+
+      // Update the instance status
+      await updateInstanceStatus(instanceName, 'staticIpAllocated');
+
+      // Attach the static IP address to the instance
+      await lightsail.send(
+        new AttachStaticIpCommand({
+          staticIpName,
+          instanceName,
+        })
+      );
+
+      // Update the instance status
+      await updateInstanceStatus(instanceName, 'staticIpAttached');
+
+      // Get the new instance
       const { instance: newInstance } = await lightsail.send(
         new GetInstanceCommand({ instanceName })
       );

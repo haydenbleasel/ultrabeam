@@ -43,6 +43,16 @@ const items = [
     description: 'The required ports have been opened.',
   },
   {
+    id: 'staticIpAllocated',
+    title: 'Static IP allocated',
+    description: 'The static IP address has been allocated.',
+  },
+  {
+    id: 'staticIpAttached',
+    title: 'Static IP attached',
+    description: 'The static IP address has been attached to the server.',
+  },
+  {
     id: 'createdDisk',
     title: 'Disk created',
     description: 'The disk has been created.',
