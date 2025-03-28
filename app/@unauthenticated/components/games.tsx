@@ -12,25 +12,25 @@ export const Games = () => (
         Ultrabeam supports Valheim, Palworld, and Minecraft.
       </p>
     </div>
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       {games.map((game, index) => (
         <div key={game.name} className="relative">
           <div
             className={cn(
               'absolute inset-px rounded-lg bg-background',
               !index && 'lg:rounded-tl-[2rem]',
-              index === 1 && 'lg:rounded-tr-[2rem]',
+              index === 2 && 'lg:rounded-tr-[2rem]',
               index === games.length - 1 && 'lg:rounded-br-[2rem]',
-              index === games.length - 2 && 'lg:rounded-bl-[2rem]'
+              index === games.length - 3 && 'lg:rounded-bl-[2rem]'
             )}
           />
           <div
             className={cn(
               'relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius)+1px)]',
               !index && 'lg:rounded-tl-[calc(2rem+1px)]',
-              index === 1 && 'lg:rounded-tr-[calc(2rem+1px)]',
+              index === 2 && 'lg:rounded-tr-[calc(2rem+1px)]',
               index === games.length - 1 && 'lg:rounded-br-[calc(2rem+1px)]',
-              index === games.length - 2 && 'lg:rounded-bl-[calc(2rem+1px)]'
+              index === games.length - 3 && 'lg:rounded-bl-[calc(2rem+1px)]'
             )}
           >
             <Image
@@ -53,9 +53,9 @@ export const Games = () => (
             className={cn(
               'pointer-events-none absolute inset-px rounded-lg shadow-sm ring-1 ring-border',
               !index && 'lg:rounded-tl-[2rem]',
-              index === 1 && 'lg:rounded-tr-[2rem]',
+              index === 2 && 'lg:rounded-tr-[2rem]',
               index === games.length - 1 && 'lg:rounded-br-[2rem]',
-              index === games.length - 2 && 'lg:rounded-bl-[2rem]'
+              index === games.length - 3 && 'lg:rounded-bl-[2rem]'
             )}
           />
         </div>
