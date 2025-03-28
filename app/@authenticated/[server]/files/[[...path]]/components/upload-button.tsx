@@ -1,8 +1,8 @@
 'use client';
 
 import { uploadFile } from '@/actions/files/upload';
+import { Button } from '@/components/ui/button';
 import { handleError } from '@/lib/utils';
-import { Button } from '@/ui/button';
 import { Loader2Icon, UploadCloudIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { type ChangeEventHandler, useRef, useState } from 'react';

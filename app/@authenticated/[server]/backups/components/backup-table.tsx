@@ -1,7 +1,6 @@
 'use client';
 
-import { cn } from '@/lib/utils';
-import { Checkbox } from '@/ui/checkbox';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
@@ -9,7 +8,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/ui/table';
+} from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 import type { InstanceSnapshot } from '@aws-sdk/client-lightsail';
 import {
   type ColumnDef,

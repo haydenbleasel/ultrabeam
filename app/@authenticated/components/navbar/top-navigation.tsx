@@ -1,7 +1,5 @@
 'use client';
-import { games } from '@/games';
-import { cn } from '@/lib/utils';
-import { Button } from '@/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -9,8 +7,14 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/ui/popover';
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { games } from '@/games';
+import { cn } from '@/lib/utils';
 import type { Instance } from '@aws-sdk/client-lightsail';
 import { CheckIcon, ChevronDownIcon } from 'lucide-react';
 import Image from 'next/image';

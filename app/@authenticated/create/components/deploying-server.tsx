@@ -1,7 +1,7 @@
 'use client';
 
 import { getServer } from '@/actions/server/get';
-import { Button } from '@/ui/button';
+import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';

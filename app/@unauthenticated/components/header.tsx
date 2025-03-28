@@ -1,5 +1,5 @@
 import { Logo } from '@/components/logo';
-import { Button } from '@/ui/button';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 export const Header = () => (

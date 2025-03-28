@@ -1,7 +1,7 @@
 import { Logo } from '@/components/logo';
 import { ModeToggle } from '@/components/mode-toggle';
+import { Button } from '@/components/ui/button';
 import { lightsail } from '@/lib/lightsail';
-import { Button } from '@/ui/button';
 import { GetInstancesCommand } from '@aws-sdk/client-lightsail';
 import { UserButton } from '@clerk/nextjs';
 import { currentUser } from '@clerk/nextjs/server';

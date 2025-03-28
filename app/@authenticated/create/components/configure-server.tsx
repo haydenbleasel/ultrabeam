@@ -1,7 +1,6 @@
 import { Globe } from '@/components/globe';
-import type { getRegions, getSizes } from '@/lib/backend';
-import { Input } from '@/ui/input';
-import { Label } from '@/ui/label';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -10,7 +9,8 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/ui/select';
+} from '@/components/ui/select';
+import type { getRegions, getSizes } from '@/lib/backend';
 import type { Marker } from 'cobe';
 import { useMemo } from 'react';
 

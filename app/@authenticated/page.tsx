@@ -1,5 +1,5 @@
+import { Button } from '@/components/ui/button';
 import { lightsail } from '@/lib/lightsail';
-import { Button } from '@/ui/button';
 import { GetInstancesCommand } from '@aws-sdk/client-lightsail';
 import { currentUser } from '@clerk/nextjs/server';
 import type { Metadata } from 'next';

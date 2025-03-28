@@ -1,10 +1,10 @@
 import { AuthProvider } from '@/providers/auth';
 import './styles.css';
+import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { AnalyticsProvider } from '@/lib/analytics';
 import { fonts } from '@/lib/fonts';
 import { ThemeProvider } from '@/providers/theme';
-import { Toaster } from '@/ui/sonner';
-import { TooltipProvider } from '@/ui/tooltip';
 import { currentUser } from '@clerk/nextjs/server';
 import type { ReactNode } from 'react';
 
