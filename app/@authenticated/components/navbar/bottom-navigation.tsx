@@ -12,6 +12,7 @@ import {
 } from '@/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/ui/popover';
 import {
+  ChartBarIcon,
   CheckIcon,
   ChevronDownIcon,
   DatabaseIcon,
@@ -40,6 +41,11 @@ export const BottomNavigation = () => {
       value: `/${params.server}/backups`,
       label: 'Backups',
       icon: DatabaseIcon,
+    },
+    {
+      value: `/${params.server}/metrics`,
+      label: 'Metrics',
+      icon: ChartBarIcon,
     },
   ];
 

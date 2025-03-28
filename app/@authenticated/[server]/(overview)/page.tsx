@@ -84,7 +84,7 @@ const ServerPage = async ({ params }: Server) => {
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="font-bold text-xl">
+            <h1 className="font-semibold text-xl">
               {instance.tags?.find((tag) => tag.key === 'name')?.value}
             </h1>
             <Status
