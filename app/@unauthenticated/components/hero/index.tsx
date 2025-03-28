@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Background from './background.jpg';
 
 export const Hero = () => (
-  <div className="-mt-16 -mx-16 dark relative isolate flex aspect-video items-end overflow-hidden rounded-3xl">
+  <div className="-mx-16 dark relative isolate flex aspect-video items-end overflow-hidden rounded-3xl">
     <Image
       src={Background}
       alt="Background"
