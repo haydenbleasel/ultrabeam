@@ -26,19 +26,11 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
       throw new Error('Instance not found');
     }
 
-    const privateKey = instance.tags?.find(
-      (tag) => tag.key === 'private_key'
-    )?.value;
-
-    if (!privateKey) {
-      throw new Error('Private key not found');
-    }
-
     const conn = new Client();
 
     const logs = await new Promise<string>((resolve, reject) => {
       conn.on('ready', () => {
-        conn.exec('tail -n 50 /var/log/syslog', (err, stream) => {
+        conn.exec('tail -n 500 /var/log/syslog', (err, stream) => {
           if (err) {
             reject(new Error('Failed to execute command'));
             return;
@@ -59,10 +51,10 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
       conn.on('error', reject);
 
       conn.connect({
-        host: instance.publicIpAddress?.at(0),
+        host: instance.publicIpAddress,
         port: 22,
-        username: 'root',
-        privateKey: Buffer.from(privateKey.trim()),
+        username: 'ubuntu',
+        privateKey: user.privateMetadata.privateKey as string,
       });
     });
 
