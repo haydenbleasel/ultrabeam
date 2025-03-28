@@ -41,7 +41,7 @@ export const games = [
     name: 'Valheim',
     image: ValheimImage,
     description:
-      'Valheim is a sandbox game where you can build your own world.',
+      'A Viking-themed action RPG where you explore, craft, build, and survive.',
     ports: [
       {
         protocol: 'udp',
