@@ -7,4 +7,4 @@ const markers: Marker[] = Object.values(regionData).map((region) => ({
   size: 0.1,
 }));
 
-export const Deployments = () => <Globe markers={markers} />;
+export const Deployments = () => <Globe markers={markers} size={376} />;

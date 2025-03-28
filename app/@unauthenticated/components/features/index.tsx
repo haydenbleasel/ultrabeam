@@ -69,7 +69,7 @@ export const Features = () => (
           <div className="p-10 pt-4">
             <h3 className="font-semibold text-primary text-sm/4">Security</h3>
             <p className="mt-2 font-medium text-foreground text-lg tracking-tight">
-              Enterprise-grade protection
+              Secure and private
             </p>
             <p className="mt-2 max-w-lg text-muted-foreground text-sm/6">
               Your game servers are protected by SSH key authentication,
