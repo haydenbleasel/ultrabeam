@@ -2,7 +2,7 @@ import { getServer } from '@/lib/backend';
 import { currentUser } from '@clerk/nextjs/server';
 import { notFound } from 'next/navigation';
 import SFTPClient from 'ssh2-sftp-client';
-import FileTable from './components/file-table';
+import { FileTable } from './components/file-table';
 import { Path } from './components/path';
 
 type ServerProps = {
@@ -38,7 +38,7 @@ const FilesPage = async ({ params }: ServerProps) => {
 
   return (
     <div className="grid gap-4 p-4">
-      <FileTable data={fileList} />
+      <FileTable data={fileList} path={flattenedPath} />
       <Path value={flattenedPath} />
     </div>
   );
