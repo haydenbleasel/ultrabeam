@@ -143,7 +143,7 @@ const ServerPage = async ({ params }: Server) => {
           >
             <UsersIcon size={16} />
             <PlayerCount
-              game={activeGame.id}
+              game={activeGame.gamedigId}
               ip={instance.publicIpAddress ?? ''}
               port={activeGame.ports[0].from}
               defaultPlayers={players.data.players}
