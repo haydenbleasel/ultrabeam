@@ -8,6 +8,7 @@ import ValheimImage from './valheim/image.jpg';
 export const games = [
   {
     id: 'palworld',
+    gamedigId: 'palworld',
     name: 'Palworld',
     image: PalworldImage,
     description:
@@ -27,6 +28,7 @@ export const games = [
   },
   {
     id: 'minecraft',
+    gamedigId: 'minecraft',
     name: 'Minecraft',
     image: MinecraftImage,
     description:
@@ -41,6 +43,7 @@ export const games = [
   },
   {
     id: 'valheim',
+    gamedigId: 'valheim',
     name: 'Valheim',
     image: ValheimImage,
     description:
@@ -55,6 +58,7 @@ export const games = [
   },
   {
     id: 'enshrouded',
+    gamedigId: 'enshrouded',
     name: 'Enshrouded',
     image: EnshroudedImage,
     description:
@@ -74,6 +78,7 @@ export const games = [
   },
   {
     id: 'rust',
+    gamedigId: 'rust',
     name: 'Rust',
     image: RustImage,
     description:
@@ -93,6 +98,7 @@ export const games = [
   },
   {
     id: 'terraria',
+    gamedigId: 'terrariatshock',
     name: 'Terraria',
     image: TerrariaImage,
     description:
