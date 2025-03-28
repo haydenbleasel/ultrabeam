@@ -95,6 +95,8 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
     }
   };
 
+  // Lightsail + Block Storage
+  const price = (selectedSize?.price ?? 0) + 2;
   const items = [
     {
       id: '1',
@@ -132,7 +134,7 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
             {isLoading ? (
               <Loader2Icon size={16} className="animate-spin" />
             ) : (
-              `Create server for $${selectedSize?.price}/month`
+              `Create server for $${price}/month`
             )}
           </Button>
         </>
