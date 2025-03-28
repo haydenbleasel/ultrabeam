@@ -60,7 +60,6 @@
     "cmdk": "^1.0.0",
     "cobe": "^0.6.3",
     "date-fns": "^4.1.0",
-    "diff": "^7.0.0",
     "embla-carousel-react": "^8.5.2",
     "fuse.js": "^7.1.0",
     "import-in-the-middle": "^1.13.1",

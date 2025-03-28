@@ -8,10 +8,10 @@ import { Accordion, AccordionContent, AccordionItem } from '@/ui/accordion';
 import { Button } from '@/ui/button';
 import { AccordionHeader, AccordionTrigger } from '@radix-ui/react-accordion';
 import { Loader2Icon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { type FormEventHandler, useState } from 'react';
+import { useState } from 'react';
 import { ChooseGame } from './choose-game';
 import { ConfigureServer } from './configure-server';
+import { DeployingServer } from './deploying-server';
 
 type CreateServerFormProps = {
   sizes: Awaited<ReturnType<typeof getSizes>>;
@@ -28,16 +28,12 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
   const [size, setSize] = useState<string>(recommendedSizes[0].id);
   const selectedSize = sizes.find(({ id }) => id === size);
   const [region, setRegion] = useState<string>(regions[0].id);
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [step, setStep] = useState<string>('1');
   const activeGame = games.find(({ id }) => id === game);
+  const [serverId, setServerId] = useState<string>('');
 
-  const handleCreateServer: FormEventHandler<HTMLFormElement> = async (
-    event
-  ) => {
-    event.preventDefault();
-
+  const handleCreateServer = async () => {
     if (isLoading) {
       return;
     }
@@ -57,7 +53,7 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
         throw new Error(response.error);
       }
 
-      router.push(`/${response.id}`);
+      setServerId(response.id);
     } catch (error) {
       handleError(error);
       setIsLoading(false);
@@ -83,14 +79,14 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
       id: '1',
       title: activeGame ? `Playing ${activeGame.name}` : 'Choose a game',
       description: 'Select the game you want to play!',
-      disabled: false,
+      disabled: !!serverId,
       content: <ChooseGame game={game} setGame={handleSetGame} />,
     },
     {
       id: '2',
       title: 'Configure server',
       description: 'Select the size and region for your server.',
-      disabled: !activeGame,
+      disabled: !activeGame || !!serverId,
       content: (
         <>
           <ConfigureServer
@@ -106,7 +102,12 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
             regions={regions}
             recommendedSizes={recommendedSizes}
           />
-          <Button className="mt-6 w-fit" type="submit" disabled={isLoading}>
+          <Button
+            className="mt-6 w-fit"
+            type="submit"
+            disabled={isLoading}
+            onClick={handleCreateServer}
+          >
             {isLoading ? (
               <Loader2Icon size={16} className="animate-spin" />
             ) : (
@@ -120,8 +121,8 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
       id: '3',
       title: 'Deploying server',
       description: 'Your server is being deployed.',
-      disabled: !size || !region || !name || !password,
-      content: <div>Deploying...</div>,
+      disabled: !serverId,
+      content: <DeployingServer serverId={serverId} />,
     },
   ];
 

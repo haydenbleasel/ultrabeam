@@ -1,7 +1,7 @@
 'use client';
 
 import { getLogs } from '@/actions/logs/get';
-import { diffLines } from 'diff';
+import { handleError } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 
 type ConsoleProps = {
@@ -17,17 +17,15 @@ export const Console = ({ serverId, defaultValue }: ConsoleProps) => {
       const newLogs = await getLogs(serverId);
 
       if ('error' in newLogs) {
-        console.error(newLogs.error);
-      } else {
-        const diff = diffLines(logs, newLogs.data);
-        const newLog = diff.map((change) => change.value).join('');
-
-        setLogs((prev) => prev + newLog);
+        handleError(newLogs.error);
+        return;
       }
+
+      setLogs(newLogs.data.map((log) => log.message).join(''));
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [serverId, logs]);
+  }, [serverId]);
 
   return (
     <pre className="max-h-[500px] w-full overflow-auto bg-black p-4 text-white text-xs">
