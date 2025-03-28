@@ -9,7 +9,11 @@ type ChooseGameProps = {
 };
 
 export const ChooseGame = ({ game, setGame }: ChooseGameProps) => (
-  <RadioGroup className="flex gap-3" value={game} onValueChange={setGame}>
+  <RadioGroup
+    className="grid grid-cols-3 gap-3"
+    value={game}
+    onValueChange={setGame}
+  >
     {games.map((game) => (
       <label key={game.id} htmlFor={game.id}>
         <RadioGroupItem
