@@ -26,24 +26,25 @@ sudo apt install docker-compose
 # Create a dedicated user for the game
 useradd -m -s /bin/bash ultrabeam`;
 
-export const mountVolumeScript = (diskPath: string) => `
+export const mountVolumeScript = `
 #!/bin/bash
 set -e
 
-# Find attached disk
-lsblk
+# Find the first unmounted disk that's not the root disk
+DISK=$(lsblk -dn -o NAME,MOUNTPOINT | awk '$2 == "" {print "/dev/" $1}' | grep -v nvme0n1 | head -n 1)
+echo "Detected disk: $DISK"
 
 # Format the disk (if it's a new disk)
-sudo mkfs -t ext4 ${diskPath}
+sudo mkfs -t ext4 "$DISK"
 
 # Create a mount directory
 sudo mkdir -p /mnt/gamedata
 
 # Mount the disk
-sudo mount ${diskPath} /mnt/gamedata
+sudo mount "$DISK" /mnt/gamedata
 
 # Make it persistent after reboot
-echo '${diskPath} /mnt/gamedata ext4 defaults,nofail 0 2' | sudo tee -a /etc/fstab
+echo "$DISK /mnt/gamedata ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
 
 # Change ownership of the mount directory
 chown -R ultrabeam:ultrabeam /mnt/gamedata`;

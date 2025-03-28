@@ -63,8 +63,6 @@ export const createServer = async (
       throw new Error('Game info not found');
     }
 
-    const diskPath = '/dev/nvme1n1';
-
     let publicKey = user.privateMetadata.publicKey as string | undefined;
     let privateKey = user.privateMetadata.privateKey as string | undefined;
     let keyPairName = user.privateMetadata.keyPairName as string | undefined;
@@ -205,7 +203,7 @@ export const createServer = async (
         new AttachDiskCommand({
           diskName,
           instanceName,
-          diskPath,
+          diskPath: '/dev/xvdf',
         })
       );
 
@@ -262,7 +260,7 @@ export const createServer = async (
                 });
 
               // Combine mount + install scripts here
-              stream.write(`${mountVolumeScript(diskPath)}\n`);
+              stream.write(`${mountVolumeScript}\n`);
               stream.write(
                 `${installScript(instanceName, password, 'America/New_York')}\n`
               );
