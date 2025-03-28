@@ -112,11 +112,14 @@ export const DeployingServer = ({ id }: DeployingServerProps) => {
   return (
     <div className="grid gap-2">
       <div className="w-full rounded-full bg-secondary">
-        <div
+        <motion.div
           style={{
             width: `${(value / (items.length - 1)) * 100}%`,
           }}
           className="h-2 w-full rounded-full bg-primary"
+          initial={{ width: 0 }}
+          animate={{ width: `${(value / (items.length - 1)) * 100}%` }}
+          transition={{ duration: 0.3 }}
         />
       </div>
       <AnimatePresence mode="wait">
