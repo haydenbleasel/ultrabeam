@@ -73,6 +73,7 @@ import {
   UploadCloudIcon,
   WifiIcon,
 } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useId, useRef, useState } from 'react';
 import type { FileInfo } from 'ssh2-sftp-client';
 
@@ -108,6 +109,7 @@ const columns: ColumnDef<FileInfo>[] = [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
+        onClick={(e) => e.stopPropagation()}
       />
     ),
     size: 28,
@@ -121,9 +123,9 @@ const columns: ColumnDef<FileInfo>[] = [
       const Icon = fileIcons[row.original.type as keyof typeof fileIcons];
 
       return (
-        <div className="flex items-center gap-2 font-medium">
-          <Icon size={16} />
-          {row.original.name}
+        <div className="flex items-center gap-2 truncate font-medium">
+          <Icon size={16} className="shrink-0 text-muted-foreground" />
+          <p className="truncate">{row.original.name}</p>
         </div>
       );
     },
@@ -137,7 +139,7 @@ const columns: ColumnDef<FileInfo>[] = [
         <Tooltip>
           <TooltipTrigger asChild>
             <Badge variant="secondary" className="bg-emerald-100">
-              Group
+              G
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
@@ -147,7 +149,7 @@ const columns: ColumnDef<FileInfo>[] = [
         <Tooltip>
           <TooltipTrigger asChild>
             <Badge variant="secondary" className="bg-blue-100">
-              User
+              U
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
@@ -157,7 +159,7 @@ const columns: ColumnDef<FileInfo>[] = [
         <Tooltip>
           <TooltipTrigger asChild>
             <Badge variant="secondary" className="bg-purple-100">
-              Other
+              O
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
@@ -166,7 +168,6 @@ const columns: ColumnDef<FileInfo>[] = [
         </Tooltip>
       </div>
     ),
-    size: 200,
   },
   {
     header: 'Size',
@@ -180,7 +181,11 @@ const columns: ColumnDef<FileInfo>[] = [
     accessorKey: 'modifyTime',
     cell: ({ row }) => (
       <div className="font-medium">
-        {new Date(row.getValue('modifyTime')).toLocaleDateString()}
+        {new Intl.DateTimeFormat('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        }).format(new Date(row.original.modifyTime))}
       </div>
     ),
   },
@@ -198,6 +203,8 @@ export default function FileTable({ data }: FileTableProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const pathname = usePathname();
 
   const [sorting, setSorting] = useState<SortingState>([
     {
@@ -213,6 +220,13 @@ export default function FileTable({ data }: FileTableProps) {
     );
     // setData(updatedData);
     table.resetRowSelection();
+  };
+  const handleRowClick = (row: Row<FileInfo>) => {
+    // Only navigate if it's a directory
+    if (row.original.type === 'd') {
+      const newPath = `${pathname}/${row.original.name}`;
+      router.push(newPath);
+    }
   };
 
   const table = useReactTable({
@@ -263,6 +277,7 @@ export default function FileTable({ data }: FileTableProps) {
             </div>
             {Boolean(table.getColumn('name')?.getFilterValue()) && (
               <button
+                type="button"
                 className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md text-muted-foreground/80 outline-none transition-[color,box-shadow] hover:text-foreground focus:z-10 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Clear filter"
                 onClick={() => {
@@ -442,6 +457,8 @@ export default function FileTable({ data }: FileTableProps) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  onClick={() => handleRowClick(row)}
+                  className={row.original.type === 'd' ? 'cursor-pointer' : ''}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="last:py-0">
@@ -480,12 +497,14 @@ function RowActions({ row }: { row: Row<FileInfo> }) {
             variant="ghost"
             className="shadow-none"
             aria-label="Edit item"
+            onClick={(e) => e.stopPropagation()}
+            type="button"
           >
             <EllipsisIcon size={16} aria-hidden="true" />
           </Button>
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <span>Edit</span>
