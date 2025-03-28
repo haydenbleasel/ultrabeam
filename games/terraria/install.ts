@@ -29,11 +29,12 @@ services:
       - MAXPLAYERS="${MAX_PLAYERS}"
       - SERVER_PORT="${PORT}"
       - SERVER_PASSWORD="${password}"
+      - AUTOCREATE="1"
       - TZ="${timezone}"
     volumes:
       - ./terraria/world:/root/.local/share/Terraria/Worlds
       - ./terraria/config:/config
-      - ./terraria/logs:/logs
+      - ./terraria/logs:/tshock/logs
     stdin_open: true
     tty: true
     restart: unless-stopped
@@ -42,5 +43,5 @@ EOF
 # Start the server
 docker-compose up -d
 
-echo "Terraria server has been installed and started."
+echo "Terraria server has been installed and started with auto-create world enabled."
 `;

@@ -44,11 +44,10 @@ export const uploadFile = async (
       readyTimeout: 10000,
     });
 
-    const flattenedPath = `/${path}`;
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    await sftp.put(buffer, flattenedPath);
+    await sftp.put(buffer, `${path}/${file.name}`);
 
     await sftp.end();
 
