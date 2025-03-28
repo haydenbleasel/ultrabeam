@@ -19,7 +19,7 @@ const BackupsPage = async ({ params }: ServerProps) => {
     (snapshot) => snapshot.fromInstanceName === serverId
   );
 
-  return <BackupTable data={data} />;
+  return <BackupTable data={data ?? []} />;
 };
 
 export default BackupsPage;

@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/ui/table';
+import type { InstanceSnapshot } from '@aws-sdk/client-lightsail';
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -25,7 +26,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import type { ListDropletBackupsResponse } from 'dots-wrapper/dist/droplet';
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import { useState } from 'react';
 
@@ -37,7 +37,7 @@ declare module '@tanstack/react-table' {
 }
 
 type BackupTableProps = {
-  data: ListDropletBackupsResponse['data']['backups'];
+  data: InstanceSnapshot[];
 };
 
 const columns: ColumnDef<BackupTableProps['data'][number]>[] = [
@@ -75,26 +75,26 @@ const columns: ColumnDef<BackupTableProps['data'][number]>[] = [
   },
   {
     header: 'Created At',
-    accessorKey: 'created_at',
+    accessorKey: 'createdAt',
     cell: ({ row }) => (
       <div className="font-medium">
         {new Intl.DateTimeFormat('en-US', {
           dateStyle: 'short',
           timeStyle: 'short',
-        }).format(new Date(row.getValue('created_at')))}
+        }).format(new Date(row.getValue('createdAt')))}
       </div>
     ),
   },
   {
     header: 'Size',
-    accessorKey: 'size_gigabytes',
+    accessorKey: 'sizeInGb',
     cell: ({ row }) => {
       return (
         <div className="flex gap-1">
           {Intl.NumberFormat('en-US', {
             style: 'decimal',
             maximumFractionDigits: 2,
-          }).format(Number(row.getValue('size_gigabytes')))}
+          }).format(Number(row.getValue('sizeInGb')))}
           GB
         </div>
       );

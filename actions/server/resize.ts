@@ -30,6 +30,8 @@ export const resizeServer = async (
         instanceName: instanceName,
       })
     );
+
+    return { success: true };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
 

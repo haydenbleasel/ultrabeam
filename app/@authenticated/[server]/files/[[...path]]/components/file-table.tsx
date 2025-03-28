@@ -570,7 +570,7 @@ export default function FileTable({ data }: FileTableProps) {
   );
 }
 
-function RowActions({ row }: { row: Row<Item> }) {
+function RowActions({ row }: { row: Row<FileInfo> }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

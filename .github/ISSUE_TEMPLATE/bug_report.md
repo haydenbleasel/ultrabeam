@@ -10,7 +10,7 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**next-forge version**
+**Ultrabeam version**
 I am using version ...
 
 **To Reproduce**
