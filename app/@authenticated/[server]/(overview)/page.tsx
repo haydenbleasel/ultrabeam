@@ -10,11 +10,13 @@ import {
   GlobeIcon,
   HardDriveIcon,
   MemoryStickIcon,
+  UsersIcon,
 } from 'lucide-react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Status } from '../../components/status';
 import { Connect } from './components/connect';
+import { PlayerCount } from './components/player-count';
 import { ServerDropdownMenu } from './components/server-dropdown-menu';
 
 type Server = {
@@ -115,6 +117,17 @@ const ServerPage = async ({ params }: Server) => {
           >
             <GlobeIcon size={16} />
             {instance.location?.regionName}
+          </Badge>
+          <Badge
+            variant="secondary"
+            className="flex items-center gap-2 px-3 py-1"
+          >
+            <UsersIcon size={16} />
+            <PlayerCount
+              game={activeGame.id}
+              ip={instance.publicIpAddress ?? ''}
+              port={activeGame.ports[0].from}
+            />
           </Badge>
         </div>
         <Input
