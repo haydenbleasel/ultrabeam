@@ -1,8 +1,9 @@
 'use client';
 
 import { getServer } from '@/actions/server/get';
+import { Button } from '@/ui/button';
 import { AnimatePresence, motion } from 'motion/react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Console } from '../../[server]/console/components/console';
 
@@ -49,7 +50,7 @@ const items = [
   {
     id: 'diskAvailable',
     title: 'Disk available',
-    description: 'The disk is ready to use.',
+    description: 'The disk is available.',
   },
   {
     id: 'diskAttached',
@@ -59,7 +60,7 @@ const items = [
   {
     id: 'diskInUse',
     title: 'Disk in use',
-    description: 'The disk is ready to use.',
+    description: 'The disk is in use.',
   },
   {
     id: 'dockerInstalled',
@@ -79,8 +80,8 @@ const items = [
 ];
 
 export const DeployingServer = ({ id }: DeployingServerProps) => {
-  const router = useRouter();
   const [value, setValue] = useState<number>(1);
+  const activeStatus = items[value];
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -98,17 +99,20 @@ export const DeployingServer = ({ id }: DeployingServerProps) => {
 
       if (status === 'ready') {
         clearInterval(interval);
-        router.push(`/${id}`);
       }
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [id, router]);
+  }, [id]);
 
   return (
     <div className="grid gap-2">
       <div className="overflow-hidden rounded-lg border">
-        <Console serverId={id} defaultValue="" command="cat /var/log/syslog" />
+        <Console
+          serverId={id}
+          defaultValue="Waiting for server to provision..."
+          command="cat /var/log/syslog"
+        />
       </div>
       <div className="w-full rounded-full bg-secondary">
         <motion.div
@@ -123,16 +127,21 @@ export const DeployingServer = ({ id }: DeployingServerProps) => {
       </div>
       <AnimatePresence mode="wait">
         <motion.div
-          key={items[value].id}
+          key={activeStatus.id}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
           className="flex-1 font-mono text-muted-foreground text-xs"
         >
-          {items[value].description}
+          {activeStatus.description}
         </motion.div>
       </AnimatePresence>
+      {activeStatus.id === 'ready' && (
+        <Button className="mt-6 w-fit" asChild>
+          <Link href={`/${id}`}>View server</Link>
+        </Button>
+      )}
     </div>
   );
 };

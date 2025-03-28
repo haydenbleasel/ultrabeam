@@ -2,7 +2,6 @@
 
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/ui/checkbox';
-import {} from '@/ui/select';
 import {
   Table,
   TableBody,

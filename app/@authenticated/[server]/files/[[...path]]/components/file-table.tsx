@@ -32,9 +32,6 @@ import {
   DropdownMenuTrigger,
 } from '@/ui/dropdown-menu';
 import { Input } from '@/ui/input';
-import { Label } from '@/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/ui/popover';
-import {} from '@/ui/select';
 import {
   Table,
   TableBody,
@@ -47,7 +44,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/tooltip';
 import {
   type ColumnDef,
   type ColumnFiltersState,
-  type FilterFn,
   type Row,
   type SortingState,
   type VisibilityState,
@@ -60,6 +56,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import {
+  CableIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   CircleAlertIcon,
@@ -68,37 +65,29 @@ import {
   Columns3Icon,
   EllipsisIcon,
   FileIcon,
-  FilterIcon,
+  FileSymlinkIcon,
   FolderIcon,
+  HardDriveIcon,
+  KeyboardIcon,
   ListFilterIcon,
   UploadCloudIcon,
+  WifiIcon,
 } from 'lucide-react';
-import { useId, useMemo, useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import type { FileInfo } from 'ssh2-sftp-client';
 
 type FileTableProps = {
   data: FileInfo[];
 };
 
-// Custom filter function for multi-column searching
-const multiColumnFilterFn: FilterFn<FileInfo> = (
-  row,
-  columnId,
-  filterValue
-) => {
-  const searchableRowContent = `${row.original.name}`.toLowerCase();
-  const searchTerm = (filterValue ?? '').toLowerCase();
-  return searchableRowContent.includes(searchTerm);
-};
-
-const statusFilterFn: FilterFn<FileInfo> = (
-  row,
-  columnId,
-  filterValue: string[]
-) => {
-  if (!filterValue?.length) return true;
-  const status = row.getValue(columnId) as string;
-  return filterValue.includes(status);
+const fileIcons = {
+  '-': FileIcon,
+  d: FolderIcon,
+  l: FileSymlinkIcon,
+  c: KeyboardIcon,
+  b: HardDriveIcon,
+  s: WifiIcon,
+  p: CableIcon,
 };
 
 const columns: ColumnDef<FileInfo>[] = [
@@ -128,29 +117,27 @@ const columns: ColumnDef<FileInfo>[] = [
   {
     header: 'Name',
     accessorKey: 'name',
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2 font-medium">
-        {row.getValue('type') === 'd' ? (
-          <FolderIcon size={16} />
-        ) : (
-          <FileIcon size={16} />
-        )}
-        {row.getValue('name')}
-      </div>
-    ),
-    size: 180,
-    filterFn: multiColumnFilterFn,
+    cell: ({ row }) => {
+      const Icon = fileIcons[row.original.type as keyof typeof fileIcons];
+
+      return (
+        <div className="flex items-center gap-2 font-medium">
+          <Icon size={16} />
+          {row.original.name}
+        </div>
+      );
+    },
     enableHiding: false,
   },
   {
-    header: 'Rights',
+    header: 'Permissions',
     accessorKey: 'rights',
     cell: ({ row }) => (
       <div className="flex items-center gap-2 font-medium">
         <Tooltip>
           <TooltipTrigger asChild>
             <Badge variant="secondary" className="bg-emerald-100">
-              G
+              Group
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
@@ -160,7 +147,7 @@ const columns: ColumnDef<FileInfo>[] = [
         <Tooltip>
           <TooltipTrigger asChild>
             <Badge variant="secondary" className="bg-blue-100">
-              U
+              User
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
@@ -170,7 +157,7 @@ const columns: ColumnDef<FileInfo>[] = [
         <Tooltip>
           <TooltipTrigger asChild>
             <Badge variant="secondary" className="bg-purple-100">
-              O
+              Other
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
@@ -179,6 +166,7 @@ const columns: ColumnDef<FileInfo>[] = [
         </Tooltip>
       </div>
     ),
+    size: 200,
   },
   {
     header: 'Size',
@@ -246,47 +234,6 @@ export default function FileTable({ data }: FileTableProps) {
     },
   });
 
-  // Get unique status values
-  const uniqueStatusValues = useMemo(() => {
-    const statusColumn = table.getColumn('status');
-
-    if (!statusColumn) return [];
-
-    const values = Array.from(statusColumn.getFacetedUniqueValues().keys());
-
-    return values.sort();
-  }, [table.getColumn('status')?.getFacetedUniqueValues()]);
-
-  // Get counts for each status
-  const statusCounts = useMemo(() => {
-    const statusColumn = table.getColumn('status');
-    if (!statusColumn) return new Map();
-    return statusColumn.getFacetedUniqueValues();
-  }, [table.getColumn('status')?.getFacetedUniqueValues()]);
-
-  const selectedStatuses = useMemo(() => {
-    const filterValue = table.getColumn('status')?.getFilterValue() as string[];
-    return filterValue ?? [];
-  }, [table.getColumn('status')?.getFilterValue()]);
-
-  const handleStatusChange = (checked: boolean, value: string) => {
-    const filterValue = table.getColumn('status')?.getFilterValue() as string[];
-    const newFilterValue = filterValue ? [...filterValue] : [];
-
-    if (checked) {
-      newFilterValue.push(value);
-    } else {
-      const index = newFilterValue.indexOf(value);
-      if (index > -1) {
-        newFilterValue.splice(index, 1);
-      }
-    }
-
-    table
-      .getColumn('status')
-      ?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
-  };
-
   return (
     <div className="space-y-4">
       {/* Filters */}
@@ -329,53 +276,6 @@ export default function FileTable({ data }: FileTableProps) {
               </button>
             )}
           </div>
-          {/* Filter by status */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline">
-                <FilterIcon
-                  className="-ms-1 opacity-60"
-                  size={16}
-                  aria-hidden="true"
-                />
-                Status
-                {selectedStatuses.length > 0 && (
-                  <span className="-me-1 inline-flex h-5 max-h-full items-center rounded border bg-background px-1 font-[inherit] font-medium text-[0.625rem] text-muted-foreground/70">
-                    {selectedStatuses.length}
-                  </span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto min-w-36 p-3" align="start">
-              <div className="space-y-3">
-                <div className="font-medium text-muted-foreground text-xs">
-                  Filters
-                </div>
-                <div className="space-y-3">
-                  {uniqueStatusValues.map((value, i) => (
-                    <div key={value} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`${id}-${i}`}
-                        checked={selectedStatuses.includes(value)}
-                        onCheckedChange={(checked: boolean) =>
-                          handleStatusChange(checked, value)
-                        }
-                      />
-                      <Label
-                        htmlFor={`${id}-${i}`}
-                        className="flex grow justify-between gap-2 font-normal"
-                      >
-                        {value}{' '}
-                        <span className="ms-2 text-muted-foreground text-xs">
-                          {statusCounts.get(value)}
-                        </span>
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
           {/* Toggle columns visibility */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

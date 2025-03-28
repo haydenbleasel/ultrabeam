@@ -87,6 +87,7 @@ export const runSSHCommand = async (
   command: string
 ) => {
   const ssh = new Client();
+
   return await new Promise<string>((resolve, reject) => {
     const sshTimeout = setTimeout(
       () => {
