@@ -9,6 +9,7 @@ type GlobeProps = {
   readonly lat?: number;
   readonly long?: number;
   readonly markers?: Marker[];
+  readonly size?: number;
 };
 
 const locationToAngles = (lat: number, long: number) => [
@@ -16,7 +17,7 @@ const locationToAngles = (lat: number, long: number) => [
   (lat * Math.PI) / 180,
 ];
 
-export const Globe: FC<GlobeProps> = ({ lat, long, markers }) => {
+export const Globe: FC<GlobeProps> = ({ lat, long, markers, size = 600 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const focusRef = useRef([0, 0]);
   const pointerInteracting = useRef<number | null>(null);
@@ -59,8 +60,8 @@ export const Globe: FC<GlobeProps> = ({ lat, long, markers }) => {
 
     const globe = createGlobe(canvasRef.current, {
       devicePixelRatio: 2,
-      width: 600 * 2,
-      height: 600 * 2,
+      width: size * 2,
+      height: size * 2,
       phi: 0,
       theta: 0,
       dark: 0,
@@ -104,7 +105,7 @@ export const Globe: FC<GlobeProps> = ({ lat, long, markers }) => {
     }, 200);
 
     return () => globe.destroy();
-  }, [r, markers]);
+  }, [r, markers, size]);
 
   return (
     <div className="relative aspect-square w-full">
@@ -148,9 +149,11 @@ export const Globe: FC<GlobeProps> = ({ lat, long, markers }) => {
             });
           }
         }}
-        className="h-full w-full cursor-grab opacity-0 transition duration-1000"
+        className="cursor-grab opacity-0 transition duration-1000"
         style={{
           contain: 'layout paint size',
+          width: size,
+          height: size,
         }}
       />
     </div>

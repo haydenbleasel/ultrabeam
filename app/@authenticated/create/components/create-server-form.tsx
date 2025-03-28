@@ -1,28 +1,17 @@
 'use client';
 
 import { createServer } from '@/actions/server/create';
-import { Globe } from '@/components/globe';
 import { games } from '@/games';
 import type { getRegions, getSizes } from '@/lib/backend';
 import { handleError } from '@/lib/utils';
+import { Accordion, AccordionContent, AccordionItem } from '@/ui/accordion';
 import { Button } from '@/ui/button';
-import { Input } from '@/ui/input';
-import { Label } from '@/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/ui/radio-group';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/ui/select';
-import type { Marker } from 'cobe';
-import { CheckIcon, Loader2Icon, MinusIcon } from 'lucide-react';
-import Image from 'next/image';
+import { AccordionHeader, AccordionTrigger } from '@radix-ui/react-accordion';
+import { Loader2Icon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { type FormEventHandler, useMemo, useState } from 'react';
+import { type FormEventHandler, useState } from 'react';
+import { ChooseGame } from './choose-game';
+import { ConfigureServer } from './configure-server';
 
 type CreateServerFormProps = {
   sizes: Awaited<ReturnType<typeof getSizes>>;
@@ -32,7 +21,7 @@ type CreateServerFormProps = {
 export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
   const [name, setName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [game, setGame] = useState<string>('minecraft');
+  const [game, setGame] = useState<string>('');
   const recommendedSizes = sizes.filter(
     ({ cpu, memory }) => cpu === 2 && memory === 4
   );
@@ -41,6 +30,8 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
   const [region, setRegion] = useState<string>(regions[0].id);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [step, setStep] = useState<string>('1');
+  const activeGame = games.find(({ id }) => id === game);
 
   const handleCreateServer: FormEventHandler<HTMLFormElement> = async (
     event
@@ -73,168 +64,88 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
     }
   };
 
-  const selectedRegion = regions.find((r) => r.id === region);
+  const handleSetGame = (game: string) => {
+    setGame(game);
+    setStep('2');
+  };
 
-  const globeProps = useMemo(() => {
-    return {
-      lat: selectedRegion?.lat ?? 0,
-      long: selectedRegion?.lng ?? 0,
-      markers: regions.map((reg) => ({
-        location: [reg.lat, reg.lng],
-        size: reg.id === region ? 0.15 : 0,
-      })) as Marker[],
-    };
-  }, [region, regions, selectedRegion]);
+  const handleSetStep = (newStep: string) => {
+    const newStepInt = Number.parseInt(newStep, 10);
+    const currentStepInt = Number.parseInt(step, 10);
+
+    if (newStepInt < currentStepInt) {
+      setStep(newStep);
+    }
+  };
+
+  const items = [
+    {
+      id: '1',
+      title: activeGame ? `Playing ${activeGame.name}` : 'Choose a game',
+      description: 'Select the game you want to play!',
+      disabled: false,
+      content: <ChooseGame game={game} setGame={handleSetGame} />,
+    },
+    {
+      id: '2',
+      title: 'Configure server',
+      description: 'Select the size and region for your server.',
+      disabled: !activeGame,
+      content: (
+        <>
+          <ConfigureServer
+            name={name}
+            setName={setName}
+            password={password}
+            setPassword={setPassword}
+            size={size}
+            setSize={setSize}
+            region={region}
+            setRegion={setRegion}
+            sizes={sizes}
+            regions={regions}
+            recommendedSizes={recommendedSizes}
+          />
+          <Button className="mt-6 w-fit" type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <Loader2Icon size={16} className="animate-spin" />
+            ) : (
+              `Create server for $${selectedSize?.price}/month`
+            )}
+          </Button>
+        </>
+      ),
+    },
+    {
+      id: '3',
+      title: 'Deploying server',
+      description: 'Your server is being deployed.',
+      disabled: !size || !region || !name || !password,
+      content: <div>Deploying...</div>,
+    },
+  ];
 
   return (
-    <div className="grid grid-cols-2 items-start divide-x">
-      <form onSubmit={handleCreateServer} className="grid gap-8 p-8">
-        <div className="grid gap-1">
-          <h2 className="font-bold text-2xl">Create Server</h2>
-          <p className="text-muted-foreground text-sm">
-            Choose a game and size to create a new server.
-          </p>
-        </div>
-        <fieldset className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              placeholder="My server"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-2">
-            <legend className="font-medium text-foreground text-sm leading-none">
-              Game
-            </legend>
-            <RadioGroup
-              className="flex gap-3"
-              value={game}
-              onValueChange={setGame}
+    <Accordion type="single" collapsible className="w-full" value={step}>
+      {items.map((item) => (
+        <AccordionItem value={item.id} key={item.id} className="p-6">
+          <AccordionHeader className="flex">
+            <AccordionTrigger
+              className="flex flex-1 items-center justify-between gap-4 rounded-md py-0 text-left font-normal outline-none transition-all hover:no-underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50"
+              onClick={() => handleSetStep(item.id)}
+              disabled={item.disabled}
             >
-              {games.map((game) => (
-                <label key={game.id} htmlFor={game.id}>
-                  <RadioGroupItem
-                    id={game.id}
-                    value={game.id}
-                    className="peer sr-only after:absolute after:inset-0"
-                  />
-                  <Image
-                    src={game.image}
-                    alt={game.name}
-                    width={600}
-                    height={600}
-                    className="relative cursor-pointer overflow-hidden rounded-md border border-input shadow-xs outline-none transition-[color,box-shadow] peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50 peer-data-disabled:cursor-not-allowed peer-data-[state=checked]:border-ring peer-data-[state=checked]:bg-accent peer-data-disabled:opacity-50"
-                  />
-                  <span className="group mt-2 flex items-center gap-1 peer-data-[state=checked]:text-primary peer-data-[state=unchecked]:text-muted-foreground/70">
-                    <CheckIcon
-                      size={16}
-                      className="group-peer-data-[state=unchecked]:hidden"
-                      aria-hidden="true"
-                    />
-                    <MinusIcon
-                      size={16}
-                      className="group-peer-data-[state=checked]:hidden"
-                      aria-hidden="true"
-                    />
-                    <span className="font-medium text-xs">{game.name}</span>
-                  </span>
-                </label>
-              ))}
-            </RadioGroup>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="size">Size</Label>
-            <Select value={size} onValueChange={setSize}>
-              <SelectTrigger
-                id="size"
-                className="[&>span]:flex [&>span]:items-center [&>span]:gap-2 [&>span_svg]:shrink-0 [&>span_svg]:text-muted-foreground/80"
-              >
-                <SelectValue placeholder="Select a size" />
-              </SelectTrigger>
-              <SelectContent className="[&_*[role=option]>span>svg]:shrink-0 [&_*[role=option]>span>svg]:text-muted-foreground/80 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2 [&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 [&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8">
-                <SelectGroup>
-                  <SelectLabel className="ps-2">Recommended</SelectLabel>
-                  {recommendedSizes.map((size) => (
-                    <SelectItem key={size.id} value={size.id}>
-                      <div className="flex items-center gap-2">
-                        {size.name}
-                        <p className="text-muted-foreground text-xs">
-                          {size.memory}GB RAM • {size.cpu} vCPUs
-                        </p>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-                <SelectGroup>
-                  <SelectLabel className="ps-2">Other</SelectLabel>
-                  {sizes
-                    .filter((size) => !recommendedSizes.includes(size))
-                    .map((size) => (
-                      <SelectItem key={size.id} value={size.id}>
-                        <div className="flex items-center gap-2">
-                          {size.name}
-                          <p className="text-muted-foreground text-xs">
-                            {size.memory}GB RAM • {size.cpu} vCPUs
-                          </p>
-                        </div>
-                      </SelectItem>
-                    ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-          {selectedSize && (
-            <div className="grid gap-2">
-              <Label htmlFor="region">Region</Label>
-              <Select
-                value={region}
-                onValueChange={setRegion}
-                disabled={!selectedSize}
-              >
-                <SelectTrigger
-                  id="region"
-                  className="[&>span]:flex [&>span]:items-center [&>span]:gap-2 [&>span_svg]:shrink-0 [&>span_svg]:text-muted-foreground/80"
-                >
-                  <SelectValue placeholder="Select a region" />
-                </SelectTrigger>
-                <SelectContent className="[&_*[role=option]>span>svg]:shrink-0 [&_*[role=option]>span>svg]:text-muted-foreground/80 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2 [&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 [&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8">
-                  {regions.map((region) => (
-                    <SelectItem key={region.id} value={region.id}>
-                      {region.flag} {region.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </fieldset>
-        <Button className="w-fit" type="submit" disabled={isLoading}>
-          {isLoading ? (
-            <Loader2Icon size={16} className="animate-spin" />
-          ) : (
-            `Create server for $${selectedSize?.price}/month`
-          )}
-        </Button>
-      </form>
-      <div className="relative flex h-full items-center justify-center">
-        <Globe
-          lat={globeProps.lat}
-          long={globeProps.long}
-          markers={globeProps.markers}
-        />
-      </div>
-    </div>
+              <div className="grid gap-1">
+                <h2 className="font-semibold">{item.title}</h2>
+                <p className="text-muted-foreground text-sm">
+                  {item.description}
+                </p>
+              </div>
+            </AccordionTrigger>
+          </AccordionHeader>
+          <AccordionContent className="mt-6">{item.content}</AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
   );
 };
