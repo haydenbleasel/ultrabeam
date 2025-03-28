@@ -15,7 +15,7 @@ const ConsolePage = async ({ params }: ServerProps) => {
     return <div className="p-4">{logs.error}</div>;
   }
 
-  return <Console defaultValue={logs.data} serverId={serverId} />;
+  return <Console defaultValue={logs.data.join('\n')} serverId={serverId} />;
 };
 
 export default ConsolePage;

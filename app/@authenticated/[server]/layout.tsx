@@ -3,7 +3,7 @@ import { GetInstanceCommand } from '@aws-sdk/client-lightsail';
 import { currentUser } from '@clerk/nextjs/server';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { Provisioning } from './components/provisioning';
+import { DeployingServer } from '../create/components/deploying-server';
 
 type ServerLayoutProps = {
   children: ReactNode;
@@ -62,7 +62,7 @@ const ServerLayout = async ({ children, params }: ServerLayoutProps) => {
   if (status !== 'ready') {
     return (
       <div className="p-8">
-        <Provisioning id={serverId} />
+        <DeployingServer id={serverId} />
       </div>
     );
   }

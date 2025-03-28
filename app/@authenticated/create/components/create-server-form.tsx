@@ -41,6 +41,26 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
     setIsLoading(true);
 
     try {
+      if (!name) {
+        throw new Error('Please enter a name for your server.');
+      }
+
+      if (!password) {
+        throw new Error('Please enter a password for your server.');
+      }
+
+      if (!game) {
+        throw new Error('Please select a game.');
+      }
+
+      if (!size) {
+        throw new Error('Please select a size for your server.');
+      }
+
+      if (!region) {
+        throw new Error('Please select a region for your server.');
+      }
+
       const response = await createServer(
         name,
         password,
@@ -123,7 +143,7 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
       title: 'Deploying server',
       description: 'Your server is being deployed.',
       disabled: !serverId,
-      content: <DeployingServer serverId={serverId} />,
+      content: <DeployingServer id={serverId} />,
     },
   ];
 
