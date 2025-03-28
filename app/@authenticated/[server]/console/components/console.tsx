@@ -1,7 +1,6 @@
 'use client';
 
 import { getLogs } from '@/actions/logs/get';
-import { handleError } from '@/lib/utils';
 import { useEffect, useRef, useState } from 'react';
 import { codeToHtml } from 'shiki';
 
@@ -28,7 +27,7 @@ export const Console = ({ serverId, defaultValue, command }: ConsoleProps) => {
       const newLogs = await getLogs(serverId, command);
 
       if ('error' in newLogs) {
-        handleError(newLogs.error);
+        console.error(newLogs.error);
         return;
       }
 
