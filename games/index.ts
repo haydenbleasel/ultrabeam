@@ -1,6 +1,7 @@
 import EnshroudedImage from './enshrouded/image.jpg';
 import MinecraftImage from './minecraft/image.jpg';
 import PalworldImage from './palworld/image.jpg';
+import RustImage from './rust/image.jpg';
 import ValheimImage from './valheim/image.jpg';
 
 export const games = [
@@ -62,6 +63,30 @@ export const games = [
         protocol: 'udp',
         from: 15637,
         to: 15637,
+      },
+      {
+        protocol: 'udp',
+        from: 15636,
+        to: 15636,
+      },
+    ],
+  },
+  {
+    id: 'rust',
+    name: 'Rust',
+    image: RustImage,
+    description:
+      'The only aim in Rust is to survive when everything on the island wants you to die.',
+    ports: [
+      {
+        protocol: 'udp',
+        from: 28015,
+        to: 28015,
+      },
+      {
+        protocol: 'tcp',
+        from: 28016,
+        to: 28016,
       },
     ],
   },
