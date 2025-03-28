@@ -1,15 +1,15 @@
 'use client';
 
-import { MoonIcon, SunIcon } from '@radix-ui/react-icons';
-import { MonitorIcon } from 'lucide-react';
-import { useTheme } from 'next-themes';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
+import { MoonIcon, SunIcon } from '@radix-ui/react-icons';
+import { MonitorIcon } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 const themes = [
   { label: 'Light', value: 'light', icon: SunIcon },
