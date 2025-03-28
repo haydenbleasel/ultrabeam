@@ -23,11 +23,13 @@ const FilesPage = async ({ params }: ServerProps) => {
   await sftp.connect({
     host: gameServer.publicIpAddress,
     port: 22,
-    username: 'root',
+    username: 'ubuntu',
     privateKey: user.privateMetadata.privateKey as string,
+    readyTimeout: 10000,
   });
 
   const fileList = await sftp.list('/');
+
   await sftp.end();
 
   return (
