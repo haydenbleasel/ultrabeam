@@ -122,10 +122,6 @@ export const createServer = async (
       throw new Error('Game info not found');
     }
 
-    const id = nanoid();
-    const suffix = `ultrabeam-${game}-${id}`;
-    const serverName = `server-${suffix}`;
-    const diskName = `disk-${suffix}`;
     const diskPath = '/dev/xvdf';
 
     let publicKey = user.privateMetadata.publicKey as string | undefined;
@@ -164,7 +160,7 @@ export const createServer = async (
     // Create the instance
     const instance = await lightsail.send(
       new CreateInstancesCommand({
-        instanceNames: [serverName],
+        instanceNames: [nanoid()],
         availabilityZone: `${region}a`,
         blueprintId: 'ubuntu_22_04',
         bundleId: size,
@@ -200,7 +196,7 @@ export const createServer = async (
 
     const promise = async () => {
       // Wait for the instance to be ready before attaching the disk
-      await waitForInstanceStatus(serverName, 'running');
+      await waitForInstanceStatus(instanceName, 'running');
 
       // Update the instance status
       await updateInstanceStatus(instanceName, 'instanceAvailable');
@@ -209,7 +205,7 @@ export const createServer = async (
       for (const port of gameInfo.ports) {
         await lightsail.send(
           new OpenInstancePublicPortsCommand({
-            instanceName: serverName,
+            instanceName,
             portInfo: {
               fromPort: port.from,
               toPort: port.to,
@@ -224,7 +220,7 @@ export const createServer = async (
 
       // Get the instance IP address
       const { instance: newInstance } = await lightsail.send(
-        new GetInstanceCommand({ instanceName: serverName })
+        new GetInstanceCommand({ instanceName })
       );
 
       if (!newInstance) {
@@ -240,13 +236,19 @@ export const createServer = async (
       }
 
       // Create a block storage disk
-      await lightsail.send(
+      const createDiskResponse = await lightsail.send(
         new CreateDiskCommand({
-          diskName,
+          diskName: nanoid(),
           availabilityZone: newInstance.location?.availabilityZone,
           sizeInGb: 20,
         })
       );
+
+      const diskName = createDiskResponse.operations?.at(0)?.resourceName;
+
+      if (!diskName) {
+        throw new Error('Disk name not found');
+      }
 
       // Update the instance status
       await updateInstanceStatus(instanceName, 'createdDisk');
@@ -261,7 +263,7 @@ export const createServer = async (
       await lightsail.send(
         new AttachDiskCommand({
           diskName,
-          instanceName: serverName,
+          instanceName,
           diskPath,
         })
       );
@@ -321,7 +323,7 @@ export const createServer = async (
               // Combine mount + install scripts here
               stream.write(`${mountVolumeScript(diskPath)}\n`);
               stream.write(
-                `${installScript(serverName, password, 'America/New_York')}\n`
+                `${installScript(instanceName, password, 'America/New_York')}\n`
               );
               stream.end();
             });
