@@ -14,6 +14,10 @@ import {
   sshInitScript,
 } from '@/lib/scripts';
 import {
+  CloudWatchLogsClient,
+  CreateLogGroupCommand,
+} from '@aws-sdk/client-cloudwatch-logs';
+import {
   AttachDiskCommand,
   CreateDiskCommand,
   CreateInstancesCommand,
@@ -189,6 +193,14 @@ export const createServer = async (
     }
 
     const promise = async () => {
+      // Create the log group
+      const cloudWatchLogsClient = new CloudWatchLogsClient({ region });
+      await cloudWatchLogsClient.send(
+        new CreateLogGroupCommand({
+          logGroupName: `/lightsail/ultrabeam/${instanceName}/syslog`,
+        })
+      );
+
       // Wait for the instance to be ready before attaching the disk
       await waitForInstanceStatus(instanceName, 'running');
 
