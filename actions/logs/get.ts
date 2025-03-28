@@ -1,12 +1,17 @@
 'use server';
 
 import { getServer } from '@/lib/backend';
+import { env } from '@/lib/env';
+import {
+  CloudWatchLogsClient,
+  FilterLogEventsCommand,
+  type FilteredLogEvent,
+} from '@aws-sdk/client-cloudwatch-logs';
 import { currentUser } from '@clerk/nextjs/server';
-import { Client } from 'ssh2';
 
 type GetServerResponse =
   | {
-      data: string;
+      data: FilteredLogEvent[];
     }
   | {
       error: string;
@@ -26,39 +31,25 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
       throw new Error('Instance not found');
     }
 
-    const conn = new Client();
+    const logGroupName = `/lightsail/ultrabeam/${instance.name}/syslog`;
 
-    const logs = await new Promise<string>((resolve, reject) => {
-      conn.on('ready', () => {
-        conn.exec('tail -n 500 /var/log/syslog', (err, stream) => {
-          if (err) {
-            reject(new Error('Failed to execute command'));
-            return;
-          }
-
-          let logs = '';
-          stream.on('data', (data: Buffer) => {
-            logs += data.toString();
-          });
-
-          stream.on('close', () => {
-            conn.end();
-            resolve(logs);
-          });
-        });
-      });
-
-      conn.on('error', reject);
-
-      conn.connect({
-        host: instance.publicIpAddress,
-        port: 22,
-        username: 'ubuntu',
-        privateKey: user.privateMetadata.privateKey as string,
-      });
+    const client = new CloudWatchLogsClient({
+      region: instance.location?.regionName,
+      credentials: {
+        accessKeyId: env.AWS_ACCESS_KEY,
+        secretAccessKey: env.AWS_SECRET_KEY,
+      },
     });
 
-    return { data: logs };
+    const logs = await client.send(
+      new FilterLogEventsCommand({
+        logGroupName,
+        limit: 50,
+        interleaved: true,
+      })
+    );
+
+    return { data: logs.events ?? [] };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
 
