@@ -1,4 +1,3 @@
-import { Waitlist } from '@clerk/nextjs';
 import Image from 'next/image';
 import Background from './background.jpg';
 
@@ -12,17 +11,14 @@ export const Hero = () => (
       quality={100}
     />
     <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/0 to-background/50" />
-    <div className="relative z-10 grid grid-cols-2 items-end gap-8 px-16 py-16">
-      <div>
-        <h1 className="text-pretty font-semibold text-5xl text-foreground tracking-tight">
-          Simple, reliable dedicated game servers
-        </h1>
-        <p className="mt-4 max-w-xl text-pretty text-foreground opacity-90">
-          Create and manage your own dedicated game servers with ease. Start
-          playing your favorite games with friends in minutes.
-        </p>
-      </div>
-      <Waitlist />
+    <div className="relative z-10 px-16 py-16">
+      <h1 className="text-pretty font-semibold text-5xl text-foreground tracking-tight sm:text-6xl">
+        Simple, reliable dedicated game servers
+      </h1>
+      <p className="mt-4 max-w-xl text-pretty text-foreground text-xl opacity-90">
+        Create and manage your own dedicated game servers with ease. Start
+        playing your favorite games with friends in minutes.
+      </p>
     </div>
   </div>
 );
