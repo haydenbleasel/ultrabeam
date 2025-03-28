@@ -12,7 +12,10 @@ type GetServerResponse =
       error: string;
     };
 
-export const getLogs = async (id: string): Promise<GetServerResponse> => {
+export const getLogs = async (
+  id: string,
+  command: string
+): Promise<GetServerResponse> => {
   try {
     const user = await currentUser();
 
@@ -41,12 +44,24 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
     const logs = await runSSHCommand(
       instance.publicIpAddress,
       user.privateMetadata.privateKey,
-      'cd /mnt/gamedata && docker compose logs --tail 500'
+      command
     );
 
-    // Remove all instances of "gamedata_valheim_1  | " from the logs
-    const cleanedLogs = logs.replace(/gamedata_valheim_1\s+\| /g, '');
-    return { data: cleanedLogs };
+    // Remove container prefixes from logs (e.g., "gamedata_valheim_1  | ", "gamedata_minecraft_1  | ", etc.)
+    const cleanedLogs = logs.replace(/gamedata_\w+_\d+\s+\| /g, '');
+
+    // Remove session start and deactivation lines
+    const filteredLogs = cleanedLogs
+      .split('\n')
+      .filter(
+        (line) =>
+          !line.includes('Started Session') &&
+          !line.includes('session-') &&
+          !line.includes('.scope: Deactivated successfully')
+      )
+      .join('\n');
+
+    return { data: filteredLogs };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
 

@@ -107,6 +107,9 @@ export const DeployingServer = ({ id }: DeployingServerProps) => {
 
   return (
     <div className="grid gap-2">
+      <div className="overflow-hidden rounded-lg border">
+        <Console serverId={id} defaultValue="" command="cat /var/log/syslog" />
+      </div>
       <div className="w-full rounded-full bg-secondary">
         <motion.div
           style={{
@@ -130,9 +133,6 @@ export const DeployingServer = ({ id }: DeployingServerProps) => {
           {items[value].description}
         </motion.div>
       </AnimatePresence>
-      <div className="h-[500px] rounded-xl bg-secondary">
-        <Console serverId={id} defaultValue="" />
-      </div>
     </div>
   );
 };

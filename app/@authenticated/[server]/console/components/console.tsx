@@ -8,9 +8,10 @@ import { codeToHtml } from 'shiki';
 type ConsoleProps = {
   serverId: string;
   defaultValue: string;
+  command: string;
 };
 
-export const Console = ({ serverId, defaultValue }: ConsoleProps) => {
+export const Console = ({ serverId, defaultValue, command }: ConsoleProps) => {
   const [logs, setLogs] = useState(defaultValue);
   const consoleRef = useRef<HTMLDivElement>(null);
 
@@ -24,7 +25,7 @@ export const Console = ({ serverId, defaultValue }: ConsoleProps) => {
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      const newLogs = await getLogs(serverId);
+      const newLogs = await getLogs(serverId, command);
 
       if ('error' in newLogs) {
         handleError(newLogs.error);
@@ -40,7 +41,7 @@ export const Console = ({ serverId, defaultValue }: ConsoleProps) => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [serverId]);
+  }, [serverId, command]);
 
   return (
     <div className="relative">

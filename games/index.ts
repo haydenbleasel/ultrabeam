@@ -30,7 +30,7 @@ export const games = [
       'Minecraft is a sandbox game where you can build your own world.',
     ports: [
       {
-        protocol: 'udp',
+        protocol: 'tcp',
         from: 25565,
         to: 25565,
       },

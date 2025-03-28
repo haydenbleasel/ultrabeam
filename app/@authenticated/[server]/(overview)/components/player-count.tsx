@@ -1,7 +1,6 @@
 'use client';
 
 import { getPlayers } from '@/actions/players/get';
-import { handleError } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 
 type PlayerCountProps = {
@@ -27,7 +26,7 @@ export const PlayerCount = ({
       const result = await getPlayers(game, ip, port);
 
       if ('error' in result) {
-        handleError(result.error);
+        console.error(result.error);
         return;
       }
 

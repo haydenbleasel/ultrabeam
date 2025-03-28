@@ -8,9 +8,11 @@ type ServerProps = {
   }>;
 };
 
+const command = 'cd /mnt/gamedata && docker compose logs --tail 500';
+
 const ConsolePage = async ({ params }: ServerProps) => {
   const { server: serverId } = await params;
-  const logs = await getLogs(serverId);
+  const logs = await getLogs(serverId, command);
 
   if ('error' in logs) {
     return <div className="p-4">{logs.error}</div>;
@@ -21,7 +23,7 @@ const ConsolePage = async ({ params }: ServerProps) => {
     theme: 'vitesse-light',
   });
 
-  return <Console defaultValue={html} serverId={serverId} />;
+  return <Console defaultValue={html} serverId={serverId} command={command} />;
 };
 
 export default ConsolePage;

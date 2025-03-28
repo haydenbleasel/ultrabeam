@@ -11,7 +11,6 @@ cd /mnt/gamedata
 
 # Create docker-compose.yml file
 cat > docker-compose.yml << 'EOF'
-version: "3"
 services:
   minecraft:
     image: itzg/minecraft-server:latest
@@ -24,7 +23,7 @@ services:
       - ALLOW_NETHER=true
       - MODE=survival
       - MOTD=${name} - Powered by Ultrabeam
-      - MEMORY=2G
+      - MEMORY=4G
       - TZ=${timezone}
       - ENABLE_RCON=true
       - RCON_PASSWORD=${password}
@@ -49,7 +48,7 @@ services:
       - FORCE_GAMEMODE=false
       - HARDCORE=false
       - WHITE_LIST=false
-      - ENABLE_AUTOPAUSE=true
+      - ENABLE_AUTOPAUSE=false
       - BACKUP_FREQ=24
       - BACKUP_RETENTION=5
     volumes:

@@ -40,8 +40,8 @@ export const waitForInstanceStatus = (
         resolve();
       } else {
         console.log(`Instance state: ${state}. Waiting...`);
-        // Wait for 10 seconds before checking again
-        setTimeout(checkInstanceState, 10000);
+        // Wait for 5 seconds before checking again
+        setTimeout(checkInstanceState, 5000);
       }
     };
 
@@ -69,7 +69,8 @@ export const waitForDiskStatus = (diskName: string, status: DiskState) => {
         resolve();
       } else {
         console.log(`Disk state: ${state}. Waiting...`);
-        setTimeout(checkDiskStatus, 10000);
+        // Wait for 5 seconds before checking again
+        setTimeout(checkDiskStatus, 5000);
       }
     };
 
@@ -99,8 +100,6 @@ export const runSSHCommand = async (
 
     ssh
       .on('ready', () => {
-        console.log('SSH Connection ready');
-
         ssh.exec('bash -s', (err, stream) => {
           if (err) {
             reject(err);
@@ -108,8 +107,7 @@ export const runSSHCommand = async (
           }
 
           stream
-            .on('close', (code: number, signal: string) => {
-              console.log(`Command exited with code ${code}`);
+            .on('close', () => {
               clearTimeout(sshTimeout);
               ssh.end();
               resolve(output);
@@ -117,12 +115,10 @@ export const runSSHCommand = async (
             .on('data', (data: Buffer) => {
               const text = data.toString();
               output += text;
-              console.log(`STDOUT: ${text}`);
             })
             .stderr.on('data', (data: Buffer) => {
               const text = data.toString();
               output += text;
-              console.error(`STDERR: ${text}`);
             });
 
           stream.write(`${command}\n`);
