@@ -10,7 +10,6 @@
     "generate": "prisma format && prisma generate --no-hints"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch-logs": "^3.777.0",
     "@aws-sdk/client-lightsail": "^3.758.0",
     "@clerk/nextjs": "^6.12.3",
     "@clerk/themes": "^2.2.20",
@@ -85,6 +84,7 @@
     "require-in-the-middle": "^7.5.2",
     "schema-dts": "^1.1.5",
     "server-only": "^0.0.1",
+    "shiki": "^3.2.1",
     "sonner": "^2.0.1",
     "ssh2": "^1.16.0",
     "ssh2-sftp-client": "^11.0.0",

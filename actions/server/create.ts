@@ -1,24 +1,18 @@
 'use server';
 
 import { games } from '@/games';
-import { env } from '@/lib/env';
 import {
-  getLogGroup,
   lightsail,
+  runSSHCommand,
   waitForDiskStatus,
   waitForInstanceStatus,
 } from '@/lib/lightsail';
 import { log } from '@/lib/observability/log';
 import {
   bootstrapScript,
-  cloudWatchScript,
   mountVolumeScript,
   sshInitScript,
 } from '@/lib/scripts';
-import {
-  CloudWatchLogsClient,
-  CreateLogGroupCommand,
-} from '@aws-sdk/client-cloudwatch-logs';
 import {
   AttachDiskCommand,
   CreateDiskCommand,
@@ -31,7 +25,6 @@ import {
 import { clerkClient, currentUser } from '@clerk/nextjs/server';
 import { waitUntil } from '@vercel/functions';
 import { nanoid } from 'nanoid';
-import { Client } from 'ssh2';
 
 type CreateServerResponse =
   | {
@@ -48,62 +41,6 @@ const updateInstanceStatus = async (instanceName: string, status: string) => {
       tags: [{ key: 'status', value: status }],
     })
   );
-};
-
-const runSSHCommand = async (
-  ip: string,
-  privateKey: string,
-  command: string
-) => {
-  const ssh = new Client();
-
-  await new Promise<void>((resolve, reject) => {
-    const sshTimeout = setTimeout(
-      () => {
-        reject(new Error('SSH command timed out'));
-        ssh.end();
-      },
-      10 * 60 * 1000
-    ); // 10 minutes
-
-    ssh
-      .on('ready', () => {
-        console.log('SSH Connection ready');
-
-        ssh.exec('bash -s', (err, stream) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-
-          stream
-            .on('close', (code: number, signal: string) => {
-              console.log(`Command exited with code ${code}`);
-              clearTimeout(sshTimeout);
-              ssh.end();
-              resolve();
-            })
-            .on('data', (data: Buffer) => {
-              console.log(`STDOUT: ${data}`);
-            })
-            .stderr.on('data', (data: Buffer) => {
-              console.error(`STDERR: ${data}`);
-            });
-
-          stream.write(`${command}\n`);
-          stream.end();
-        });
-      })
-      .on('error', (err) => {
-        reject(err);
-      })
-      .connect({
-        host: ip,
-        username: 'ubuntu',
-        privateKey,
-        port: 22,
-      });
-  });
 };
 
 export const createServer = async (
@@ -195,21 +132,6 @@ export const createServer = async (
     }
 
     const promise = async () => {
-      // Create the log group
-      const cloudWatchLogsClient = new CloudWatchLogsClient({
-        region,
-        credentials: {
-          accessKeyId: env.AWS_ACCESS_KEY,
-          secretAccessKey: env.AWS_SECRET_KEY,
-        },
-      });
-
-      await cloudWatchLogsClient.send(
-        new CreateLogGroupCommand({
-          logGroupName: getLogGroup(instanceName),
-        })
-      );
-
       await updateInstanceStatus(instanceName, 'logGroupCreated');
 
       // Wait for the instance to be ready before attaching the disk
@@ -301,14 +223,6 @@ export const createServer = async (
       if (typeof installScript !== 'function') {
         throw new Error(`Invalid install script for game: ${game}`);
       }
-
-      // Install CloudWatch Agent
-      await runSSHCommand(
-        newInstance.publicIpAddress,
-        privateKey,
-        cloudWatchScript(instanceName)
-      );
-      await updateInstanceStatus(instanceName, 'cloudWatchInstalled');
 
       // Install Docker
       await runSSHCommand(

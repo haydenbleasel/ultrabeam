@@ -216,3 +216,29 @@
   --tw-prose-invert-th-borders: var(--color-border);
   --tw-prose-invert-td-borders: var(--color-border);
 }
+
+.shiki {
+  @apply bg-secondary p-4 rounded-lg text-wrap;
+  color: var(--shiki-light);
+}
+
+.shiki span {
+  color: var(--shiki-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  .shiki {
+    background-color: var(--shiki-dark-bg);
+    color: var(--shiki-dark);
+  }
+
+  .shiki span {
+    color: var(--shiki-dark);
+  }
+}
+
+.shiki code {
+  display: grid;
+  font-size: 13px;
+  counter-reset: line;
+}

@@ -1,17 +1,12 @@
 'use server';
 
 import { getServer } from '@/lib/backend';
-import { env } from '@/lib/env';
-import { getLogGroup } from '@/lib/lightsail';
-import {
-  CloudWatchLogsClient,
-  FilterLogEventsCommand,
-} from '@aws-sdk/client-cloudwatch-logs';
+import { runSSHCommand } from '@/lib/lightsail';
 import { currentUser } from '@clerk/nextjs/server';
 
 type GetServerResponse =
   | {
-      data: string[];
+      data: string;
     }
   | {
       error: string;
@@ -35,25 +30,23 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
       throw new Error('Instance name not found');
     }
 
-    const client = new CloudWatchLogsClient({
-      region: instance.location?.regionName,
-      credentials: {
-        accessKeyId: env.AWS_ACCESS_KEY,
-        secretAccessKey: env.AWS_SECRET_KEY,
-      },
-    });
+    if (!instance.publicIpAddress) {
+      throw new Error('Instance public IP address not found');
+    }
 
-    const logs = await client.send(
-      new FilterLogEventsCommand({
-        logGroupName: getLogGroup(instance.name),
-        limit: 50,
-        interleaved: true,
-      })
+    if (typeof user.privateMetadata.privateKey !== 'string') {
+      throw new Error('Private key not found');
+    }
+
+    const logs = await runSSHCommand(
+      instance.publicIpAddress,
+      user.privateMetadata.privateKey,
+      'cd /mnt/gamedata && docker compose logs --tail 500'
     );
 
-    console.log(logs);
-
-    return { data: logs.events?.map((event) => event.message ?? '') ?? [] };
+    // Remove all instances of "gamedata_valheim_1  | " from the logs
+    const cleanedLogs = logs.replace(/gamedata_valheim_1\s+\| /g, '');
+    return { data: cleanedLogs };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
 

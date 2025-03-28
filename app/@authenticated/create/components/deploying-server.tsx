@@ -4,6 +4,7 @@ import { getServer } from '@/actions/server/get';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { Console } from '../../[server]/console/components/console';
 
 type DeployingServerProps = {
   id: string;
@@ -59,11 +60,6 @@ const items = [
     id: 'diskInUse',
     title: 'Disk in use',
     description: 'The disk is ready to use.',
-  },
-  {
-    id: 'cloudWatchInstalled',
-    title: 'CloudWatch installed',
-    description: 'The CloudWatch agent has been installed.',
   },
   {
     id: 'dockerInstalled',
@@ -134,6 +130,9 @@ export const DeployingServer = ({ id }: DeployingServerProps) => {
           {items[value].description}
         </motion.div>
       </AnimatePresence>
+      <div className="h-[500px] rounded-xl bg-secondary">
+        <Console serverId={id} defaultValue="" />
+      </div>
     </div>
   );
 };

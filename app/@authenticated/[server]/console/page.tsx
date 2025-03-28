@@ -1,4 +1,5 @@
 import { getLogs } from '@/actions/logs/get';
+import { codeToHtml } from 'shiki';
 import { Console } from './components/console';
 
 type ServerProps = {
@@ -15,7 +16,12 @@ const ConsolePage = async ({ params }: ServerProps) => {
     return <div className="p-4">{logs.error}</div>;
   }
 
-  return <Console defaultValue={logs.data.join('\n')} serverId={serverId} />;
+  const html = await codeToHtml(logs.data, {
+    lang: 'actionscript-3',
+    theme: 'vitesse-light',
+  });
+
+  return <Console defaultValue={html} serverId={serverId} />;
 };
 
 export default ConsolePage;

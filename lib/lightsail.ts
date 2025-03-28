@@ -7,6 +7,7 @@ import {
   type InstanceState,
   LightsailClient,
 } from '@aws-sdk/client-lightsail';
+import { Client } from 'ssh2';
 
 export const lightsail = new LightsailClient({
   region: 'us-east-1',
@@ -78,3 +79,64 @@ export const waitForDiskStatus = (diskName: string, status: DiskState) => {
 
 export const getLogGroup = (instanceName: string) =>
   `/lightsail/ultrabeam/${instanceName}/docker-compose`;
+
+export const runSSHCommand = async (
+  ip: string,
+  privateKey: string,
+  command: string
+) => {
+  const ssh = new Client();
+  return await new Promise<string>((resolve, reject) => {
+    const sshTimeout = setTimeout(
+      () => {
+        reject(new Error('SSH command timed out'));
+        ssh.end();
+      },
+      10 * 60 * 1000
+    ); // 10 minutes
+
+    let output = '';
+
+    ssh
+      .on('ready', () => {
+        console.log('SSH Connection ready');
+
+        ssh.exec('bash -s', (err, stream) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          stream
+            .on('close', (code: number, signal: string) => {
+              console.log(`Command exited with code ${code}`);
+              clearTimeout(sshTimeout);
+              ssh.end();
+              resolve(output);
+            })
+            .on('data', (data: Buffer) => {
+              const text = data.toString();
+              output += text;
+              console.log(`STDOUT: ${text}`);
+            })
+            .stderr.on('data', (data: Buffer) => {
+              const text = data.toString();
+              output += text;
+              console.error(`STDERR: ${text}`);
+            });
+
+          stream.write(`${command}\n`);
+          stream.end();
+        });
+      })
+      .on('error', (err) => {
+        reject(err);
+      })
+      .connect({
+        host: ip,
+        username: 'ubuntu',
+        privateKey,
+        port: 22,
+      });
+  });
+};
