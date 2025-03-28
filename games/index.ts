@@ -2,6 +2,7 @@ import EnshroudedImage from './enshrouded/image.jpg';
 import MinecraftImage from './minecraft/image.jpg';
 import PalworldImage from './palworld/image.jpg';
 import RustImage from './rust/image.jpg';
+import TerrariaImage from './terraria/image.jpg';
 import ValheimImage from './valheim/image.jpg';
 
 export const games = [
@@ -87,6 +88,20 @@ export const games = [
         protocol: 'tcp',
         from: 28016,
         to: 28016,
+      },
+    ],
+  },
+  {
+    id: 'terraria',
+    name: 'Terraria',
+    image: TerrariaImage,
+    description:
+      'Dig, fight, explore, build! Nothing is impossible in this 2D adventure game.',
+    ports: [
+      {
+        protocol: 'tcp',
+        from: 7777,
+        to: 7777,
       },
     ],
   },
