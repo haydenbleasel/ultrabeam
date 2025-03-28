@@ -5,7 +5,6 @@ import { Globe } from '@/components/globe';
 import { games } from '@/games';
 import type { getRegions, getSizes } from '@/lib/backend';
 import { handleError } from '@/lib/utils';
-import { formatBytes } from '@/lib/utils';
 import { Button } from '@/ui/button';
 import { Input } from '@/ui/input';
 import { Label } from '@/ui/label';
@@ -172,8 +171,7 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
                       <div className="flex items-center gap-2">
                         {size.name}
                         <p className="text-muted-foreground text-xs">
-                          {size.memory}GB RAM • {size.cpu} vCPUs •{' '}
-                          {formatBytes(size.storage * 1024 * 1024 * 1024)} SSD
+                          {size.memory}GB RAM • {size.cpu} vCPUs
                         </p>
                       </div>
                     </SelectItem>
@@ -188,8 +186,7 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
                         <div className="flex items-center gap-2">
                           {size.name}
                           <p className="text-muted-foreground text-xs">
-                            {size.memory}GB RAM • {size.cpu} vCPUs •{' '}
-                            {formatBytes(size.storage * 1024 * 1024 * 1024)} SSD
+                            {size.memory}GB RAM • {size.cpu} vCPUs
                           </p>
                         </div>
                       </SelectItem>

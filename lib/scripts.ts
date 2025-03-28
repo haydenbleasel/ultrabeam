@@ -40,5 +40,8 @@ sudo mkdir -p /mnt/gamedata
 # Mount the disk
 sudo mount "$DISK" /mnt/gamedata
 
+# Set proper permissions for the mount point
+sudo chmod 777 /mnt/gamedata
+
 # Make it persistent after reboot
 echo "$DISK /mnt/gamedata ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab`;
