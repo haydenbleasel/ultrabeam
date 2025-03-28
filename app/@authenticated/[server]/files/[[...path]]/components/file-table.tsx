@@ -1,7 +1,5 @@
 'use client';
 
-import { formatBytes } from '@/lib/utils';
-import { cn } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,10 +10,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/ui/alert-dialog';
-import { Badge } from '@/ui/badge';
-import { Button } from '@/ui/button';
-import { Checkbox } from '@/ui/checkbox';
+} from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -30,8 +28,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '@/ui/dropdown-menu';
-import { Input } from '@/ui/input';
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -39,8 +37,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/ui/table';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/tooltip';
+} from '@/components/ui/table';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { formatBytes } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import {
   type ColumnDef,
   type ColumnFiltersState,

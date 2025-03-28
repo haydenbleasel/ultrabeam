@@ -1,11 +1,15 @@
 'use client';
 
 import { createServer } from '@/actions/server/create';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+} from '@/components/ui/accordion';
+import { Button } from '@/components/ui/button';
 import { games } from '@/games';
 import type { getRegions, getSizes } from '@/lib/backend';
 import { handleError } from '@/lib/utils';
-import { Accordion, AccordionContent, AccordionItem } from '@/ui/accordion';
-import { Button } from '@/ui/button';
 import { AccordionHeader, AccordionTrigger } from '@radix-ui/react-accordion';
 import { Loader2Icon } from 'lucide-react';
 import { useState } from 'react';

@@ -4,8 +4,6 @@ type ServerListProps = {
   data: Instance[];
 };
 
-import { games } from '@/games';
-import { regionData } from '@/lib/backend';
 import {
   Table,
   TableBody,
@@ -13,7 +11,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/ui/table';
+} from '@/components/ui/table';
+import { games } from '@/games';
+import { regionData } from '@/lib/backend';
 import Image from 'next/image';
 import Link from 'next/link';
 

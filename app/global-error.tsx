@@ -1,7 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { fonts } from '@/lib/fonts';
-import { Button } from '@/ui/button';
 import { captureException } from '@sentry/nextjs';
 import type NextError from 'next/error';
 import { useEffect } from 'react';

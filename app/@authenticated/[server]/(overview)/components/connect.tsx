@@ -1,9 +1,13 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { Input } from '@/ui/input';
-import { Label } from '@/ui/label';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/tooltip';
 import { CheckIcon, CopyIcon } from 'lucide-react';
 import { useId, useRef, useState } from 'react';
 

@@ -1,5 +1,5 @@
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { games } from '@/games';
-import { RadioGroup, RadioGroupItem } from '@/ui/radio-group';
 import { CheckIcon, MinusIcon } from 'lucide-react';
 import Image from 'next/image';
 

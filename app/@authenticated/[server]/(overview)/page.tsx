@@ -1,7 +1,7 @@
 import { getPlayers } from '@/actions/players/get';
+import { Badge } from '@/components/ui/badge';
 import { games } from '@/games';
 import { lightsail } from '@/lib/lightsail';
-import { Badge } from '@/ui/badge';
 import { GetInstanceCommand } from '@aws-sdk/client-lightsail';
 import { currentUser } from '@clerk/nextjs/server';
 import {

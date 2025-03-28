@@ -1,7 +1,6 @@
 'use client';
 import { rebootServer } from '@/actions/server/reboot';
-import { handleError } from '@/lib/utils';
-import { Button } from '@/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogClose,
@@ -11,7 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/ui/dialog';
+} from '@/components/ui/dialog';
+import { handleError } from '@/lib/utils';
 import { CircleAlertIcon, RotateCcwIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
