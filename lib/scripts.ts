@@ -1,4 +1,5 @@
 import 'server-only';
+
 export const sshInitScript = (publicKey: string) => `
 #!/bin/bash
 set -e
@@ -21,7 +22,13 @@ sudo apt update && sudo apt upgrade -y
 # Install Docker
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
-sudo apt install -y docker-compose`;
+sudo apt install -y docker-compose
+
+# Add current user to the docker group
+sudo usermod -aG docker $USER
+
+# Apply new group (if script runs interactively)
+newgrp docker`;
 
 export const mountVolumeScript = `
 #!/bin/bash

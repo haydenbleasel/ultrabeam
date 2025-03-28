@@ -54,6 +54,7 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
       }
 
       setServerId(response.id);
+      setStep('3');
     } catch (error) {
       handleError(error);
       setIsLoading(false);
