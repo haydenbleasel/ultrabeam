@@ -51,7 +51,6 @@ import {
   getCoreRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
@@ -70,15 +69,16 @@ import {
   HardDriveIcon,
   KeyboardIcon,
   ListFilterIcon,
-  UploadCloudIcon,
   WifiIcon,
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useId, useRef, useState } from 'react';
 import type { FileInfo } from 'ssh2-sftp-client';
+import { UploadButton } from './upload-button';
 
 type FileTableProps = {
   data: FileInfo[];
+  path: string;
 };
 
 const fileIcons = {
@@ -198,8 +198,9 @@ const columns: ColumnDef<FileInfo>[] = [
   },
 ];
 
-export default function FileTable({ data }: FileTableProps) {
+export const FileTable = ({ data: initialData, path }: FileTableProps) => {
   const id = useId();
+  const [data, setData] = useState<FileInfo[]>(initialData);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const inputRef = useRef<HTMLInputElement>(null);
@@ -218,9 +219,10 @@ export default function FileTable({ data }: FileTableProps) {
     const updatedData = data.filter(
       (item) => !selectedRows.some((row) => row.original.name === item.name)
     );
-    // setData(updatedData);
+    setData(updatedData);
     table.resetRowSelection();
   };
+
   const handleRowClick = (row: Row<FileInfo>) => {
     // Only navigate if it's a directory
     if (row.original.type === 'd') {
@@ -236,7 +238,6 @@ export default function FileTable({ data }: FileTableProps) {
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
     enableSortingRemoval: false,
-    getPaginationRowModel: getPaginationRowModel(),
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     getFilteredRowModel: getFilteredRowModel(),
@@ -374,15 +375,7 @@ export default function FileTable({ data }: FileTableProps) {
               </AlertDialogContent>
             </AlertDialog>
           )}
-          {/* Add user button */}
-          <Button className="ml-auto" variant="outline">
-            <UploadCloudIcon
-              className="-ms-1 opacity-60"
-              size={16}
-              aria-hidden="true"
-            />
-            Upload
-          </Button>
+          <UploadButton path={path} />
         </div>
       </div>
 
@@ -485,7 +478,7 @@ export default function FileTable({ data }: FileTableProps) {
       </div>
     </div>
   );
-}
+};
 
 function RowActions({ row }: { row: Row<FileInfo> }) {
   return (
