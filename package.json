@@ -5,9 +5,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "analyze": "ANALYZE=true pnpm build",
-    "studio": "prisma studio --schema --port 3005",
-    "generate": "prisma format && prisma generate --no-hints"
+    "analyze": "ANALYZE=true pnpm build"
   },
   "dependencies": {
     "@aws-sdk/client-lightsail": "^3.758.0",
@@ -15,11 +13,8 @@
     "@clerk/themes": "^2.2.20",
     "@hookform/resolvers": "^4.1.3",
     "@logtail/next": "^0.1.7",
-    "@neondatabase/serverless": "^0.10.4",
     "@next/third-parties": "15.1.7",
     "@nosecone/next": "1.0.0-beta.2",
-    "@prisma/adapter-neon": "6.4.1",
-    "@prisma/client": "6.4.1",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-aspect-ratio": "^1.1.2",
@@ -111,7 +106,6 @@
     "@types/ws": "^8.18.0",
     "bufferutil": "^4.0.9",
     "postcss": "^8.5.3",
-    "prisma": "6.4.1",
     "tailwindcss": "^4.0.12",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.8.2",

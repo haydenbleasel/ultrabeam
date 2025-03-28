@@ -34,9 +34,6 @@ export const env = createEnv({
     AWS_ACCESS_KEY: z.string().min(1),
     AWS_SECRET_KEY: z.string().min(1),
 
-    // Neon
-    DATABASE_URL: z.string().min(1).url(),
-
     // Stripe
     STRIPE_SECRET_KEY: z.string().min(1),
 
@@ -71,7 +68,6 @@ export const env = createEnv({
     NEXT_RUNTIME: process.env.NEXT_RUNTIME,
     AWS_ACCESS_KEY: process.env.AWS_ACCESS_KEY,
     AWS_SECRET_KEY: process.env.AWS_SECRET_KEY,
-    DATABASE_URL: process.env.DATABASE_URL,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     BETTERSTACK_API_KEY: process.env.BETTERSTACK_API_KEY,
     BETTERSTACK_URL: process.env.BETTERSTACK_URL,
