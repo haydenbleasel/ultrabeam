@@ -30,9 +30,17 @@ export const deleteServer = async (
       throw new Error('Instance not found');
     }
 
+    const diskName = instance.hardware?.disks?.find(
+      (disk) => disk.path === '/dev/nvme1n1'
+    )?.name;
+
+    if (!diskName) {
+      throw new Error('Disk name not found');
+    }
+
     const { disk } = await lightsail.send(
       new GetDiskCommand({
-        diskName: instance.hardware?.disks?.at(0)?.name ?? '',
+        diskName,
       })
     );
 

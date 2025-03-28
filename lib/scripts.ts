@@ -1,10 +1,14 @@
 import 'server-only';
-
 export const sshInitScript = (publicKey: string) => `
 #!/bin/bash
 set -e
 
+# Ensure .ssh directory exists
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+
 echo "${publicKey}" >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
 `;
 
 export const bootstrapScript = `

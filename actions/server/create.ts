@@ -122,7 +122,7 @@ export const createServer = async (
       throw new Error('Game info not found');
     }
 
-    const diskPath = '/dev/xvdf';
+    const diskPath = '/dev/nvme1n1';
 
     let publicKey = user.privateMetadata.publicKey as string | undefined;
     let privateKey = user.privateMetadata.privateKey as string | undefined;
