@@ -5,13 +5,12 @@ import { env } from '@/lib/env';
 import {
   CloudWatchLogsClient,
   FilterLogEventsCommand,
-  type FilteredLogEvent,
 } from '@aws-sdk/client-cloudwatch-logs';
 import { currentUser } from '@clerk/nextjs/server';
 
 type GetServerResponse =
   | {
-      data: FilteredLogEvent[];
+      data: string[];
     }
   | {
       error: string;
@@ -49,7 +48,7 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
       })
     );
 
-    return { data: logs.events ?? [] };
+    return { data: logs.events?.map((event) => event.message ?? '') ?? [] };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
 

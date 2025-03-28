@@ -39,6 +39,11 @@ export const Provisioning = ({ id }: ProvisioningProps) => {
       description: 'The server instance has been created.',
     },
     {
+      id: 'logGroupCreated',
+      title: 'Log group created',
+      description: 'The log group has been created.',
+    },
+    {
       id: 'instanceAvailable',
       title: 'Instance available',
       description: 'The server instance is ready to use.',
@@ -69,9 +74,19 @@ export const Provisioning = ({ id }: ProvisioningProps) => {
       description: 'The disk is ready to use.',
     },
     {
-      id: 'gameInstalled',
-      title: 'Game installed',
-      description: 'The game has been installed.',
+      id: 'cloudWatchInstalled',
+      title: 'CloudWatch installed',
+      description: 'The CloudWatch agent has been installed.',
+    },
+    {
+      id: 'dockerInstalled',
+      title: 'Docker installed',
+      description: 'Docker has been installed.',
+    },
+    {
+      id: 'volumeMounted',
+      title: 'Volume mounted',
+      description: 'The volume has been mounted.',
     },
     {
       id: 'ready',
@@ -96,9 +111,9 @@ export const Provisioning = ({ id }: ProvisioningProps) => {
 
       if (status === 'ready') {
         clearInterval(interval);
-        router.refresh();
+        router.push(`/${id}`);
       }
-    }, 1000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [id, router]);

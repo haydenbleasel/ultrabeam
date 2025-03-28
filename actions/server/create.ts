@@ -1,6 +1,7 @@
 'use server';
 
 import { games } from '@/games';
+import { env } from '@/lib/env';
 import {
   lightsail,
   waitForDiskStatus,
@@ -194,12 +195,21 @@ export const createServer = async (
 
     const promise = async () => {
       // Create the log group
-      const cloudWatchLogsClient = new CloudWatchLogsClient({ region });
+      const cloudWatchLogsClient = new CloudWatchLogsClient({
+        region,
+        credentials: {
+          accessKeyId: env.AWS_ACCESS_KEY,
+          secretAccessKey: env.AWS_SECRET_KEY,
+        },
+      });
+
       await cloudWatchLogsClient.send(
         new CreateLogGroupCommand({
           logGroupName: `/lightsail/ultrabeam/${instanceName}/syslog`,
         })
       );
+
+      await updateInstanceStatus(instanceName, 'logGroupCreated');
 
       // Wait for the instance to be ready before attaching the disk
       await waitForInstanceStatus(instanceName, 'running');

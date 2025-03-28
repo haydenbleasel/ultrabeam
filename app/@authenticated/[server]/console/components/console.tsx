@@ -21,7 +21,7 @@ export const Console = ({ serverId, defaultValue }: ConsoleProps) => {
         return;
       }
 
-      setLogs(newLogs.data.map((log) => log.message).join(''));
+      setLogs(newLogs.data.join(''));
     }, 3000);
 
     return () => clearInterval(interval);

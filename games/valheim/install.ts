@@ -12,7 +12,6 @@ cd /mnt/gamedata
 
 # Create docker-compose.yml file
 cat > docker-compose.yml << 'EOF'
-version: "3"
 services:
   valheim:
     image: mbround18/valheim:latest
@@ -42,7 +41,7 @@ services:
 EOF
 
 # Start the server
-docker-compose up -d
+sudo docker-compose up -d
 
 echo "Valheim server has been installed and started."
 `;

@@ -1,4 +1,5 @@
 import 'server-only';
+import { env } from './env';
 
 export const sshInitScript = (publicKey: string) => `
 #!/bin/bash
@@ -23,6 +24,7 @@ sudo apt update && sudo apt upgrade -y
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 sudo apt install -y docker-compose
+rm get-docker.sh
 
 # Add current user to the docker group
 sudo usermod -aG docker $USER
@@ -62,9 +64,20 @@ curl -O https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amaz
 sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
 sudo mkdir -p /opt/aws/amazon-cloudwatch-agent/etc
 
-# Write the CloudWatch Agent config to disk (customize as needed)
+# Configure AWS credentials
+sudo mkdir -p /root/.aws
+cat <<EOF | sudo tee /root/.aws/credentials
+[AmazonCloudWatchAgent]
+aws_access_key_id=${env.AWS_ACCESS_KEY}
+aws_secret_access_key=${env.AWS_SECRET_KEY}
+EOF
+
+# Write the CloudWatch Agent config to disk
 cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 {
+  "agent": {
+    "run_as_user": "root"
+  },
   "logs": {
     "logs_collected": {
       "files": {
@@ -72,19 +85,25 @@ cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agen
           {
             "file_path": "/var/log/syslog",
             "log_group_name": "/lightsail/ultrabeam/${instanceName}/syslog",
-            "log_stream_name": "${instanceName}"
+            "log_stream_name": "${instanceName}",
+            "timezone": "UTC"
           }
         ]
       }
-    }
+    },
+    "force_flush_interval": 5
   }
 }
 EOF
 
-# Start the CloudWatch Agent
+# Start the CloudWatch Agent with debug logging
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \\
   -a fetch-config \\
   -m ec2 \\
   -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json \\
   -s
+
+# Verify agent is running and check its status
+sleep 5
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -m ec2 -a status
 `;
