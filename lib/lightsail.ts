@@ -75,3 +75,6 @@ export const waitForDiskStatus = (diskName: string, status: DiskState) => {
     checkDiskStatus();
   });
 };
+
+export const getLogGroup = (instanceName: string) =>
+  `/lightsail/ultrabeam/${instanceName}/docker-compose`;

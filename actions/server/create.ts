@@ -3,6 +3,7 @@
 import { games } from '@/games';
 import { env } from '@/lib/env';
 import {
+  getLogGroup,
   lightsail,
   waitForDiskStatus,
   waitForInstanceStatus,
@@ -205,7 +206,7 @@ export const createServer = async (
 
       await cloudWatchLogsClient.send(
         new CreateLogGroupCommand({
-          logGroupName: `/lightsail/ultrabeam/${instanceName}/syslog`,
+          logGroupName: getLogGroup(instanceName),
         })
       );
 

@@ -57,14 +57,19 @@ const ServerPage = async ({ params }: Server) => {
   const password =
     instance.tags?.find((tag) => tag.key === 'password')?.value ?? '';
 
-  const players = await getPlayers(
+  let players = await getPlayers(
     activeGame.id,
     instance.publicIpAddress ?? '',
     activeGame.ports.at(0)?.from ?? 0
   );
 
   if ('error' in players) {
-    notFound();
+    players = {
+      data: {
+        players: 0,
+        maxplayers: 0,
+      },
+    };
   }
 
   return (

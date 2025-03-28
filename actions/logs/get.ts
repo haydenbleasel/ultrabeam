@@ -2,6 +2,7 @@
 
 import { getServer } from '@/lib/backend';
 import { env } from '@/lib/env';
+import { getLogGroup } from '@/lib/lightsail';
 import {
   CloudWatchLogsClient,
   FilterLogEventsCommand,
@@ -30,7 +31,9 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
       throw new Error('Instance not found');
     }
 
-    const logGroupName = `/lightsail/ultrabeam/${instance.name}/syslog`;
+    if (!instance.name) {
+      throw new Error('Instance name not found');
+    }
 
     const client = new CloudWatchLogsClient({
       region: instance.location?.regionName,
@@ -42,11 +45,13 @@ export const getLogs = async (id: string): Promise<GetServerResponse> => {
 
     const logs = await client.send(
       new FilterLogEventsCommand({
-        logGroupName,
+        logGroupName: getLogGroup(instance.name),
         limit: 50,
         interleaved: true,
       })
     );
+
+    console.log(logs);
 
     return { data: logs.events?.map((event) => event.message ?? '') ?? [] };
   } catch (error) {

@@ -1,5 +1,6 @@
 import 'server-only';
 import { env } from './env';
+import { getLogGroup } from './lightsail';
 
 export const sshInitScript = (publicKey: string) => `
 #!/bin/bash
@@ -54,7 +55,6 @@ sudo chmod 777 /mnt/gamedata
 
 # Make it persistent after reboot
 echo "$DISK /mnt/gamedata ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab`;
-
 export const cloudWatchScript = (instanceName: string) => `
 #!/bin/bash
 set -e
@@ -72,6 +72,31 @@ aws_access_key_id=${env.AWS_ACCESS_KEY}
 aws_secret_access_key=${env.AWS_SECRET_KEY}
 EOF
 
+# Create a log file for docker compose logs
+sudo mkdir -p /var/log/docker
+sudo touch /var/log/docker/compose.log
+sudo chmod 666 /var/log/docker/compose.log
+
+# Create a script to collect docker logs and rotate them
+cat <<EOF | sudo tee /usr/local/bin/collect-docker-logs.sh
+#!/bin/bash
+# Get docker compose logs
+docker compose logs --tail=100 >> /var/log/docker/compose.log
+
+# Keep the log file size under control (max 10MB)
+if [ \$(stat -c%s "/var/log/docker/compose.log") -gt 10485760 ]; then
+  # Truncate the file to the last 5MB
+  tail -c 5242880 /var/log/docker/compose.log > /var/log/docker/compose.log.tmp
+  mv /var/log/docker/compose.log.tmp /var/log/docker/compose.log
+fi
+EOF
+
+# Make the script executable
+sudo chmod +x /usr/local/bin/collect-docker-logs.sh
+
+# Set up a cron job to run the script every minute
+(crontab -l 2>/dev/null || echo "") | grep -v "collect-docker-logs.sh" | { cat; echo "* * * * * /usr/local/bin/collect-docker-logs.sh"; } | crontab -
+
 # Write the CloudWatch Agent config to disk
 cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 {
@@ -83,8 +108,8 @@ cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agen
       "files": {
         "collect_list": [
           {
-            "file_path": "/var/log/syslog",
-            "log_group_name": "/lightsail/ultrabeam/${instanceName}/syslog",
+            "file_path": "/var/log/docker/compose.log",
+            "log_group_name": "${getLogGroup(instanceName)}",
             "log_stream_name": "${instanceName}",
             "timezone": "UTC"
           }
