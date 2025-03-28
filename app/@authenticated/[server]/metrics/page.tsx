@@ -3,6 +3,7 @@ import {
   GetInstanceMetricDataCommand,
   type InstanceMetricName,
 } from '@aws-sdk/client-lightsail';
+import { MetricsAreaChart } from './components/area-chart';
 
 type ServerProps = {
   params: Promise<{
@@ -41,11 +42,22 @@ const MetricsPage = async ({ params }: ServerProps) => {
   );
 
   return (
-    <div className="p-4">
-      <h1 className="font-bold text-2xl">Metrics</h1>
-      <pre>{JSON.stringify(cpu.metricData, null, 2)}</pre>
-      <pre>{JSON.stringify(networkIn.metricData, null, 2)}</pre>
-      <pre>{JSON.stringify(networkOut.metricData, null, 2)}</pre>
+    <div className="grid gap-6 p-6">
+      <MetricsAreaChart
+        title="CPU Utilization"
+        description="Showing CPU usage over time"
+        data={cpu.metricData ?? []}
+      />
+      <MetricsAreaChart
+        title="Network In"
+        description="Showing network in usage over time"
+        data={networkIn.metricData ?? []}
+      />
+      <MetricsAreaChart
+        title="Network Out"
+        description="Showing network out usage over time"
+        data={networkOut.metricData ?? []}
+      />
     </div>
   );
 };
