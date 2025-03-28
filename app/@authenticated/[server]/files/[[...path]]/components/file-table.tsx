@@ -64,13 +64,13 @@ import {
   ChevronUpIcon,
   CircleAlertIcon,
   CircleXIcon,
+  CloudDownloadIcon,
   Columns3Icon,
   EllipsisIcon,
   FileIcon,
   FilterIcon,
   FolderIcon,
   ListFilterIcon,
-  TrashIcon,
   UploadCloudIcon,
 } from 'lucide-react';
 import { useId, useMemo, useRef, useState } from 'react';
@@ -412,17 +412,17 @@ export default function FileTable({ data }: FileTableProps) {
           </DropdownMenu>
         </div>
         <div className="flex items-center gap-3">
-          {/* Delete button */}
+          {/* Download button */}
           {table.getSelectedRowModel().rows.length > 0 && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button className="ml-auto" variant="outline">
-                  <TrashIcon
+                  <CloudDownloadIcon
                     className="-ms-1 opacity-60"
                     size={16}
                     aria-hidden="true"
                   />
-                  Delete
+                  Download
                   <span className="-me-1 inline-flex h-5 max-h-full items-center rounded border bg-background px-1 font-[inherit] font-medium text-[0.625rem] text-muted-foreground/70">
                     {table.getSelectedRowModel().rows.length}
                   </span>

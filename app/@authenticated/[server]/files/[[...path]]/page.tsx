@@ -3,15 +3,17 @@ import { currentUser } from '@clerk/nextjs/server';
 import { notFound } from 'next/navigation';
 import SFTPClient from 'ssh2-sftp-client';
 import FileTable from './components/file-table';
+import { Path } from './components/path';
 
 type ServerProps = {
   params: Promise<{
     server: string;
+    path: string[] | undefined;
   }>;
 };
 
 const FilesPage = async ({ params }: ServerProps) => {
-  const { server: serverId } = await params;
+  const { server: serverId, path } = await params;
   const sftp = new SFTPClient();
   const user = await currentUser();
   const gameServer = await getServer(serverId);
@@ -28,13 +30,16 @@ const FilesPage = async ({ params }: ServerProps) => {
     readyTimeout: 10000,
   });
 
-  const fileList = await sftp.list('/');
+  const flattenedPath = `/${path?.join('/') ?? ''}`;
+
+  const fileList = await sftp.list(flattenedPath);
 
   await sftp.end();
 
   return (
-    <div className="p-4">
+    <div className="grid gap-4 p-4">
       <FileTable data={fileList} />
+      <Path value={flattenedPath} />
     </div>
   );
 };

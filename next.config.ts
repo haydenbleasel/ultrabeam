@@ -40,9 +40,6 @@ let config: NextConfig = withLogtail({
 
     return config;
   },
-
-  // This is required to support PostHog trailing slash API requests
-  skipTrailingSlashRedirect: true,
 });
 
 if (env.VERCEL) {
