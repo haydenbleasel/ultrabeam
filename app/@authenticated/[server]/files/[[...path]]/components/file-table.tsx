@@ -224,11 +224,8 @@ export const FileTable = ({ data: initialData, path }: FileTableProps) => {
   };
 
   const handleRowClick = (row: Row<FileInfo>) => {
-    // Only navigate if it's a directory
-    if (row.original.type === 'd') {
-      const newPath = `${pathname}/${row.original.name}`;
-      router.push(newPath);
-    }
+    const newPath = `${pathname}/${row.original.name}`;
+    router.push(newPath);
   };
 
   const table = useReactTable({
@@ -451,7 +448,7 @@ export const FileTable = ({ data: initialData, path }: FileTableProps) => {
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
                   onClick={() => handleRowClick(row)}
-                  className={row.original.type === 'd' ? 'cursor-pointer' : ''}
+                  className="cursor-pointer"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="last:py-0">

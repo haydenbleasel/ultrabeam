@@ -2,6 +2,7 @@ import { getServer } from '@/lib/backend';
 import { currentUser } from '@clerk/nextjs/server';
 import { notFound } from 'next/navigation';
 import SFTPClient from 'ssh2-sftp-client';
+import { FileEditor } from './components/file-editor';
 import { FileTable } from './components/file-table';
 import { Path } from './components/path';
 
@@ -32,16 +33,39 @@ const FilesPage = async ({ params }: ServerProps) => {
 
   const flattenedPath = `/${path?.join('/') ?? ''}`;
 
-  const fileList = await sftp.list(flattenedPath);
+  try {
+    // Check if the path is a file
+    const { isFile } = await sftp.stat(flattenedPath);
 
-  await sftp.end();
+    if (isFile) {
+      // If it's a file, download and display its content
+      const fileContent = await sftp.get(flattenedPath);
+      await sftp.end();
 
-  return (
-    <div className="grid gap-4 p-4">
-      <FileTable data={fileList} path={flattenedPath} />
-      <Path value={flattenedPath} />
-    </div>
-  );
+      // Display file content based on file type
+      return (
+        <div className="grid gap-4 p-4">
+          <FileEditor value={fileContent.toString()} />
+          <Path value={flattenedPath} />
+        </div>
+      );
+    }
+
+    // If it's a directory, list its contents
+    const fileList = await sftp.list(flattenedPath);
+    await sftp.end();
+
+    return (
+      <div className="grid gap-4 p-4">
+        <FileTable data={fileList} path={flattenedPath} />
+        <Path value={flattenedPath} />
+      </div>
+    );
+  } catch (error) {
+    console.error(error);
+    await sftp.end();
+    notFound();
+  }
 };
 
 export default FilesPage;
