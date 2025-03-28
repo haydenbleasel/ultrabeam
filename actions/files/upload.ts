@@ -1,18 +1,20 @@
 'use server';
-import type { Instance } from '@aws-sdk/client-lightsail';
+
+import { lightsail } from '@/lib/lightsail';
+import { GetInstanceCommand } from '@aws-sdk/client-lightsail';
 import { currentUser } from '@clerk/nextjs/server';
 import SFTPClient from 'ssh2-sftp-client';
 
 type UploadFileResponse =
   | {
-      data: Instance;
+      success: boolean;
     }
   | {
       error: string;
     };
 
 export const uploadFile = async (
-  ip: string,
+  instanceName: string,
   path: string,
   file: File
 ): Promise<UploadFileResponse> => {
@@ -24,8 +26,18 @@ export const uploadFile = async (
       throw new Error('User not found');
     }
 
+    const server = await lightsail.send(
+      new GetInstanceCommand({
+        instanceName,
+      })
+    );
+
+    if (!server.instance) {
+      throw new Error('Server not found');
+    }
+
     await sftp.connect({
-      host: ip,
+      host: server.instance.publicIpAddress,
       port: 22,
       username: 'ubuntu',
       privateKey: user.privateMetadata.privateKey as string,
@@ -40,7 +52,7 @@ export const uploadFile = async (
 
     await sftp.end();
 
-    return { data: 'success' };
+    return { success: true };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
 

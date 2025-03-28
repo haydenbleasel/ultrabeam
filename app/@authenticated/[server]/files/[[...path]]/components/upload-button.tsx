@@ -5,7 +5,7 @@ import { handleError } from '@/lib/utils';
 import { Button } from '@/ui/button';
 import { Loader2Icon, UploadCloudIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { type ChangeEventHandler, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 type UploadButtonProps = {
@@ -18,7 +18,7 @@ export const UploadButton = ({ path }: UploadButtonProps) => {
   const params = useParams();
   const serverId = params.server as string;
 
-  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload: ChangeEventHandler<HTMLInputElement> = async (event) => {
     const files = event.target.files;
     if (!files || files.length === 0 || isUploading) {
       return;
@@ -31,10 +31,11 @@ export const UploadButton = ({ path }: UploadButtonProps) => {
       const result = await uploadFile(serverId, path, file);
 
       if ('error' in result) {
-        toast.error(`Upload failed: ${result.error}`);
-      } else {
-        toast.success('File uploaded successfully');
+        handleError(result.error);
+        return;
       }
+
+      toast.success('File uploaded successfully');
     } catch (error) {
       handleError(error);
     } finally {
