@@ -1,7 +1,7 @@
+import { getPlayers } from '@/actions/players/get';
 import { games } from '@/games';
 import { lightsail } from '@/lib/lightsail';
 import { Badge } from '@/ui/badge';
-import { Input } from '@/ui/input';
 import { GetInstanceCommand } from '@aws-sdk/client-lightsail';
 import { currentUser } from '@clerk/nextjs/server';
 import {
@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Status } from '../../components/status';
 import { Connect } from './components/connect';
+import { Password } from './components/password';
 import { PlayerCount } from './components/player-count';
 import { ServerDropdownMenu } from './components/server-dropdown-menu';
 
@@ -50,6 +51,19 @@ const ServerPage = async ({ params }: Server) => {
   const activeGame = games.find((game) => game.id === gameTag.value);
 
   if (!activeGame) {
+    notFound();
+  }
+
+  const password =
+    instance.tags?.find((tag) => tag.key === 'password')?.value ?? '';
+
+  const players = await getPlayers(
+    activeGame.id,
+    instance.publicIpAddress ?? '',
+    activeGame.ports.at(0)?.from ?? 0
+  );
+
+  if ('error' in players) {
     notFound();
   }
 
@@ -127,18 +141,18 @@ const ServerPage = async ({ params }: Server) => {
               game={activeGame.id}
               ip={instance.publicIpAddress ?? ''}
               port={activeGame.ports[0].from}
+              defaultPlayers={players.data.players}
+              defaultMaxPlayers={players.data.maxplayers}
             />
           </Badge>
         </div>
-        <Input
-          placeholder="Password"
-          value={instance.tags?.find((tag) => tag.key === 'password')?.value}
-          disabled
-        />
-        <Connect
-          ip={instance.publicIpAddress ?? ''}
-          port={activeGame.ports[0].from}
-        />
+        <div className="grid gap-2">
+          <Password password={password} />
+          <Connect
+            ip={instance.publicIpAddress ?? ''}
+            port={activeGame.ports[0].from}
+          />
+        </div>
       </div>
     </div>
   );

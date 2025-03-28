@@ -7,32 +7,31 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/tooltip';
 import { CheckIcon, CopyIcon } from 'lucide-react';
 import { useId, useRef, useState } from 'react';
 
-type ConnectProps = {
-  ip: string;
-  port: number;
+type PasswordProps = {
+  password: string;
 };
 
-export const Connect = ({ ip, port }: ConnectProps) => {
+export const Password = ({ password }: PasswordProps) => {
   const id = useId();
   const [copied, setCopied] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(`${ip}:${port}`);
+    navigator.clipboard.writeText(password);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
 
   return (
     <div className="*:not-first:mt-2">
-      <Label htmlFor={id}>IP Address</Label>
+      <Label htmlFor={id}>Password</Label>
       <div className="relative">
         <Input
           ref={inputRef}
           id={id}
           className="pe-9 font-mono"
           type="text"
-          defaultValue={`${ip}:${port}`}
+          defaultValue={password}
           readOnly
         />
         <Tooltip>

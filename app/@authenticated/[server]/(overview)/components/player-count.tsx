@@ -8,11 +8,19 @@ type PlayerCountProps = {
   game: string;
   ip: string;
   port: number;
+  defaultPlayers: number;
+  defaultMaxPlayers: number;
 };
 
-export const PlayerCount = ({ game, ip, port }: PlayerCountProps) => {
-  const [playerCount, setPlayerCount] = useState(0);
-  const [maxPlayers, setMaxPlayers] = useState(0);
+export const PlayerCount = ({
+  game,
+  ip,
+  port,
+  defaultPlayers,
+  defaultMaxPlayers,
+}: PlayerCountProps) => {
+  const [playerCount, setPlayerCount] = useState(defaultPlayers);
+  const [maxPlayers, setMaxPlayers] = useState(defaultMaxPlayers);
 
   useEffect(() => {
     const interval = setInterval(async () => {
