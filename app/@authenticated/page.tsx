@@ -7,8 +7,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ServerList } from './components/server-list';
 
-const title = 'Acme Inc';
-const description = 'My application.';
+const title = 'Ultrabeam';
+const description = 'Simple, reliable dedicated game servers.';
 
 export const metadata: Metadata = {
   title,
