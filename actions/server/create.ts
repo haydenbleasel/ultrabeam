@@ -9,6 +9,7 @@ import {
 import { log } from '@/lib/observability/log';
 import {
   bootstrapScript,
+  cloudWatchScript,
   mountVolumeScript,
   sshInitScript,
 } from '@/lib/scripts';
@@ -103,9 +104,7 @@ export const createServer = async (
         availabilityZone: `${region}a`,
         blueprintId: 'ubuntu_22_04',
         bundleId: size,
-        userData: [sshInitScript(publicKey as string), bootstrapScript].join(
-          '\n'
-        ),
+        userData: sshInitScript(publicKey),
         keyPairName,
         ipAddressType: 'ipv4',
         tags: [
@@ -260,6 +259,8 @@ export const createServer = async (
                 });
 
               // Combine mount + install scripts here
+              stream.write(`${cloudWatchScript(instanceName)}\n`);
+              stream.write(`${bootstrapScript}\n`);
               stream.write(`${mountVolumeScript}\n`);
               stream.write(
                 `${installScript(instanceName, password, 'America/New_York')}\n`
