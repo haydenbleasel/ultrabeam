@@ -1,3 +1,4 @@
+import EnshroudedImage from './enshrouded/image.jpg';
 import MinecraftImage from './minecraft/image.jpg';
 import PalworldImage from './palworld/image.jpg';
 import ValheimImage from './valheim/image.jpg';
@@ -47,6 +48,20 @@ export const games = [
         protocol: 'udp',
         from: 2456,
         to: 2458,
+      },
+    ],
+  },
+  {
+    id: 'enshrouded',
+    name: 'Enshrouded',
+    image: EnshroudedImage,
+    description:
+      'A game of survival, crafting, and action on a sprawling voxel-based continent.',
+    ports: [
+      {
+        protocol: 'udp',
+        from: 15637,
+        to: 15637,
       },
     ],
   },
