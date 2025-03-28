@@ -6,7 +6,7 @@ export const Header = () => (
   <header className="sticky top-0 z-50 flex items-center justify-between py-4">
     <Link href="/" className="flex items-center gap-2">
       <Logo />
-      <p className="font-bold text-lg tracking-tight">Ultrabeam</p>
+      <p className="font-semibold text-lg tracking-tight">Ultrabeam</p>
     </Link>
     <div className="flex items-center gap-2">
       <Button asChild variant="ghost">
