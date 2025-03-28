@@ -1,11 +1,16 @@
 'use server';
 
-import { lightsail } from '@/lib/lightsail';
+import {
+  lightsail,
+  waitForDiskStatus,
+  waitForInstanceStatus,
+} from '@/lib/lightsail';
 import {
   DeleteDiskCommand,
   DeleteInstanceCommand,
-  GetDiskCommand,
+  DetachDiskCommand,
   GetInstanceCommand,
+  StopInstanceCommand,
 } from '@aws-sdk/client-lightsail';
 
 type DeleteServerResponse =
@@ -17,12 +22,12 @@ type DeleteServerResponse =
     };
 
 export const deleteServer = async (
-  id: string
+  instanceName: string
 ): Promise<DeleteServerResponse> => {
   try {
     const { instance } = await lightsail.send(
       new GetInstanceCommand({
-        instanceName: id,
+        instanceName,
       })
     );
 
@@ -31,33 +36,45 @@ export const deleteServer = async (
     }
 
     const diskName = instance.hardware?.disks?.find(
-      (disk) => disk.path === '/dev/nvme1n1'
+      (disk) => !disk.isSystemDisk
     )?.name;
 
     if (!diskName) {
       throw new Error('Disk name not found');
     }
 
-    const { disk } = await lightsail.send(
-      new GetDiskCommand({
+    // Stop the instance
+    await lightsail.send(
+      new StopInstanceCommand({
+        instanceName,
+      })
+    );
+
+    // Wait for the instance to be stopped
+    await waitForInstanceStatus(instanceName, 'stopped');
+
+    // Detach the disk
+    await lightsail.send(
+      new DetachDiskCommand({
         diskName,
       })
     );
 
-    if (!disk) {
-      throw new Error('Disk not found');
-    }
+    // Wait for the disk to be detached
+    await waitForDiskStatus(diskName, 'available');
 
+    // Delete the instance
     await lightsail.send(
       new DeleteInstanceCommand({
-        instanceName: id,
+        instanceName,
         forceDeleteAddOns: true,
       })
     );
 
+    // Delete the disk
     await lightsail.send(
       new DeleteDiskCommand({
-        diskName: disk.name,
+        diskName,
       })
     );
 

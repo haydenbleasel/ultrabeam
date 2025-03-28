@@ -1,6 +1,6 @@
 'use server';
 
-import { lightsail } from '@/lib/lightsail';
+import { lightsail, waitForInstanceStatus } from '@/lib/lightsail';
 import {
   DeleteInstanceCommand,
   StopInstanceCommand,
@@ -22,7 +22,7 @@ export const resizeServer = async (
     console.log(`Stopping instance: ${instanceName}...`);
     await lightsail.send(new StopInstanceCommand({ instanceName }));
 
-    // await waitForInstanceStatus(instanceName, 'stopped');
+    await waitForInstanceStatus(instanceName, 'stopped');
 
     console.log('Deleting the old instance...');
     await lightsail.send(

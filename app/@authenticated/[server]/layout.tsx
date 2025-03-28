@@ -30,9 +30,12 @@ export const generateMetadata = async ({ params }: ServerLayoutProps) => {
     return {};
   }
 
+  const name = instance.tags?.find(({ key }) => key === 'name')?.value;
+  const game = instance.tags?.find(({ key }) => key === 'game')?.value;
+
   return {
-    title: instance.name,
-    description: `Server for ${instance.tags?.find(({ key }) => key === 'game')?.value ?? 'unknown game'}.`,
+    title: name,
+    description: `Server for ${game ?? 'unknown game'}.`,
   };
 };
 
