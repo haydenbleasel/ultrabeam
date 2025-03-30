@@ -28,29 +28,34 @@ const items = [
     description: 'The game and dependencies are being installed.',
   },
   {
-    id: 'packagesUpdated',
-    title: 'Packages updated',
-    description: 'The packages have been updated.',
+    id: 'updatingPackages',
+    title: 'Updating packages',
+    description: 'The packages are being updated.',
   },
   {
-    id: 'dockerInstalled',
-    title: 'Docker installed',
-    description: 'Docker has been installed.',
+    id: 'installingDocker',
+    title: 'Installing Docker',
+    description: 'Docker is being installed.',
   },
   {
-    id: 'volumeMounted',
-    title: 'Volume mounted',
-    description: 'The volume has been mounted.',
+    id: 'mountingVolume',
+    title: 'Mounting volume',
+    description: 'The volume is being mounted.',
   },
   {
-    id: 'gameInstalled',
-    title: 'Game installed',
-    description: 'The game has been installed.',
+    id: 'installingGame',
+    title: 'Installing game',
+    description: 'The game is being installed.',
   },
   {
     id: 'ready',
     title: 'Server ready',
     description: 'The server is ready to use.',
+  },
+  {
+    id: 'failed',
+    title: 'Server failed',
+    description: 'The server failed to provision.',
   },
 ];
 
@@ -72,10 +77,10 @@ export const DeployingServer = ({ id }: DeployingServerProps) => {
 
       setValue(items.findIndex((item) => item.id === status));
 
-      if (status === 'ready') {
+      if (status === 'ready' || status === 'failed') {
         clearInterval(interval);
       }
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [id]);

@@ -8,6 +8,7 @@ import {
   waitForDiskStatus,
   waitForInstanceStatus,
 } from '@/lib/lightsail';
+import { parseError } from '@/lib/observability/error';
 import { log } from '@/lib/observability/log';
 import {
   dockerInstallScript,
@@ -65,6 +66,7 @@ const createKeyPair = async (userId: string) => {
     keyPairName: createKeyPairResponse.keyPair?.name,
   };
 
+  console.log('Updating user metadata', data);
   await clerk.users.updateUserMetadata(user.id, {
     privateMetadata: data,
   });
@@ -181,39 +183,35 @@ const runScripts = async (
     throw new Error(`Invalid install script for game: ${game}`);
   }
 
-  // Update packages
+  await updateInstanceStatus(instanceName, 'updatingPackages');
   await runSSHCommand(
     newInstance.publicIpAddress,
     privateKey,
     updatePackagesScript
   );
-  await updateInstanceStatus(instanceName, 'packagesUpdated');
 
-  // Install Docker
+  await updateInstanceStatus(instanceName, 'installingDocker');
   await runSSHCommand(
     newInstance.publicIpAddress,
     privateKey,
     dockerInstallScript
   );
-  await updateInstanceStatus(instanceName, 'dockerInstalled');
 
-  // Mount the volume
+  await updateInstanceStatus(instanceName, 'mountingVolume');
   await runSSHCommand(
     newInstance.publicIpAddress,
     privateKey,
     mountVolumeScript
   );
-  await updateInstanceStatus(instanceName, 'volumeMounted');
 
-  // Install the game
+  await updateInstanceStatus(instanceName, 'installingGame');
   await runSSHCommand(
     newInstance.publicIpAddress,
     privateKey,
     installScript(instanceName, password, 'America/New_York')
   );
-  await updateInstanceStatus(instanceName, 'gameInstalled');
 
-  // Start the server
+  await updateInstanceStatus(instanceName, 'startingServer');
   await runSSHCommand(
     newInstance.publicIpAddress,
     privateKey,
@@ -244,6 +242,12 @@ export const createServer = async (
     let publicKey = user.privateMetadata.publicKey as string | undefined;
     let privateKey = user.privateMetadata.privateKey as string | undefined;
     let keyPairName = user.privateMetadata.keyPairName as string | undefined;
+
+    console.log({
+      publicKey: publicKey?.length,
+      privateKey: privateKey?.length,
+      keyPairName: keyPairName?.length,
+    });
 
     if (!privateKey || !publicKey || !keyPairName) {
       const response = await createKeyPair(user.id);
@@ -289,26 +293,34 @@ export const createServer = async (
     }
 
     const promise = async () => {
-      const [diskName, staticIpName] = await Promise.all([
-        createDisk(`${region}a`),
-        createStaticIp(),
-        setupInstance(instanceName, gameInfo),
-      ]);
+      try {
+        const [diskName, staticIpName] = await Promise.all([
+          createDisk(`${region}a`),
+          createStaticIp(),
+          setupInstance(instanceName, gameInfo),
+        ]);
 
-      await updateInstanceStatus(instanceName, 'attaching');
+        await updateInstanceStatus(instanceName, 'attaching');
 
-      await Promise.all([
-        attachStaticIp(staticIpName, instanceName),
-        attachDisk(diskName, instanceName),
-      ]);
+        await Promise.all([
+          attachStaticIp(staticIpName, instanceName),
+          attachDisk(diskName, instanceName),
+        ]);
 
-      await updateInstanceStatus(instanceName, 'installing');
+        await updateInstanceStatus(instanceName, 'installing');
 
-      await runScripts(instanceName, privateKey, game, password);
+        await runScripts(instanceName, privateKey, game, password);
 
-      await updateInstanceStatus(instanceName, 'ready');
+        await updateInstanceStatus(instanceName, 'ready');
 
-      log.info(`Server created: ${instanceName}`);
+        log.info(`Server created: ${instanceName}`);
+      } catch (error) {
+        const message = parseError(error);
+
+        console.error(message);
+
+        await updateInstanceStatus(instanceName, 'failed');
+      }
     };
 
     waitUntil(promise());

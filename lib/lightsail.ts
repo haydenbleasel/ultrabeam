@@ -128,7 +128,7 @@ export const runSSHCommand = async (
         });
       })
       .on('error', (err) => {
-        reject(err);
+        reject(`SSH connection failed for "${command}": ${err}`);
       })
       .connect({
         host: ip,
