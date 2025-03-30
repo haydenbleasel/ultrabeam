@@ -16,7 +16,7 @@ services:
   enshrouded:
     image: sknnr/enshrouded-dedicated-server:latest
     ports:
-      - "15637:15637/udp"
+      - "15636:15636/udp"
     environment:
       - SERVER_NAME="${name}"
       - SERVER_PASSWORD="${password}"
