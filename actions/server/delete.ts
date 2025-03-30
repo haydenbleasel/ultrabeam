@@ -55,6 +55,8 @@ export const deleteServer = async (
       // Wait for the instance to be stopped
       await waitForInstanceStatus(instanceName, 'stopped');
 
+      // TODO: Delete the static IP
+
       // Detach the disk
       await lightsail.send(
         new DetachDiskCommand({
