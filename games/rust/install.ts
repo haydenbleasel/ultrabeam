@@ -27,17 +27,17 @@ services:
       - "${SERVER_PORT}:${SERVER_PORT}/udp"
       - "${RCON_PORT}:${RCON_PORT}"
     environment:
-      - RUST_SERVER_NAME="${name}"
-      - RUST_SERVER_DESCRIPTION="${name} - managed by Ultrabeam"
-      - RUST_SERVER_PORT="${SERVER_PORT}"
-      - RUST_RCON_PORT="${RCON_PORT}"
-      - RUST_RCON_PASSWORD="${password}"
-      - RUST_SERVER_MAXPLAYERS="${MAX_PLAYERS}"
-      - RUST_SERVER_WORLDSIZE="${WORLD_SIZE}"
-      - RUST_SERVER_SEED="${SEED}"
-      - RUST_UPDATE_CHECKING="${UPDATE_CHECKING}"
-      - RUST_OXIDE_ENABLED="${OXYDE_ENABLED}"
-      - TZ="${timezone}"
+      - RUST_SERVER_NAME=${name}
+      - RUST_SERVER_DESCRIPTION=${name} - managed by Ultrabeam
+      - RUST_SERVER_PORT=${SERVER_PORT}
+      - RUST_RCON_PORT=${RCON_PORT}
+      - RUST_RCON_PASSWORD=${password}
+      - RUST_SERVER_MAXPLAYERS=${MAX_PLAYERS}
+      - RUST_SERVER_WORLDSIZE=${WORLD_SIZE}
+      - RUST_SERVER_SEED=${SEED}
+      - RUST_UPDATE_CHECKING=${UPDATE_CHECKING}
+      - RUST_OXIDE_ENABLED=${OXYDE_ENABLED}
+      - TZ=${timezone}
     volumes:
       - ./rust/server:/steamcmd/rust
       - ./rust/backups:/steamcmd/rust/backups

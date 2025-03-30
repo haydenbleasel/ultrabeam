@@ -21,13 +21,13 @@ services:
       - 8211:8211/udp
       - 27015:27015/udp
     environment:
-      - SERVER_NAME="${name}"
+      - SERVER_NAME=${name}
       - PUID=1000
       - PGID=1000
       - PORT=8211
       - PLAYERS=16
-      - ADMIN_PASSWORD="${password}"
-      - SERVER_PASSWORD="${password}"
+      - ADMIN_PASSWORD=${password}
+      - SERVER_PASSWORD=${password}
       - COMMUNITY=false
       - TZ=${timezone}
       - BACKUP_ENABLED=true

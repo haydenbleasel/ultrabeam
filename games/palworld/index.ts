@@ -28,7 +28,7 @@ export const palworld = {
     },
   ],
   requirements: {
-    cpu: 2,
-    memory: 4,
+    cpu: 4,
+    memory: 16,
   },
 } as const;

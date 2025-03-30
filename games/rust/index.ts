@@ -22,7 +22,7 @@ export const rust = {
     },
   ],
   requirements: {
-    cpu: 2,
-    memory: 4,
+    cpu: 4,
+    memory: 8,
   },
 } as const;

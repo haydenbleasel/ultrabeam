@@ -1,5 +1,6 @@
 'use server';
 
+import crypto from 'node:crypto';
 import { games } from '@/games';
 import {
   lightsail,
@@ -29,7 +30,8 @@ import {
 } from '@aws-sdk/client-lightsail';
 import { clerkClient, currentUser } from '@clerk/nextjs/server';
 import { waitUntil } from '@vercel/functions';
-import { nanoid } from 'nanoid';
+
+const generateId = () => crypto.randomBytes(8).toString('hex');
 
 type CreateServerResponse =
   | {
@@ -49,7 +51,7 @@ const createKeyPair = async (userId: string) => {
 
   // Create a key pair
   const createKeyPairResponse = await lightsail.send(
-    new CreateKeyPairCommand({ keyPairName: nanoid() })
+    new CreateKeyPairCommand({ keyPairName: generateId() })
   );
 
   if (!createKeyPairResponse.publicKeyBase64) {
@@ -97,7 +99,7 @@ const setupInstance = async (
 const createDisk = async (availabilityZone: string) => {
   const createDiskResponse = await lightsail.send(
     new CreateDiskCommand({
-      diskName: nanoid(),
+      diskName: generateId(),
       availabilityZone,
       sizeInGb: 20,
     })
@@ -116,7 +118,7 @@ const createDisk = async (availabilityZone: string) => {
 
 const createStaticIp = async () => {
   const allocateStaticIpResponse = await lightsail.send(
-    new AllocateStaticIpCommand({ staticIpName: nanoid() })
+    new AllocateStaticIpCommand({ staticIpName: generateId() })
   );
 
   const staticIpName = allocateStaticIpResponse.operations?.at(0)?.resourceName;
@@ -250,7 +252,7 @@ export const createServer = async (
     // Create the instance
     const instance = await lightsail.send(
       new CreateInstancesCommand({
-        instanceNames: [nanoid()],
+        instanceNames: [generateId()],
         availabilityZone: `${region}a`,
         blueprintId: 'ubuntu_22_04',
         bundleId: size,
