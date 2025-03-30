@@ -1,6 +1,8 @@
-export { enshrouded } from './enshrouded';
-export { minecraft } from './minecraft';
-export { palworld } from './palworld';
-export { rust } from './rust';
-export { terraria } from './terraria';
-export { valheim } from './valheim';
+import { enshrouded } from './enshrouded';
+import { minecraft } from './minecraft';
+import { palworld } from './palworld';
+import { rust } from './rust';
+import { terraria } from './terraria';
+import { valheim } from './valheim';
+
+export const games = [enshrouded, minecraft, palworld, rust, terraria, valheim];
