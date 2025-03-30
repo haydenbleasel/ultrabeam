@@ -37,7 +37,7 @@ export const Console = ({ serverId, defaultValue, command }: ConsoleProps) => {
       });
 
       setLogs(html);
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [serverId, command]);

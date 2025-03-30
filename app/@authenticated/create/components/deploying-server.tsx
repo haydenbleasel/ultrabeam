@@ -13,74 +13,54 @@ type DeployingServerProps = {
 
 const items = [
   {
-    id: 'createdInstance',
-    title: 'Instance created',
-    description: 'The server instance has been created.',
+    id: 'creating',
+    title: 'Creating server',
+    description: 'The server is being created.',
   },
   {
-    id: 'instanceAvailable',
-    title: 'Instance available',
-    description: 'The server instance is ready to use.',
+    id: 'attaching',
+    title: 'Attaching disk and static IP',
+    description: 'The disk and static IP are being attached to the server.',
   },
   {
-    id: 'openedPorts',
-    title: 'Ports opened',
-    description: 'The required ports have been opened.',
+    id: 'installing',
+    title: 'Installing game and dependencies',
+    description: 'The game and dependencies are being installed.',
   },
   {
-    id: 'staticIpAllocated',
-    title: 'Static IP allocated',
-    description: 'The static IP address has been allocated.',
+    id: 'updatingPackages',
+    title: 'Updating packages',
+    description: 'The packages are being updated.',
   },
   {
-    id: 'staticIpAttached',
-    title: 'Static IP attached',
-    description: 'The static IP address has been attached to the server.',
+    id: 'installingDocker',
+    title: 'Installing Docker',
+    description: 'Docker is being installed.',
   },
   {
-    id: 'createdDisk',
-    title: 'Disk created',
-    description: 'The disk has been created.',
+    id: 'mountingVolume',
+    title: 'Mounting volume',
+    description: 'The volume is being mounted.',
   },
   {
-    id: 'diskAvailable',
-    title: 'Disk available',
-    description: 'The disk is available.',
+    id: 'installingGame',
+    title: 'Installing game',
+    description: 'The game is being installed.',
   },
   {
-    id: 'diskAttached',
-    title: 'Disk attached',
-    description: 'The disk has been attached to the server.',
-  },
-  {
-    id: 'diskInUse',
-    title: 'Disk in use',
-    description: 'The disk is in use.',
-  },
-  {
-    id: 'packagesUpdated',
-    title: 'Packages updated',
-    description: 'The packages have been updated.',
-  },
-  {
-    id: 'dockerInstalled',
-    title: 'Docker installed',
-    description: 'Docker has been installed.',
-  },
-  {
-    id: 'volumeMounted',
-    title: 'Volume mounted',
-    description: 'The volume has been mounted.',
-  },
-  {
-    id: 'gameInstalled',
-    title: 'Game installed',
-    description: 'The game has been installed.',
+    id: 'startingServer',
+    title: 'Starting server',
+    description: 'The server is being started.',
   },
   {
     id: 'ready',
     title: 'Server ready',
     description: 'The server is ready to use.',
+  },
+  {
+    id: 'failed',
+    title: 'Server failed',
+    description: 'The server failed to provision.',
   },
 ];
 
@@ -102,10 +82,10 @@ export const DeployingServer = ({ id }: DeployingServerProps) => {
 
       setValue(items.findIndex((item) => item.id === status));
 
-      if (status === 'ready') {
+      if (status === 'ready' || status === 'failed') {
         clearInterval(interval);
       }
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [id]);
