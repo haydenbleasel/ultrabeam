@@ -13,49 +13,19 @@ type DeployingServerProps = {
 
 const items = [
   {
-    id: 'createdInstance',
-    title: 'Instance created',
-    description: 'The server instance has been created.',
+    id: 'creating',
+    title: 'Creating server',
+    description: 'The server is being created.',
   },
   {
-    id: 'instanceAvailable',
-    title: 'Instance available',
-    description: 'The server instance is ready to use.',
+    id: 'attaching',
+    title: 'Attaching disk and static IP',
+    description: 'The disk and static IP are being attached to the server.',
   },
   {
-    id: 'openedPorts',
-    title: 'Ports opened',
-    description: 'The required ports have been opened.',
-  },
-  {
-    id: 'staticIpAllocated',
-    title: 'Static IP allocated',
-    description: 'The static IP address has been allocated.',
-  },
-  {
-    id: 'staticIpAttached',
-    title: 'Static IP attached',
-    description: 'The static IP address has been attached to the server.',
-  },
-  {
-    id: 'createdDisk',
-    title: 'Disk created',
-    description: 'The disk has been created.',
-  },
-  {
-    id: 'diskAvailable',
-    title: 'Disk available',
-    description: 'The disk is available.',
-  },
-  {
-    id: 'diskAttached',
-    title: 'Disk attached',
-    description: 'The disk has been attached to the server.',
-  },
-  {
-    id: 'diskInUse',
-    title: 'Disk in use',
-    description: 'The disk is in use.',
+    id: 'installing',
+    title: 'Installing game and dependencies',
+    description: 'The game and dependencies are being installed.',
   },
   {
     id: 'packagesUpdated',

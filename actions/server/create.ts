@@ -269,7 +269,7 @@ export const createServer = async (
           { key: 'user', value: user.id },
           { key: 'ultrabeam', value: 'true' },
           { key: 'game', value: game },
-          { key: 'status', value: 'creatingInstance' },
+          { key: 'status', value: 'creating' },
         ],
         addOns: [
           {
