@@ -1,0 +1,18 @@
+import image from './image.jpg';
+
+export const terraria = {
+  id: 'terraria',
+  gamedigId: 'terrariatshock',
+  name: 'Terraria',
+  image,
+  description:
+    'Dig, fight, explore, build! Nothing is impossible in this 2D adventure game.',
+  ports: [
+    // This is the default port for Terraria, used for game traffic.
+    {
+      protocol: 'tcp',
+      from: 7777,
+      to: 7777,
+    },
+  ],
+} as const;
