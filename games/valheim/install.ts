@@ -40,8 +40,5 @@ services:
       - ./valheim/backups:/home/steam/backups
 EOF
 
-# Start the server
-sudo docker-compose up -d
-
-echo "Valheim server has been installed and started."
+echo "Valheim server has been installed."
 `;

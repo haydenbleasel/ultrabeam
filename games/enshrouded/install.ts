@@ -26,8 +26,5 @@ services:
     restart: unless-stopped
 EOF
 
-# Start the server
-sudo docker-compose up -d
-
-echo "Enshrouded server has been installed and started."
+echo "Enshrouded server has been installed."
 `;

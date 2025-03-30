@@ -41,8 +41,5 @@ services:
     restart: unless-stopped
 EOF
 
-# Start the server
-docker-compose up -d
-
-echo "Palworld server has been installed and started."
+echo "Palworld server has been installed."
 `;

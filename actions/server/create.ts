@@ -12,6 +12,7 @@ import {
   bootstrapScript,
   mountVolumeScript,
   sshInitScript,
+  startServerScript,
 } from '@/lib/scripts';
 import {
   AllocateStaticIpCommand,
@@ -272,6 +273,13 @@ export const createServer = async (
         newInstance.publicIpAddress,
         privateKey,
         installScript(instanceName, password, 'America/New_York')
+      );
+      await updateInstanceStatus(instanceName, 'gameInstalled');
+
+      await runSSHCommand(
+        newInstance.publicIpAddress,
+        privateKey,
+        startServerScript
       );
       await updateInstanceStatus(instanceName, 'ready');
 

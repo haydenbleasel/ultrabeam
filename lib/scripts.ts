@@ -53,3 +53,14 @@ sudo chmod 777 /mnt/gamedata
 
 # Make it persistent after reboot
 echo "$DISK /mnt/gamedata ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab`;
+
+export const startServerScript = `
+#!/bin/bash
+set -e
+
+# Navigate to the game data directory
+cd /mnt/gamedata
+
+# Start the server
+docker-compose up -d
+`;

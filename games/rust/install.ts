@@ -43,8 +43,5 @@ services:
     restart: unless-stopped
 EOF
 
-# Start the server
-docker-compose up -d
-
-echo "Rust server has been installed and started."
+echo "Rust server has been installed."
 `;
