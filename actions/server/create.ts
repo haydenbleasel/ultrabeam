@@ -9,10 +9,11 @@ import {
 } from '@/lib/lightsail';
 import { log } from '@/lib/observability/log';
 import {
-  bootstrapScript,
+  dockerInstallScript,
   mountVolumeScript,
   sshInitScript,
   startServerScript,
+  updatePackagesScript,
 } from '@/lib/scripts';
 import {
   AllocateStaticIpCommand,
@@ -253,11 +254,19 @@ export const createServer = async (
         throw new Error(`Invalid install script for game: ${game}`);
       }
 
+      // Update packages
+      await runSSHCommand(
+        newInstance.publicIpAddress,
+        privateKey,
+        updatePackagesScript
+      );
+      await updateInstanceStatus(instanceName, 'packagesUpdated');
+
       // Install Docker
       await runSSHCommand(
         newInstance.publicIpAddress,
         privateKey,
-        bootstrapScript
+        dockerInstallScript
       );
       await updateInstanceStatus(instanceName, 'dockerInstalled');
 

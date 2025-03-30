@@ -73,6 +73,11 @@ const items = [
     description: 'The disk is in use.',
   },
   {
+    id: 'packagesUpdated',
+    title: 'Packages updated',
+    description: 'The packages have been updated.',
+  },
+  {
     id: 'dockerInstalled',
     title: 'Docker installed',
     description: 'Docker has been installed.',
