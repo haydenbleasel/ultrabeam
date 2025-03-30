@@ -21,4 +21,8 @@ export const rust = {
       to: 28016,
     },
   ],
+  requirements: {
+    cpu: 2,
+    memory: 4,
+  },
 } as const;

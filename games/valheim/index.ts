@@ -15,4 +15,8 @@ export const valheim = {
       to: 2458,
     },
   ],
+  requirements: {
+    cpu: 2,
+    memory: 4,
+  },
 } as const;

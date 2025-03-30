@@ -21,4 +21,8 @@ export const enshrouded = {
       to: 27015,
     },
   ],
+  requirements: {
+    cpu: 2,
+    memory: 4,
+  },
 } as const;

@@ -17,7 +17,6 @@ cd ${gameDataDirectory}
 
 # Create docker-compose.yml file
 cat > docker-compose.yml << EOF
-version: '3'
 services:
   terraria:
     image: ryshe/terraria:latest

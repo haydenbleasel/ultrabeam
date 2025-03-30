@@ -25,7 +25,7 @@ type ConfigureServerProps = {
   setRegion: (region: string) => void;
   sizes: Awaited<ReturnType<typeof getSizes>>;
   regions: Awaited<ReturnType<typeof getRegions>>;
-  recommendedSizes: Awaited<ReturnType<typeof getSizes>>;
+  recommendedSize: Awaited<ReturnType<typeof getSizes>>[number] | undefined;
 };
 
 export const ConfigureServer = ({
@@ -39,7 +39,7 @@ export const ConfigureServer = ({
   setRegion,
   regions,
   sizes,
-  recommendedSizes,
+  recommendedSize,
 }: ConfigureServerProps) => {
   const selectedRegion = regions.find((r) => r.id === region);
 
@@ -87,21 +87,25 @@ export const ConfigureServer = ({
             <SelectContent className="[&_*[role=option]>span>svg]:shrink-0 [&_*[role=option]>span>svg]:text-muted-foreground/80 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2 [&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 [&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8">
               <SelectGroup>
                 <SelectLabel className="ps-2">Recommended</SelectLabel>
-                {recommendedSizes.map((size) => (
-                  <SelectItem key={size.id} value={size.id}>
+                {recommendedSize && (
+                  <SelectItem
+                    key={recommendedSize.id}
+                    value={recommendedSize.id}
+                  >
                     <div className="flex items-center gap-2">
-                      {size.name}
+                      {recommendedSize.name}
                       <p className="text-muted-foreground text-xs">
-                        {size.memory}GB RAM • {size.cpu} vCPUs
+                        {recommendedSize.memory}GB RAM • {recommendedSize.cpu}{' '}
+                        vCPUs
                       </p>
                     </div>
                   </SelectItem>
-                ))}
+                )}
               </SelectGroup>
               <SelectGroup>
                 <SelectLabel className="ps-2">Other</SelectLabel>
                 {sizes
-                  .filter((size) => !recommendedSizes.includes(size))
+                  .filter((s) => s.id !== recommendedSize?.id)
                   .map((size) => (
                     <SelectItem key={size.id} value={size.id}>
                       <div className="flex items-center gap-2">
