@@ -1,12 +1,14 @@
+import { gameDataDirectory } from '@/lib/consts';
+
 export default (name: string, password: string, timezone: string) => `
 #!/bin/bash
 set -e
 
 # Create directory structure
-mkdir -p /mnt/gamedata/enshrouded/{saves,server,backups}
+mkdir -p ${gameDataDirectory}/enshrouded/{saves,server,backups}
 
 # Navigate to the game data directory
-cd /mnt/gamedata
+cd ${gameDataDirectory}
 
 # Create docker-compose.yml file
 cat > docker-compose.yml << EOF

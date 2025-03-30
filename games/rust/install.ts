@@ -1,3 +1,5 @@
+import { gameDataDirectory } from '@/lib/consts';
+
 const SERVER_PORT = 28015;
 const RCON_PORT = 28016;
 const MAX_PLAYERS = 50;
@@ -11,10 +13,10 @@ export default (name: string, password: string, timezone: string) => `
 set -e
 
 # Create directory structure
-mkdir -p /mnt/gamedata/rust/{server,backups}
+mkdir -p ${gameDataDirectory}/rust/{server,backups}
 
 # Navigate to the game data directory
-cd /mnt/gamedata
+cd ${gameDataDirectory}
 
 # Create docker-compose.yml file
 cat > docker-compose.yml << EOF

@@ -1,3 +1,5 @@
+import { gameDataDirectory } from '@/lib/consts';
+
 const WORLD_SIZE = '2';
 const DIFFICULTY = '0';
 const MAX_PLAYERS = '8';
@@ -8,10 +10,10 @@ export default (name: string, password: string, timezone: string) => `
 set -e
 
 # Create directory structure
-mkdir -p /mnt/gamedata/terraria/{world,config,logs}
+mkdir -p ${gameDataDirectory}/terraria/{world,config,logs}
 
 # Navigate to the game data directory
-cd /mnt/gamedata
+cd ${gameDataDirectory}
 
 # Create docker-compose.yml file
 cat > docker-compose.yml << EOF
