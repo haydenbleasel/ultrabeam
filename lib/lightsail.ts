@@ -6,6 +6,7 @@ import {
   GetInstanceCommand,
   type InstanceState,
   LightsailClient,
+  TagResourceCommand,
 } from '@aws-sdk/client-lightsail';
 import { Client } from 'ssh2';
 
@@ -136,4 +137,16 @@ export const runSSHCommand = async (
         port: 22,
       });
   });
+};
+
+export const updateInstanceStatus = async (
+  instanceName: string,
+  status: string
+) => {
+  await lightsail.send(
+    new TagResourceCommand({
+      resourceName: instanceName,
+      tags: [{ key: 'status', value: status }],
+    })
+  );
 };

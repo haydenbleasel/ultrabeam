@@ -4,6 +4,7 @@ import { games } from '@/games';
 import {
   lightsail,
   runSSHCommand,
+  updateInstanceStatus,
   waitForDiskStatus,
   waitForInstanceStatus,
 } from '@/lib/lightsail';
@@ -24,7 +25,6 @@ import {
   CreateKeyPairCommand,
   GetInstanceCommand,
   OpenInstancePublicPortsCommand,
-  TagResourceCommand,
 } from '@aws-sdk/client-lightsail';
 import { clerkClient, currentUser } from '@clerk/nextjs/server';
 import { waitUntil } from '@vercel/functions';
@@ -38,13 +38,38 @@ type CreateServerResponse =
       error: string;
     };
 
-const updateInstanceStatus = async (instanceName: string, status: string) => {
-  await lightsail.send(
-    new TagResourceCommand({
-      resourceName: instanceName,
-      tags: [{ key: 'status', value: status }],
-    })
+const createKeyPair = async (userId: string) => {
+  const clerk = await clerkClient();
+  const user = await clerk.users.getUser(userId);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // Create a key pair
+  const createKeyPairResponse = await lightsail.send(
+    new CreateKeyPairCommand({ keyPairName: nanoid() })
   );
+
+  if (!createKeyPairResponse.publicKeyBase64) {
+    throw new Error('Failed to create key pair: no public key');
+  }
+
+  if (!createKeyPairResponse.privateKeyBase64) {
+    throw new Error('Failed to create key pair: no private key');
+  }
+
+  const data = {
+    privateKey: createKeyPairResponse.privateKeyBase64,
+    publicKey: createKeyPairResponse.publicKeyBase64,
+    keyPairName: createKeyPairResponse.keyPair?.name,
+  };
+
+  await clerk.users.updateUserMetadata(user.id, {
+    privateMetadata: data,
+  });
+
+  return data;
 };
 
 export const createServer = async (
@@ -72,32 +97,11 @@ export const createServer = async (
     let keyPairName = user.privateMetadata.keyPairName as string | undefined;
 
     if (!privateKey || !publicKey || !keyPairName) {
-      const clerk = await clerkClient();
+      const response = await createKeyPair(user.id);
 
-      // Create a key pair
-      const createKeyPairResponse = await lightsail.send(
-        new CreateKeyPairCommand({ keyPairName: `keypair-${user.id}` })
-      );
-
-      if (!createKeyPairResponse.publicKeyBase64) {
-        throw new Error('Failed to create key pair: no public key');
-      }
-
-      if (!createKeyPairResponse.privateKeyBase64) {
-        throw new Error('Failed to create key pair: no private key');
-      }
-
-      privateKey = createKeyPairResponse.privateKeyBase64;
-      publicKey = createKeyPairResponse.publicKeyBase64;
-      keyPairName = createKeyPairResponse.keyPair?.name;
-
-      await clerk.users.updateUserMetadata(user.id, {
-        privateMetadata: {
-          privateKey,
-          publicKey,
-          keyPairName,
-        },
-      });
+      publicKey = response.publicKey;
+      privateKey = response.privateKey;
+      keyPairName = response.keyPairName;
     }
 
     // Create the instance
