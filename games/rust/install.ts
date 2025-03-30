@@ -20,7 +20,6 @@ cd ${gameDataDirectory}
 
 # Create docker-compose.yml file
 cat > docker-compose.yml << EOF
-version: '3'
 services:
   rust:
     image: didstopia/rust-server:latest

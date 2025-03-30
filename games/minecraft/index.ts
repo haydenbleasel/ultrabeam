@@ -21,4 +21,8 @@ export const minecraft = {
       to: 19133,
     },
   ],
+  requirements: {
+    cpu: 2,
+    memory: 4,
+  },
 } as const;

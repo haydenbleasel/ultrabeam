@@ -15,4 +15,8 @@ export const terraria = {
       to: 7777,
     },
   ],
+  requirements: {
+    cpu: 1,
+    memory: 2,
+  },
 } as const;
