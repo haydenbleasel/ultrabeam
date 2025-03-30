@@ -57,8 +57,5 @@ services:
     restart: unless-stopped
 EOF
 
-# Start the server
-docker-compose up -d
-
-echo "Minecraft server has been installed and started."
+echo "Minecraft server has been installed."
 `;

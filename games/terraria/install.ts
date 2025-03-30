@@ -40,8 +40,5 @@ services:
     restart: unless-stopped
 EOF
 
-# Start the server
-docker-compose up -d
-
-echo "Terraria server has been installed and started with auto-create world enabled."
+echo "Terraria server has been installed."
 `;

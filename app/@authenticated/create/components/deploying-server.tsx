@@ -83,6 +83,11 @@ const items = [
     description: 'The volume has been mounted.',
   },
   {
+    id: 'gameInstalled',
+    title: 'Game installed',
+    description: 'The game has been installed.',
+  },
+  {
     id: 'ready',
     title: 'Server ready',
     description: 'The server is ready to use.',
