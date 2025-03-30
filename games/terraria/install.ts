@@ -24,18 +24,18 @@ services:
     ports:
       - "${PORT}:${PORT}/tcp"
     environment:
-      - WORLD_FILENAME="${name}.wld"
-      - WORLD_SIZE="${WORLD_SIZE}"
-      - DIFFICULTY="${DIFFICULTY}"
-      - MAXPLAYERS="${MAX_PLAYERS}"
-      - SERVER_PORT="${PORT}"
-      - SERVER_PASSWORD="${password}"
-      - AUTOCREATE="1"
-      - TZ="${timezone}"
+      - WORLD_FILENAME=${name}.wld
+      - WORLD_SIZE=${WORLD_SIZE}
+      - DIFFICULTY=${DIFFICULTY}
+      - MAXPLAYERS=${MAX_PLAYERS}
+      - SERVER_PORT=${PORT}
+      - SERVER_PASSWORD=${password}
+      - AUTOCREATE=1
+      - TZ=${timezone}
     volumes:
       - ./terraria/world:/root/.local/share/Terraria/Worlds
-      - ./terraria/config:/root/.local/share/Terraria/Worlds
-      - ./terraria/logs:/root/.local/share/Terraria/Logs
+      - ./terraria/config:/config
+      - ./terraria/logs:/tshock/logs
     stdin_open: true
     tty: true
     restart: unless-stopped
