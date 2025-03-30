@@ -13,12 +13,17 @@ echo "${publicKey}" >> ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 `;
 
-export const bootstrapScript = `
+export const updatePackagesScript = `
 #!/bin/bash
 set -e
 
 # Update and install required dependencies
 sudo apt update && sudo apt upgrade -y
+`;
+
+export const dockerInstallScript = `
+#!/bin/bash
+set -e
 
 # Install Docker
 curl -fsSL https://get.docker.com -o get-docker.sh
