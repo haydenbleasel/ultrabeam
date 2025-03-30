@@ -48,6 +48,11 @@ const items = [
     description: 'The game is being installed.',
   },
   {
+    id: 'startingServer',
+    title: 'Starting server',
+    description: 'The server is being started.',
+  },
+  {
     id: 'ready',
     title: 'Server ready',
     description: 'The server is ready to use.',

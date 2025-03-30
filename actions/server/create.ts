@@ -154,6 +154,26 @@ const attachDisk = async (diskName: string, instanceName: string) => {
   await waitForDiskStatus(diskName, 'in-use');
 };
 
+const waitForSSH = async (
+  ipAddress: string,
+  privateKey: string,
+  maxAttempts = 30
+) => {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      await runSSHCommand(ipAddress, privateKey, 'echo "SSH connection test"');
+      return true;
+    } catch (error) {
+      if (i === maxAttempts - 1) {
+        throw error;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 10000)); // Wait 10 seconds between attempts
+    }
+  }
+  return false;
+};
+
 const runScripts = async (
   instanceName: string,
   privateKey: string,
@@ -278,6 +298,9 @@ export const createServer = async (
         ]);
 
         await updateInstanceStatus(instanceName, 'installing');
+
+        // Wait for SSH to be available
+        await waitForSSH(ipAddress, privateKey);
 
         await runScripts(instanceName, privateKey, game, password, ipAddress);
 
