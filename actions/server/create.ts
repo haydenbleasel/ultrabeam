@@ -7,6 +7,7 @@ import {
   updateInstanceStatus,
   waitForDiskStatus,
   waitForInstanceStatus,
+  waitForStaticIpAttached,
 } from '@/lib/lightsail';
 import { parseError } from '@/lib/observability/error';
 import { log } from '@/lib/observability/log';
@@ -24,7 +25,6 @@ import {
   CreateDiskCommand,
   CreateInstancesCommand,
   CreateKeyPairCommand,
-  GetInstanceCommand,
   OpenInstancePublicPortsCommand,
 } from '@aws-sdk/client-lightsail';
 import { clerkClient, currentUser } from '@clerk/nextjs/server';
@@ -109,14 +109,12 @@ const createDisk = async (availabilityZone: string) => {
     throw new Error('Disk name not found');
   }
 
-  // Wait for the disk to be ready
   await waitForDiskStatus(diskName, 'available');
 
   return diskName;
 };
 
 const createStaticIp = async () => {
-  // Allocate a static IP address
   const allocateStaticIpResponse = await lightsail.send(
     new AllocateStaticIpCommand({ staticIpName: nanoid() })
   );
@@ -137,6 +135,10 @@ const attachStaticIp = async (staticIpName: string, instanceName: string) => {
       instanceName,
     })
   );
+
+  const ipAddress = await waitForStaticIpAttached(staticIpName);
+
+  return ipAddress;
 };
 
 const attachDisk = async (diskName: string, instanceName: string) => {
@@ -156,25 +158,9 @@ const runScripts = async (
   instanceName: string,
   privateKey: string,
   game: string,
-  password: string
+  password: string,
+  ipAddress: string
 ) => {
-  // Get the new instance
-  const { instance: newInstance } = await lightsail.send(
-    new GetInstanceCommand({ instanceName })
-  );
-
-  if (!newInstance) {
-    throw new Error("Couldn't retrieve new instance");
-  }
-
-  if (!newInstance.location?.availabilityZone) {
-    throw new Error('Availability zone not found');
-  }
-
-  if (!newInstance.publicIpAddress) {
-    throw new Error('Public IP address not found');
-  }
-
   // Get the game script
   const installModule = await import(`../../games/${game}/install`);
   const installScript = installModule.default;
@@ -184,39 +170,23 @@ const runScripts = async (
   }
 
   await updateInstanceStatus(instanceName, 'updatingPackages');
-  await runSSHCommand(
-    newInstance.publicIpAddress,
-    privateKey,
-    updatePackagesScript
-  );
+  await runSSHCommand(ipAddress, privateKey, updatePackagesScript);
 
   await updateInstanceStatus(instanceName, 'installingDocker');
-  await runSSHCommand(
-    newInstance.publicIpAddress,
-    privateKey,
-    dockerInstallScript
-  );
+  await runSSHCommand(ipAddress, privateKey, dockerInstallScript);
 
   await updateInstanceStatus(instanceName, 'mountingVolume');
-  await runSSHCommand(
-    newInstance.publicIpAddress,
-    privateKey,
-    mountVolumeScript
-  );
+  await runSSHCommand(ipAddress, privateKey, mountVolumeScript);
 
   await updateInstanceStatus(instanceName, 'installingGame');
   await runSSHCommand(
-    newInstance.publicIpAddress,
+    ipAddress,
     privateKey,
     installScript(instanceName, password, 'America/New_York')
   );
 
   await updateInstanceStatus(instanceName, 'startingServer');
-  await runSSHCommand(
-    newInstance.publicIpAddress,
-    privateKey,
-    startServerScript
-  );
+  await runSSHCommand(ipAddress, privateKey, startServerScript);
 };
 
 export const createServer = async (
@@ -302,14 +272,14 @@ export const createServer = async (
 
         await updateInstanceStatus(instanceName, 'attaching');
 
-        await Promise.all([
+        const [ipAddress] = await Promise.all([
           attachStaticIp(staticIpName, instanceName),
           attachDisk(diskName, instanceName),
         ]);
 
         await updateInstanceStatus(instanceName, 'installing');
 
-        await runScripts(instanceName, privateKey, game, password);
+        await runScripts(instanceName, privateKey, game, password, ipAddress);
 
         await updateInstanceStatus(instanceName, 'ready');
 

@@ -4,6 +4,7 @@ import {
   type DiskState,
   GetDiskCommand,
   GetInstanceCommand,
+  GetStaticIpCommand,
   type InstanceState,
   LightsailClient,
   TagResourceCommand,
@@ -149,4 +150,32 @@ export const updateInstanceStatus = async (
       tags: [{ key: 'status', value: status }],
     })
   );
+};
+
+export const waitForStaticIpAttached = (staticIpName: string) => {
+  console.log(`Waiting for static IP ${staticIpName} to be attached...`);
+
+  return new Promise<string>((resolve, reject) => {
+    const checkDiskStatus = async () => {
+      const response = await lightsail.send(
+        new GetStaticIpCommand({
+          staticIpName,
+        })
+      );
+
+      if (response.staticIp?.isAttached) {
+        console.log(`Static IP ${staticIpName} is now attached.`);
+        if (response.staticIp?.ipAddress) {
+          resolve(response.staticIp.ipAddress);
+        } else {
+          reject('Something went wrong with the static IP.');
+        }
+      } else {
+        // Wait for 5 seconds before checking again
+        setTimeout(checkDiskStatus, 5000);
+      }
+    };
+
+    checkDiskStatus();
+  });
 };
