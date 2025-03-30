@@ -34,8 +34,8 @@ services:
       - TZ="${timezone}"
     volumes:
       - ./terraria/world:/root/.local/share/Terraria/Worlds
-      - ./terraria/config:/config
-      - ./terraria/logs:/tshock/logs
+      - ./terraria/config:/root/.local/share/Terraria/Worlds
+      - ./terraria/logs:/root/.local/share/Terraria/Logs
     stdin_open: true
     tty: true
     restart: unless-stopped
