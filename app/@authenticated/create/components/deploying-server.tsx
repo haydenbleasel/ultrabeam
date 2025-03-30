@@ -13,24 +13,9 @@ type DeployingServerProps = {
 
 const items = [
   {
-    id: 'createdServer',
-    title: 'Server created',
-    description: 'Infrastructure is being provisioned.',
-  },
-  {
-    id: 'createdKeyPair',
-    title: 'Keys created',
-    description: 'The keys have been created.',
-  },
-  {
     id: 'createdInstance',
     title: 'Instance created',
     description: 'The server instance has been created.',
-  },
-  {
-    id: 'logGroupCreated',
-    title: 'Log group created',
-    description: 'The log group has been created.',
   },
   {
     id: 'instanceAvailable',

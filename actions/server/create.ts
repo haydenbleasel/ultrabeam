@@ -136,8 +136,6 @@ export const createServer = async (
     }
 
     const promise = async () => {
-      await updateInstanceStatus(instanceName, 'logGroupCreated');
-
       // Wait for the instance to be ready before attaching the disk
       await waitForInstanceStatus(instanceName, 'running');
 
@@ -278,6 +276,7 @@ export const createServer = async (
       );
       await updateInstanceStatus(instanceName, 'volumeMounted');
 
+      // Install the game
       await runSSHCommand(
         newInstance.publicIpAddress,
         privateKey,
@@ -285,6 +284,7 @@ export const createServer = async (
       );
       await updateInstanceStatus(instanceName, 'gameInstalled');
 
+      // Start the server
       await runSSHCommand(
         newInstance.publicIpAddress,
         privateKey,
