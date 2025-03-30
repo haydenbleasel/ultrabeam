@@ -1,4 +1,5 @@
 import { getLogs } from '@/actions/logs/get';
+import { gameDataDirectory } from '@/lib/consts';
 import { codeToHtml } from 'shiki';
 import { Console } from './components/console';
 
@@ -8,7 +9,7 @@ type ServerProps = {
   }>;
 };
 
-const command = 'cd /mnt/gamedata && docker compose logs --tail 500';
+const command = `cd ${gameDataDirectory} && docker compose logs --tail 500`;
 
 const ConsolePage = async ({ params }: ServerProps) => {
   const { server: serverId } = await params;

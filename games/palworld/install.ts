@@ -1,13 +1,15 @@
+import { gameDataDirectory } from '@/lib/consts';
+
 export default (name: string, password: string, timezone: string) => `
 #!/bin/bash
 set -e
 
 # Create directory structure
-mkdir -p /mnt/gamedata/palworld/data
-mkdir -p /mnt/gamedata/palworld/backups
+mkdir -p ${gameDataDirectory}/palworld/data
+mkdir -p ${gameDataDirectory}/palworld/backups
 
 # Navigate to the game data directory
-cd /mnt/gamedata
+cd ${gameDataDirectory}
 
 # Create docker-compose.yml file
 cat > docker-compose.yml << 'EOF'
