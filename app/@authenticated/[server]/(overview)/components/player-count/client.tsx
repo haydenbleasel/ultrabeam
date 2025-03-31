@@ -3,7 +3,7 @@
 import { getPlayers } from '@/actions/players/get';
 import { useEffect, useState } from 'react';
 
-type PlayerCountProps = {
+type PlayerCountClientProps = {
   game: string;
   ip: string;
   port: number;
@@ -11,13 +11,13 @@ type PlayerCountProps = {
   defaultMaxPlayers: number;
 };
 
-export const PlayerCount = ({
+export const PlayerCountClient = ({
   game,
   ip,
   port,
   defaultPlayers,
   defaultMaxPlayers,
-}: PlayerCountProps) => {
+}: PlayerCountClientProps) => {
   const [playerCount, setPlayerCount] = useState(defaultPlayers);
   const [maxPlayers, setMaxPlayers] = useState(defaultMaxPlayers);
 

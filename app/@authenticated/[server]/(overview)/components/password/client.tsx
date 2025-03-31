@@ -11,11 +11,11 @@ import { cn } from '@/lib/utils';
 import { CheckIcon, CopyIcon } from 'lucide-react';
 import { useId, useRef, useState } from 'react';
 
-type PasswordProps = {
+type PasswordClientProps = {
   password: string;
 };
 
-export const Password = ({ password }: PasswordProps) => {
+export const PasswordClient = ({ password }: PasswordClientProps) => {
   const id = useId();
   const [copied, setCopied] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);

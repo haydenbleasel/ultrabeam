@@ -11,12 +11,12 @@ import { cn } from '@/lib/utils';
 import { CheckIcon, CopyIcon } from 'lucide-react';
 import { useId, useRef, useState } from 'react';
 
-type ConnectProps = {
+type IpAddressClientProps = {
   ip: string;
   port: number;
 };
 
-export const Connect = ({ ip, port }: ConnectProps) => {
+export const IpAddressClient = ({ ip, port }: IpAddressClientProps) => {
   const id = useId();
   const [copied, setCopied] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
