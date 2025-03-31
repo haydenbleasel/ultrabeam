@@ -20,27 +20,27 @@ export const statuses = {
     {
       id: 'updatingPackages',
       title: 'Updating packages',
-      description: 'The packages are being updated.',
+      description: 'Running apt update and apt upgrade...',
     },
     {
       id: 'installingDocker',
       title: 'Installing Docker',
-      description: 'Docker is being installed.',
+      description: 'Docker is being installed...',
     },
     {
       id: 'mountingVolume',
       title: 'Mounting volume',
-      description: 'The volume is being mounted.',
+      description: 'Mounting the volume...',
     },
     {
       id: 'installingGame',
       title: 'Installing game',
-      description: 'The game is being installed.',
+      description: 'The game is being installed...',
     },
     {
       id: 'startingServer',
       title: 'Starting server',
-      description: 'The server is being started.',
+      description: 'Starting the server...',
     },
     {
       id: 'ready',
