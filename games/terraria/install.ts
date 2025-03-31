@@ -10,7 +10,7 @@ export default (name: string, password: string, timezone: string) => `
 set -e
 
 # Create directory structure
-mkdir -p ${gameDataDirectory}/terraria/{world,config,logs}
+mkdir -p ${gameDataDirectory}/terraria/{worlds,config,logs}
 
 # Navigate to the game data directory
 cd ${gameDataDirectory}
@@ -33,7 +33,7 @@ services:
       - AUTOCREATE=1
       - TZ=${timezone}
     volumes:
-      - ./terraria/world:/root/.local/share/Terraria/Worlds
+      - ./terraria/worlds:/root/.local/share/Terraria/Worlds
       - ./terraria/config:/config
       - ./terraria/logs:/tshock/logs
     stdin_open: true
