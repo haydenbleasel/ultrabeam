@@ -15,6 +15,12 @@ export const terraria = {
       from: 7777,
       to: 7777,
     },
+    // This port was mentioned in the dockerfile.
+    {
+      protocol: 'tcp',
+      from: 7878,
+      to: 7878,
+    },
   ],
   requirements: {
     cpu: 1,

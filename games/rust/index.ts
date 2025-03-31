@@ -21,6 +21,12 @@ export const rust = {
       from: 28016,
       to: 28016,
     },
+    // This port was mentioned in the dockerfile.
+    {
+      protocol: 'tcp',
+      from: 28082,
+      to: 28082,
+    },
   ],
   requirements: {
     cpu: 4,
