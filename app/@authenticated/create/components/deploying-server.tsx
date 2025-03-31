@@ -1,11 +1,11 @@
 'use client';
 
 import { getServer } from '@/actions/server/get';
+import { Console } from '@/components/console';
 import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Console } from '../../[server]/console/components/console';
 
 type DeployingServerProps = {
   id: string;
