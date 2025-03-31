@@ -123,11 +123,7 @@ const ServerPage = async ({ params }: Server) => {
               className="flex items-center gap-2 px-3 py-1"
             >
               <UsersIcon size={16} />
-              <PlayerCount
-                game={activeGame.gamedigId}
-                ip={instance.publicIpAddress ?? ''}
-                port={activeGame.ports[0].from}
-              />
+              <PlayerCount serverId={serverId} />
             </Badge>
           </Suspense>
         </div>
