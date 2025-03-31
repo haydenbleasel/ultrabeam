@@ -12,14 +12,15 @@ import {
   MemoryStickIcon,
   UsersIcon,
 } from 'lucide-react';
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { Status } from '../../components/status';
+import { Artwork } from './components/artwork';
 import { IpAddress } from './components/ip-address';
 import { Password } from './components/password';
 import { PlayerCount } from './components/player-count';
 import { ServerDropdownMenu } from './components/server-dropdown-menu';
+import { Title } from './components/title';
 
 type Server = {
   params: Promise<{
@@ -57,19 +58,15 @@ const ServerPage = async ({ params }: Server) => {
 
   return (
     <div className="grid grid-cols-2 divide-x">
-      <Image
-        src={activeGame.image}
-        alt={activeGame.name}
-        width={600}
-        height={600}
-        className="aspect-square"
-      />
+      <Suspense fallback={<Skeleton className="aspect-square w-full" />}>
+        <Artwork serverId={serverId} />
+      </Suspense>
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="font-semibold text-xl">
-              {instance.tags?.find((tag) => tag.key === 'name')?.value}
-            </h1>
+            <Suspense fallback={<Skeleton className="h-[26px] w-[67px]" />}>
+              <Title serverId={serverId} />
+            </Suspense>
             <Status
               id={serverId}
               defaultStatus={instance.state?.name ?? 'pending'}
