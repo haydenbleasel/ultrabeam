@@ -66,7 +66,9 @@ const ServerLayout = async ({ children, params }: ServerLayoutProps) => {
     notFound();
   }
 
-  const status = instance.tags?.find(({ key }) => key === 'status')?.value;
+  const status = instance.tags?.find(
+    ({ key }) => key === 'serverStatus'
+  )?.value;
 
   if (status !== 'ready') {
     return (
