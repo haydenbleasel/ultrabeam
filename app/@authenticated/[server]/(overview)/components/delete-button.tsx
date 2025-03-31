@@ -50,7 +50,7 @@ export const DeleteButton = ({ serverId }: DeleteButtonProps) => {
   return (
     <Dialog>
       <DialogTrigger className="flex w-full items-center gap-2">
-        <TrashIcon size={16} aria-hidden="true" />
+        <TrashIcon className="text-destructive" size={16} aria-hidden="true" />
         <span>Delete</span>
       </DialogTrigger>
       <DialogContent>
