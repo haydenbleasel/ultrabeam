@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/badge';
 import { games } from '@/games';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -8,8 +9,9 @@ export const Games = () => (
       <h2 className="mt-2 max-w-lg text-pretty font-semibold text-4xl text-foreground tracking-tight sm:text-5xl">
         Spin up your favorite games in minutes
       </h2>
-      <p className="text-lg text-muted-foreground">
-        Ultrabeam supports Valheim, Palworld, and Minecraft.
+      <p className="max-w-xl text-lg text-muted-foreground">
+        Ultrabeam's managed infrastructure allows you to spin up your favorite
+        games without the hassle of setting up your own server.
       </p>
     </div>
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -33,13 +35,22 @@ export const Games = () => (
               index === games.length - 3 && 'lg:rounded-bl-[calc(2rem+1px)]'
             )}
           >
-            <Image
-              alt=""
-              src={game.image}
-              className="aspect-square w-full object-cover object-left"
-              width={320}
-              height={320}
-            />
+            <div className="relative aspect-square w-full">
+              <Image
+                alt=""
+                src={game.image}
+                className="size-full object-cover object-left"
+                width={320}
+                height={320}
+              />
+              {!game.enabled && (
+                <div className="absolute inset-0 bg-background/50">
+                  <div className="flex h-full w-full items-center justify-center">
+                    <Badge>Coming soon</Badge>
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="p-8">
               <p className="font-medium text-foreground text-lg tracking-tight">
                 {game.name}

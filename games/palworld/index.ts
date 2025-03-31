@@ -4,7 +4,7 @@ export const palworld = {
   id: 'palworld',
   gamedigId: 'palworld',
   name: 'Palworld',
-  enabled: true,
+  enabled: false,
   image,
   description:
     'Fight, farm, build and work alongside mysterious creatures called "Pals".',
