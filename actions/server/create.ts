@@ -96,7 +96,7 @@ const setupInstance = async (
   }
 };
 
-const createDisk = async (availabilityZone: string) => {
+const createDisk = async (instanceName: string, availabilityZone: string) => {
   const createDiskResponse = await lightsail.send(
     new CreateDiskCommand({
       diskName: generateId(),
@@ -111,7 +111,11 @@ const createDisk = async (availabilityZone: string) => {
     throw new Error('Disk name not found');
   }
 
+  await updateInstanceStatus(instanceName, 'diskStatus', 'provisioning');
+
   await waitForDiskStatus(diskName, 'available');
+
+  await updateInstanceStatus(instanceName, 'diskStatus', 'ready');
 
   return diskName;
 };
@@ -138,7 +142,11 @@ const attachStaticIp = async (staticIpName: string, instanceName: string) => {
     })
   );
 
+  await updateInstanceStatus(instanceName, 'staticIpStatus', 'attaching');
+
   const ipAddress = await waitForStaticIpAttached(staticIpName);
+
+  await updateInstanceStatus(instanceName, 'staticIpStatus', 'ready');
 
   return ipAddress;
 };
@@ -152,8 +160,9 @@ const attachDisk = async (diskName: string, instanceName: string) => {
     })
   );
 
-  // Wait for the disk to be attached
+  await updateInstanceStatus(instanceName, 'diskStatus', 'attaching');
   await waitForDiskStatus(diskName, 'in-use');
+  await updateInstanceStatus(instanceName, 'diskStatus', 'ready');
 };
 
 const waitForSSH = async (
@@ -191,23 +200,23 @@ const runScripts = async (
     throw new Error(`Invalid install script for game: ${game}`);
   }
 
-  await updateInstanceStatus(instanceName, 'updatingPackages');
+  await updateInstanceStatus(instanceName, 'serverStatus', 'updatingPackages');
   await runSSHCommand(ipAddress, privateKey, updatePackagesScript);
 
-  await updateInstanceStatus(instanceName, 'installingDocker');
+  await updateInstanceStatus(instanceName, 'serverStatus', 'installingDocker');
   await runSSHCommand(ipAddress, privateKey, dockerInstallScript);
 
-  await updateInstanceStatus(instanceName, 'mountingVolume');
+  await updateInstanceStatus(instanceName, 'serverStatus', 'mountingVolume');
   await runSSHCommand(ipAddress, privateKey, mountVolumeScript);
 
-  await updateInstanceStatus(instanceName, 'installingGame');
+  await updateInstanceStatus(instanceName, 'serverStatus', 'installingGame');
   await runSSHCommand(
     ipAddress,
     privateKey,
     installScript(instanceName, password, 'America/New_York')
   );
 
-  await updateInstanceStatus(instanceName, 'startingServer');
+  await updateInstanceStatus(instanceName, 'serverStatus', 'startingServer');
   await runSSHCommand(ipAddress, privateKey, startServerScript);
 };
 
@@ -265,7 +274,9 @@ export const createServer = async (
           { key: 'user', value: user.id },
           { key: 'ultrabeam', value: 'true' },
           { key: 'game', value: game },
-          { key: 'status', value: 'creating' },
+          { key: 'serverStatus', value: 'creating' },
+          { key: 'diskStatus', value: 'creating' },
+          { key: 'staticIpStatus', value: 'creating' },
         ],
         addOns: [
           {
@@ -287,26 +298,26 @@ export const createServer = async (
     const promise = async () => {
       try {
         const [diskName, staticIpName] = await Promise.all([
-          createDisk(`${region}a`),
+          createDisk(instanceName, `${region}a`),
           createStaticIp(),
           setupInstance(instanceName, gameInfo),
         ]);
 
-        await updateInstanceStatus(instanceName, 'attaching');
+        await updateInstanceStatus(instanceName, 'serverStatus', 'attaching');
 
         const [ipAddress] = await Promise.all([
           attachStaticIp(staticIpName, instanceName),
           attachDisk(diskName, instanceName),
         ]);
 
-        await updateInstanceStatus(instanceName, 'installing');
+        await updateInstanceStatus(instanceName, 'serverStatus', 'starting');
 
         // Wait for SSH to be available
         await waitForSSH(ipAddress, privateKey);
 
         await runScripts(instanceName, privateKey, game, password, ipAddress);
 
-        await updateInstanceStatus(instanceName, 'ready');
+        await updateInstanceStatus(instanceName, 'serverStatus', 'ready');
 
         log.info(`Server created: ${instanceName}`);
       } catch (error) {
@@ -314,7 +325,7 @@ export const createServer = async (
 
         console.error(message);
 
-        await updateInstanceStatus(instanceName, 'failed');
+        await updateInstanceStatus(instanceName, 'serverStatus', 'failed');
       }
     };
 

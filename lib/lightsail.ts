@@ -142,12 +142,13 @@ export const runSSHCommand = async (
 
 export const updateInstanceStatus = async (
   instanceName: string,
-  status: string
+  key: string,
+  value: string
 ) => {
   await lightsail.send(
     new TagResourceCommand({
       resourceName: instanceName,
-      tags: [{ key: 'status', value: status }],
+      tags: [{ key, value }],
     })
   );
 };
