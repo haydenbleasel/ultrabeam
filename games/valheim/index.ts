@@ -4,6 +4,7 @@ export const valheim = {
   id: 'valheim',
   gamedigId: 'valheim',
   name: 'Valheim',
+  enabled: true,
   image,
   description:
     'A Viking-themed action RPG where you explore, craft, build, and survive.',

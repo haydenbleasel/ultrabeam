@@ -4,6 +4,7 @@ export const minecraft = {
   id: 'minecraft',
   gamedigId: 'minecraft',
   name: 'Minecraft',
+  enabled: true,
   image,
   description:
     'Minecraft is a sandbox game where you can build your own world.',

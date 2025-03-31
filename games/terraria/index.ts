@@ -4,6 +4,7 @@ export const terraria = {
   id: 'terraria',
   gamedigId: 'terrariatshock',
   name: 'Terraria',
+  enabled: true,
   image,
   description:
     'Dig, fight, explore, build! Nothing is impossible in this 2D adventure game.',

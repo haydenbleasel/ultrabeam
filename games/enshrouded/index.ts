@@ -4,6 +4,7 @@ export const enshrouded = {
   id: 'enshrouded',
   gamedigId: 'enshrouded',
   name: 'Enshrouded',
+  enabled: false,
   image,
   description:
     'A game of survival, crafting, and action on a sprawling voxel-based continent.',

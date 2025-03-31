@@ -20,6 +20,7 @@ export const ChooseGame = ({ game, setGame }: ChooseGameProps) => (
           id={game.id}
           value={game.id}
           className="peer sr-only after:absolute after:inset-0"
+          disabled={!game.enabled}
         />
         <Image
           src={game.image}

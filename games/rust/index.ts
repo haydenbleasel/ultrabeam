@@ -4,6 +4,7 @@ export const rust = {
   id: 'rust',
   gamedigId: 'rust',
   name: 'Rust',
+  enabled: true,
   image,
   description:
     'The only aim in Rust is to survive when everything on the island wants you to die.',
