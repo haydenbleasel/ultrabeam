@@ -1,10 +1,6 @@
-import { Button } from '@/components/ui/button';
-import { lightsail } from '@/lib/lightsail';
-import { GetInstancesCommand } from '@aws-sdk/client-lightsail';
-import { currentUser } from '@clerk/nextjs/server';
+import { Skeleton } from '@/components/ui/skeleton';
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 import { ServerList } from './components/server-list';
 
 const title = 'Ultrabeam';
@@ -15,32 +11,10 @@ export const metadata: Metadata = {
   description,
 };
 
-const Overview = async () => {
-  const user = await currentUser();
-
-  if (!user) {
-    notFound();
-  }
-
-  const { instances } = await lightsail.send(new GetInstancesCommand({}));
-  const userInstances = instances?.filter(
-    ({ tags }) => tags?.find(({ key }) => key === 'user')?.value === user.id
-  );
-
-  if (!userInstances?.length) {
-    return (
-      <div className="flex aspect-video items-center justify-center">
-        <div className="grid gap-4">
-          <p className="text-muted-foreground text-sm">No servers found.</p>
-          <Button asChild>
-            <Link href="/create">Create server</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  return <ServerList data={userInstances} />;
-};
+const Overview = async () => (
+  <Suspense fallback={<Skeleton className="h-[500px] w-full" />}>
+    <ServerList />
+  </Suspense>
+);
 
 export default Overview;

@@ -13,21 +13,21 @@ type ServerLayoutProps = {
 };
 
 export const generateMetadata = async ({ params }: ServerLayoutProps) => {
-  const { server: serverId } = await params;
+  const { server: instanceName } = await params;
   const user = await currentUser();
 
-  if (!user) {
-    return {};
-  }
-
   const { instance } = await lightsail.send(
-    new GetInstanceCommand({
-      instanceName: serverId,
-    })
+    new GetInstanceCommand({ instanceName })
   );
 
   if (!instance) {
     return {};
+  }
+
+  const ownerId = instance.tags?.find(({ key }) => key === 'user')?.value;
+
+  if (ownerId !== user?.id) {
+    notFound();
   }
 
   const name = instance.tags?.find(({ key }) => key === 'name')?.value;
@@ -63,6 +63,12 @@ const ServerLayout = async ({ children, params }: ServerLayoutProps) => {
     instance = response.instance;
   } catch (error) {
     console.error(error);
+    notFound();
+  }
+
+  const ownerId = instance.tags?.find(({ key }) => key === 'user')?.value;
+
+  if (ownerId !== user.id) {
     notFound();
   }
 

@@ -5,4 +5,4 @@ import { rust } from './rust';
 import { terraria } from './terraria';
 import { valheim } from './valheim';
 
-export const games = [enshrouded, minecraft, palworld, rust, terraria, valheim];
+export const games = [minecraft, valheim, palworld, enshrouded, rust, terraria];

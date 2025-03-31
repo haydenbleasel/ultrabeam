@@ -28,6 +28,7 @@ services:
       - PLAYERS=16
       - ADMIN_PASSWORD=${password}
       - SERVER_PASSWORD=${password}
+      - MULTITHREADING=true
       - COMMUNITY=false
       - TZ=${timezone}
       - BACKUP_ENABLED=true
