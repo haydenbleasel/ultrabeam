@@ -14,7 +14,7 @@ export const IpAddress = async ({ serverId }: IpAddressProps) => {
     })
   );
 
-  if (!instance) {
+  if (!instance?.publicIpAddress) {
     return null;
   }
 
