@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge } from '@/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { Lock, ServerIcon, ShieldIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 

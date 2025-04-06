@@ -1,5 +1,5 @@
 import { lightsail } from '@/lib/lightsail';
-import { GetInstanceCommand } from '@aws-sdk/client-lightsail';
+import { GetInstanceCommand, type Instance } from '@aws-sdk/client-lightsail';
 import { currentUser } from '@clerk/nextjs/server';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
@@ -13,21 +13,21 @@ type ServerLayoutProps = {
 };
 
 export const generateMetadata = async ({ params }: ServerLayoutProps) => {
-  const { server: serverId } = await params;
+  const { server: instanceName } = await params;
   const user = await currentUser();
 
-  if (!user) {
-    return {};
-  }
-
   const { instance } = await lightsail.send(
-    new GetInstanceCommand({
-      instanceName: serverId,
-    })
+    new GetInstanceCommand({ instanceName })
   );
 
   if (!instance) {
     return {};
+  }
+
+  const ownerId = instance.tags?.find(({ key }) => key === 'user')?.value;
+
+  if (ownerId !== user?.id) {
+    notFound();
   }
 
   const name = instance.tags?.find(({ key }) => key === 'name')?.value;
@@ -47,17 +47,34 @@ const ServerLayout = async ({ children, params }: ServerLayoutProps) => {
     notFound();
   }
 
-  const { instance } = await lightsail.send(
-    new GetInstanceCommand({
-      instanceName: serverId,
-    })
-  );
+  let instance: Instance | undefined;
 
-  if (!instance) {
+  try {
+    const response = await lightsail.send(
+      new GetInstanceCommand({
+        instanceName: serverId,
+      })
+    );
+
+    if (!response.instance) {
+      throw new Error('Instance not found');
+    }
+
+    instance = response.instance;
+  } catch (error) {
+    console.error(error);
     notFound();
   }
 
-  const status = instance.tags?.find(({ key }) => key === 'status')?.value;
+  const ownerId = instance.tags?.find(({ key }) => key === 'user')?.value;
+
+  if (ownerId !== user.id) {
+    notFound();
+  }
+
+  const status = instance.tags?.find(
+    ({ key }) => key === 'serverStatus'
+  )?.value;
 
   if (status !== 'ready') {
     return (

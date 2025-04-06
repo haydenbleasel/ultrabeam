@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 import { EllipsisIcon, ScalingIcon } from 'lucide-react';
 import { DeleteButton } from './delete-button';
 import { RebootButton } from './reboot-button';

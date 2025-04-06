@@ -1,7 +1,7 @@
-import { getPlayers } from '@/actions/players/get';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { games } from '@/games';
 import { lightsail } from '@/lib/lightsail';
-import { Badge } from '@/ui/badge';
 import { GetInstanceCommand } from '@aws-sdk/client-lightsail';
 import { currentUser } from '@clerk/nextjs/server';
 import {
@@ -12,13 +12,15 @@ import {
   MemoryStickIcon,
   UsersIcon,
 } from 'lucide-react';
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 import { Status } from '../../components/status';
-import { Connect } from './components/connect';
+import { Artwork } from './components/artwork';
+import { IpAddress } from './components/ip-address';
 import { Password } from './components/password';
 import { PlayerCount } from './components/player-count';
 import { ServerDropdownMenu } from './components/server-dropdown-menu';
+import { Title } from './components/title';
 
 type Server = {
   params: Promise<{
@@ -54,39 +56,17 @@ const ServerPage = async ({ params }: Server) => {
     notFound();
   }
 
-  const password =
-    instance.tags?.find((tag) => tag.key === 'password')?.value ?? '';
-
-  let players = await getPlayers(
-    activeGame.id,
-    instance.publicIpAddress ?? '',
-    activeGame.ports.at(0)?.from ?? 0
-  );
-
-  if ('error' in players) {
-    players = {
-      data: {
-        players: 0,
-        maxplayers: 0,
-      },
-    };
-  }
-
   return (
     <div className="grid grid-cols-2 divide-x">
-      <Image
-        src={activeGame.image}
-        alt={activeGame.name}
-        width={600}
-        height={600}
-        className="aspect-square"
-      />
+      <Suspense fallback={<Skeleton className="aspect-square w-full" />}>
+        <Artwork serverId={serverId} />
+      </Suspense>
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="font-bold text-xl">
-              {instance.tags?.find((tag) => tag.key === 'name')?.value}
-            </h1>
+            <Suspense fallback={<Skeleton className="h-[26px] w-[67px]" />}>
+              <Title serverId={serverId} />
+            </Suspense>
             <Status
               id={serverId}
               defaultStatus={instance.state?.name ?? 'pending'}
@@ -137,26 +117,23 @@ const ServerPage = async ({ params }: Server) => {
             <GlobeIcon size={16} />
             {instance.location?.regionName}
           </Badge>
-          <Badge
-            variant="secondary"
-            className="flex items-center gap-2 px-3 py-1"
-          >
-            <UsersIcon size={16} />
-            <PlayerCount
-              game={activeGame.id}
-              ip={instance.publicIpAddress ?? ''}
-              port={activeGame.ports[0].from}
-              defaultPlayers={players.data.players}
-              defaultMaxPlayers={players.data.maxplayers}
-            />
-          </Badge>
+          <Suspense fallback={<Skeleton className="h-[26px] w-[67px]" />}>
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-2 px-3 py-1"
+            >
+              <UsersIcon size={16} />
+              <PlayerCount serverId={serverId} />
+            </Badge>
+          </Suspense>
         </div>
         <div className="grid gap-2">
-          <Password password={password} />
-          <Connect
-            ip={instance.publicIpAddress ?? ''}
-            port={activeGame.ports[0].from}
-          />
+          <Suspense fallback={<Skeleton className="h-[58px] w-full" />}>
+            <Password serverId={serverId} />
+          </Suspense>
+          <Suspense fallback={<Skeleton className="h-[58px] w-full" />}>
+            <IpAddress serverId={serverId} />
+          </Suspense>
         </div>
       </div>
     </div>

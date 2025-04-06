@@ -1,13 +1,15 @@
+import { gameDataDirectory } from '@/lib/consts';
+
 export default (name: string, password: string, timezone: string) => `
 #!/bin/bash
 set -e
 
 # Create directory structure
-mkdir -p /mnt/gamedata/palworld/data
-mkdir -p /mnt/gamedata/palworld/backups
+mkdir -p ${gameDataDirectory}/palworld/data
+mkdir -p ${gameDataDirectory}/palworld/backups
 
 # Navigate to the game data directory
-cd /mnt/gamedata
+cd ${gameDataDirectory}
 
 # Create docker-compose.yml file
 cat > docker-compose.yml << 'EOF'
@@ -19,13 +21,14 @@ services:
       - 8211:8211/udp
       - 27015:27015/udp
     environment:
-      - SERVER_NAME="${name}"
+      - SERVER_NAME=${name}
       - PUID=1000
       - PGID=1000
       - PORT=8211
       - PLAYERS=16
-      - ADMIN_PASSWORD="${password}"
-      - SERVER_PASSWORD="${password}"
+      - ADMIN_PASSWORD=${password}
+      - SERVER_PASSWORD=${password}
+      - MULTITHREADING=true
       - COMMUNITY=false
       - TZ=${timezone}
       - BACKUP_ENABLED=true
@@ -41,8 +44,5 @@ services:
     restart: unless-stopped
 EOF
 
-# Start the server
-docker-compose up -d
-
-echo "Palworld server has been installed and started."
+echo "Palworld server has been installed."
 `;

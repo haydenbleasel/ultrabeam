@@ -4,8 +4,10 @@ import {
   type DiskState,
   GetDiskCommand,
   GetInstanceCommand,
+  GetStaticIpCommand,
   type InstanceState,
   LightsailClient,
+  TagResourceCommand,
 } from '@aws-sdk/client-lightsail';
 import { Client } from 'ssh2';
 
@@ -87,6 +89,7 @@ export const runSSHCommand = async (
   command: string
 ) => {
   const ssh = new Client();
+
   return await new Promise<string>((resolve, reject) => {
     const sshTimeout = setTimeout(
       () => {
@@ -126,7 +129,7 @@ export const runSSHCommand = async (
         });
       })
       .on('error', (err) => {
-        reject(err);
+        reject(`SSH connection failed for "${command}": ${err}`);
       })
       .connect({
         host: ip,
@@ -134,5 +137,46 @@ export const runSSHCommand = async (
         privateKey,
         port: 22,
       });
+  });
+};
+
+export const updateInstanceStatus = async (
+  instanceName: string,
+  key: string,
+  value: string
+) => {
+  await lightsail.send(
+    new TagResourceCommand({
+      resourceName: instanceName,
+      tags: [{ key, value }],
+    })
+  );
+};
+
+export const waitForStaticIpAttached = (staticIpName: string) => {
+  console.log(`Waiting for static IP ${staticIpName} to be attached...`);
+
+  return new Promise<string>((resolve, reject) => {
+    const checkDiskStatus = async () => {
+      const response = await lightsail.send(
+        new GetStaticIpCommand({
+          staticIpName,
+        })
+      );
+
+      if (response.staticIp?.isAttached) {
+        console.log(`Static IP ${staticIpName} is now attached.`);
+        if (response.staticIp?.ipAddress) {
+          resolve(response.staticIp.ipAddress);
+        } else {
+          reject('Something went wrong with the static IP.');
+        }
+      } else {
+        // Wait for 5 seconds before checking again
+        setTimeout(checkDiskStatus, 5000);
+      }
+    };
+
+    checkDiskStatus();
   });
 };

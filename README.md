@@ -2,6 +2,9 @@
 
 An open source platform for launching simple, reliable dedicated game servers. Create and manage your own dedicated game servers with ease. Start playing your favorite games with friends in minutes.
 
+> [!WARNING]  
+> This project is currently in development and not ready for production use. Games with `enabled: true` are currently available to play, the rest have issues when trying to connect or trying to start the server.
+
 ## 🚀 Features
 
 - **Easy Server Deployment**: Launch game servers with just a few clicks

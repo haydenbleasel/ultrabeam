@@ -1,14 +1,18 @@
 'use client';
 
 import { createServer } from '@/actions/server/create';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+} from '@/components/ui/accordion';
+import { Button } from '@/components/ui/button';
 import { games } from '@/games';
 import type { getRegions, getSizes } from '@/lib/backend';
 import { handleError } from '@/lib/utils';
-import { Accordion, AccordionContent, AccordionItem } from '@/ui/accordion';
-import { Button } from '@/ui/button';
 import { AccordionHeader, AccordionTrigger } from '@radix-ui/react-accordion';
 import { Loader2Icon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChooseGame } from './choose-game';
 import { ConfigureServer } from './configure-server';
 import { DeployingServer } from './deploying-server';
@@ -18,20 +22,38 @@ type CreateServerFormProps = {
   regions: Awaited<ReturnType<typeof getRegions>>;
 };
 
+const getRecommendedSize = (
+  sizes: Awaited<ReturnType<typeof getSizes>>,
+  game: string
+) => {
+  const activeGame = games.find(({ id }) => id === game);
+  return sizes.find(
+    ({ cpu, memory }) =>
+      cpu >= (activeGame?.requirements.cpu ?? 0) &&
+      memory >= (activeGame?.requirements.memory ?? 0)
+  );
+};
+
 export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
   const [name, setName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [game, setGame] = useState<string>('');
-  const recommendedSizes = sizes.filter(
-    ({ cpu, memory }) => cpu === 2 && memory === 4
-  );
-  const [size, setSize] = useState<string>(recommendedSizes[0].id);
+  const activeGame = games.find(({ id }) => id === game);
+  const recommendedSize = getRecommendedSize(sizes, game);
+  const [size, setSize] = useState<string>(recommendedSize?.id ?? sizes[0].id);
   const selectedSize = sizes.find(({ id }) => id === size);
   const [region, setRegion] = useState<string>(regions[0].id);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [step, setStep] = useState<string>('1');
-  const activeGame = games.find(({ id }) => id === game);
   const [serverId, setServerId] = useState<string>('');
+
+  useEffect(() => {
+    const newRecommendedSize = getRecommendedSize(sizes, game);
+
+    if (newRecommendedSize?.id) {
+      setSize(newRecommendedSize?.id);
+    }
+  }, [game, sizes]);
 
   const handleCreateServer = async () => {
     if (isLoading) {
@@ -95,6 +117,8 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
     }
   };
 
+  // Lightsail + Block Storage
+  const price = (selectedSize?.price ?? 0) + 2;
   const items = [
     {
       id: '1',
@@ -121,7 +145,7 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
             setRegion={setRegion}
             sizes={sizes}
             regions={regions}
-            recommendedSizes={recommendedSizes}
+            recommendedSize={recommendedSize}
           />
           <Button
             className="mt-6 w-fit"
@@ -132,7 +156,7 @@ export const CreateServerForm = ({ sizes, regions }: CreateServerFormProps) => {
             {isLoading ? (
               <Loader2Icon size={16} className="animate-spin" />
             ) : (
-              `Create server for $${selectedSize?.price}/month`
+              `Create server for $${price}/month`
             )}
           </Button>
         </>

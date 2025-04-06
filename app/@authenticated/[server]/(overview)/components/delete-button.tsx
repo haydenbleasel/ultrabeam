@@ -1,8 +1,7 @@
 'use client';
 
 import { deleteServer } from '@/actions/server/delete';
-import { handleError } from '@/lib/utils';
-import { Button } from '@/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogClose,
@@ -12,7 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/ui/dialog';
+} from '@/components/ui/dialog';
+import { handleError } from '@/lib/utils';
 import { CircleAlertIcon, TrashIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -50,7 +50,7 @@ export const DeleteButton = ({ serverId }: DeleteButtonProps) => {
   return (
     <Dialog>
       <DialogTrigger className="flex w-full items-center gap-2">
-        <TrashIcon size={16} aria-hidden="true" />
+        <TrashIcon className="text-destructive" size={16} aria-hidden="true" />
         <span>Delete</span>
       </DialogTrigger>
       <DialogContent>

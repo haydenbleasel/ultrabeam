@@ -1,86 +1,118 @@
 'use client';
 
 import { getServer } from '@/actions/server/get';
-import { AnimatePresence, motion } from 'motion/react';
-import { useRouter } from 'next/navigation';
+import { Console } from '@/components/console';
+import { Button } from '@/components/ui/button';
+import { statuses } from '@/lib/consts';
+import { cn } from '@/lib/utils';
+import { AlertCircleIcon, CheckCircle2Icon, Loader2Icon } from 'lucide-react';
+import { motion } from 'motion/react';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Console } from '../../[server]/console/components/console';
 
 type DeployingServerProps = {
   id: string;
 };
 
-const items = [
-  {
-    id: 'createdServer',
-    title: 'Server created',
-    description: 'Infrastructure is being provisioned.',
-  },
-  {
-    id: 'createdKeyPair',
-    title: 'Keys created',
-    description: 'The keys have been created.',
-  },
-  {
-    id: 'createdInstance',
-    title: 'Instance created',
-    description: 'The server instance has been created.',
-  },
-  {
-    id: 'logGroupCreated',
-    title: 'Log group created',
-    description: 'The log group has been created.',
-  },
-  {
-    id: 'instanceAvailable',
-    title: 'Instance available',
-    description: 'The server instance is ready to use.',
-  },
-  {
-    id: 'openedPorts',
-    title: 'Ports opened',
-    description: 'The required ports have been opened.',
-  },
-  {
-    id: 'createdDisk',
-    title: 'Disk created',
-    description: 'The disk has been created.',
-  },
-  {
-    id: 'diskAvailable',
-    title: 'Disk available',
-    description: 'The disk is ready to use.',
-  },
-  {
-    id: 'diskAttached',
-    title: 'Disk attached',
-    description: 'The disk has been attached to the server.',
-  },
-  {
-    id: 'diskInUse',
-    title: 'Disk in use',
-    description: 'The disk is ready to use.',
-  },
-  {
-    id: 'dockerInstalled',
-    title: 'Docker installed',
-    description: 'Docker has been installed.',
-  },
-  {
-    id: 'volumeMounted',
-    title: 'Volume mounted',
-    description: 'The volume has been mounted.',
-  },
-  {
-    id: 'ready',
-    title: 'Server ready',
-    description: 'The server is ready to use.',
-  },
-];
+const StatusProgress = ({
+  status,
+  options,
+  index,
+  className,
+}: {
+  status: (typeof statuses.server)[number];
+  options: typeof statuses.server;
+  index: number;
+  className?: string;
+}) => {
+  const activeIndex = options.findIndex((item) => item.id === status.id);
+  const isReady = status.id === 'ready';
+  const readyWidth = 100 - index * 2;
+
+  return (
+    <div
+      className={cn(
+        'relative isolate flex w-full items-center justify-between overflow-hidden rounded-lg border bg-background px-4 py-3 transition-all',
+        status.id === 'failed' ? 'border-destructive/20' : 'border-primary/20',
+        className,
+        isReady && index > 1 && '-mt-18'
+      )}
+      style={{
+        width: isReady && index > 1 ? `${readyWidth}%` : '100%',
+        marginLeft: isReady && index > 1 ? `${index}%` : '0',
+        marginRight: isReady && index > 1 ? `${index}%` : '0',
+      }}
+      key={status.id}
+    >
+      <motion.div
+        className={cn(
+          'absolute inset-0 bg-primary-foreground',
+          status.id === 'failed' && 'bg-destructive-foreground'
+        )}
+        initial={{ width: 0 }}
+        animate={{ width: `${((activeIndex + 1) / options.length) * 100}%` }}
+        transition={{ duration: 0.5 }}
+      />
+      <div className="relative z-10 grid flex-1 gap-1">
+        <p
+          className={cn(
+            'font-medium',
+            status.id === 'failed' ? 'text-destructive' : 'text-primary'
+          )}
+        >
+          {status.title}
+        </p>
+        <p
+          className={cn(
+            'text-sm',
+            status.id === 'failed' ? 'text-destructive/80' : 'text-primary/80'
+          )}
+        >
+          {status.description}
+        </p>
+      </div>
+      <div className="relative z-10 shrink-0">
+        {isReady && <CheckCircle2Icon size={16} className="text-primary" />}
+        {status.id === 'failed' && (
+          <AlertCircleIcon size={16} className="text-destructive" />
+        )}
+        {status.id !== 'ready' && status.id !== 'failed' && (
+          <Loader2Icon size={16} className="animate-spin text-primary" />
+        )}
+      </div>
+    </div>
+  );
+};
 
 export const DeployingServer = ({ id }: DeployingServerProps) => {
-  const router = useRouter();
-  const [value, setValue] = useState<number>(1);
+  const [value, setValue] = useState<number>(0);
+  const [diskValue, setDiskValue] = useState<number>(0);
+  const [staticIpValue, setStaticIpValue] = useState<number>(0);
+
+  const activeServerStatus =
+    value === -1
+      ? {
+          id: 'failed',
+          title: 'Server failed',
+          description: 'The server failed to provision.',
+        }
+      : statuses.server[value];
+  const activeDiskStatus =
+    diskValue === -1
+      ? {
+          id: 'failed',
+          title: 'Disk failed',
+          description: 'The disk failed to provision.',
+        }
+      : statuses.disk[diskValue];
+  const activeStaticIpStatus =
+    staticIpValue === -1
+      ? {
+          id: 'failed',
+          title: 'Static IP failed',
+          description: 'The static IP failed to provision.',
+        }
+      : statuses.staticIp[staticIpValue];
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -90,49 +122,70 @@ export const DeployingServer = ({ id }: DeployingServerProps) => {
         throw new Error(response.error);
       }
 
-      const status = response.data.tags?.find(
-        ({ key }) => key === 'status'
+      const serverStatus = response.data.tags?.find(
+        ({ key }) => key === 'serverStatus'
+      )?.value;
+      const diskStatus = response.data.tags?.find(
+        ({ key }) => key === 'diskStatus'
+      )?.value;
+      const staticIpStatus = response.data.tags?.find(
+        ({ key }) => key === 'staticIpStatus'
       )?.value;
 
-      setValue(items.findIndex((item) => item.id === status));
+      const newServerStatus =
+        statuses.server.findIndex((item) => item.id === serverStatus) ?? -1;
+      const newDiskStatus =
+        statuses.disk.findIndex((item) => item.id === diskStatus) ?? -1;
+      const newStaticIpStatus =
+        statuses.staticIp.findIndex((item) => item.id === staticIpStatus) ?? -1;
 
-      if (status === 'ready') {
+      setValue(newServerStatus);
+      setDiskValue(newDiskStatus);
+      setStaticIpValue(newStaticIpStatus);
+
+      const allStatuses = [serverStatus, diskStatus, staticIpStatus];
+
+      if (
+        allStatuses.every((status) => status === 'ready') ||
+        allStatuses.some((status) => status === 'failed')
+      ) {
         clearInterval(interval);
-        router.push(`/${id}`);
       }
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, [id, router]);
+  }, [id]);
 
   return (
     <div className="grid gap-2">
       <div className="overflow-hidden rounded-lg border">
         <Console serverId={id} defaultValue="" command="cat /var/log/syslog" />
       </div>
-      <div className="w-full rounded-full bg-secondary">
-        <motion.div
-          style={{
-            width: `${(value / (items.length - 1)) * 100}%`,
-          }}
-          className="h-2 w-full rounded-full bg-primary"
-          initial={{ width: 0 }}
-          animate={{ width: `${(value / (items.length - 1)) * 100}%` }}
-          transition={{ duration: 0.3 }}
+      <div className="grid gap-2">
+        <StatusProgress
+          status={activeServerStatus}
+          options={statuses.server}
+          index={1}
+          className="z-30"
+        />
+        <StatusProgress
+          status={activeDiskStatus}
+          options={statuses.disk}
+          index={2}
+          className="z-20"
+        />
+        <StatusProgress
+          status={activeStaticIpStatus}
+          options={statuses.staticIp}
+          index={3}
+          className="z-10"
         />
       </div>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={items[value].id}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.2 }}
-          className="flex-1 font-mono text-muted-foreground text-xs"
-        >
-          {items[value].description}
-        </motion.div>
-      </AnimatePresence>
+      {activeServerStatus.id === 'ready' && (
+        <Button className="mt-6 w-fit" asChild>
+          <Link href={`/${id}`}>View server</Link>
+        </Button>
+      )}
     </div>
   );
 };

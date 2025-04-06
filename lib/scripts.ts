@@ -1,4 +1,5 @@
 import 'server-only';
+import { gameDataDirectory } from './consts';
 
 export const sshInitScript = (publicKey: string) => `
 #!/bin/bash
@@ -12,12 +13,17 @@ echo "${publicKey}" >> ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 `;
 
-export const bootstrapScript = `
+export const updatePackagesScript = `
 #!/bin/bash
 set -e
 
 # Update and install required dependencies
 sudo apt update && sudo apt upgrade -y
+`;
+
+export const dockerInstallScript = `
+#!/bin/bash
+set -e
 
 # Install Docker
 curl -fsSL https://get.docker.com -o get-docker.sh
@@ -43,13 +49,24 @@ echo "Detected disk: $DISK"
 sudo mkfs -t ext4 "$DISK"
 
 # Create a mount directory
-sudo mkdir -p /mnt/gamedata
+sudo mkdir -p ${gameDataDirectory}
 
 # Mount the disk
-sudo mount "$DISK" /mnt/gamedata
+sudo mount "$DISK" ${gameDataDirectory}
 
 # Set proper permissions for the mount point
-sudo chmod 777 /mnt/gamedata
+sudo chmod 777 ${gameDataDirectory}
 
 # Make it persistent after reboot
-echo "$DISK /mnt/gamedata ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab`;
+echo "$DISK ${gameDataDirectory} ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab`;
+
+export const startServerScript = `
+#!/bin/bash
+set -e
+
+# Navigate to the game data directory
+cd ${gameDataDirectory}
+
+# Start the server
+docker-compose up -d
+`;

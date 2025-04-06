@@ -1,5 +1,5 @@
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { games } from '@/games';
-import { RadioGroup, RadioGroupItem } from '@/ui/radio-group';
 import { CheckIcon, MinusIcon } from 'lucide-react';
 import Image from 'next/image';
 
@@ -9,13 +9,18 @@ type ChooseGameProps = {
 };
 
 export const ChooseGame = ({ game, setGame }: ChooseGameProps) => (
-  <RadioGroup className="flex gap-3" value={game} onValueChange={setGame}>
+  <RadioGroup
+    className="grid grid-cols-3 gap-3"
+    value={game}
+    onValueChange={setGame}
+  >
     {games.map((game) => (
       <label key={game.id} htmlFor={game.id}>
         <RadioGroupItem
           id={game.id}
           value={game.id}
           className="peer sr-only after:absolute after:inset-0"
+          disabled={!game.enabled}
         />
         <Image
           src={game.image}

@@ -1,7 +1,5 @@
 'use client';
 
-import { formatBytes } from '@/lib/utils';
-import { cn } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,10 +10,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/ui/alert-dialog';
-import { Badge } from '@/ui/badge';
-import { Button } from '@/ui/button';
-import { Checkbox } from '@/ui/checkbox';
+} from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -30,11 +28,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '@/ui/dropdown-menu';
-import { Input } from '@/ui/input';
-import { Label } from '@/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/ui/popover';
-import {} from '@/ui/select';
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -42,12 +37,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/ui/table';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/tooltip';
+} from '@/components/ui/table';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { formatBytes } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import {
   type ColumnDef,
   type ColumnFiltersState,
-  type FilterFn,
   type Row,
   type SortingState,
   type VisibilityState,
@@ -55,11 +55,11 @@ import {
   getCoreRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import {
+  CableIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   CircleAlertIcon,
@@ -68,37 +68,31 @@ import {
   Columns3Icon,
   EllipsisIcon,
   FileIcon,
-  FilterIcon,
+  FileSymlinkIcon,
   FolderIcon,
+  HardDriveIcon,
+  KeyboardIcon,
   ListFilterIcon,
-  UploadCloudIcon,
+  WifiIcon,
 } from 'lucide-react';
-import { useId, useMemo, useRef, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useId, useRef, useState } from 'react';
 import type { FileInfo } from 'ssh2-sftp-client';
+import { UploadButton } from './upload-button';
 
 type FileTableProps = {
   data: FileInfo[];
+  path: string;
 };
 
-// Custom filter function for multi-column searching
-const multiColumnFilterFn: FilterFn<FileInfo> = (
-  row,
-  columnId,
-  filterValue
-) => {
-  const searchableRowContent = `${row.original.name}`.toLowerCase();
-  const searchTerm = (filterValue ?? '').toLowerCase();
-  return searchableRowContent.includes(searchTerm);
-};
-
-const statusFilterFn: FilterFn<FileInfo> = (
-  row,
-  columnId,
-  filterValue: string[]
-) => {
-  if (!filterValue?.length) return true;
-  const status = row.getValue(columnId) as string;
-  return filterValue.includes(status);
+const fileIcons = {
+  '-': FileIcon,
+  d: FolderIcon,
+  l: FileSymlinkIcon,
+  c: KeyboardIcon,
+  b: HardDriveIcon,
+  s: WifiIcon,
+  p: CableIcon,
 };
 
 const columns: ColumnDef<FileInfo>[] = [
@@ -119,6 +113,7 @@ const columns: ColumnDef<FileInfo>[] = [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
+        onClick={(e) => e.stopPropagation()}
       />
     ),
     size: 28,
@@ -128,22 +123,20 @@ const columns: ColumnDef<FileInfo>[] = [
   {
     header: 'Name',
     accessorKey: 'name',
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2 font-medium">
-        {row.getValue('type') === 'd' ? (
-          <FolderIcon size={16} />
-        ) : (
-          <FileIcon size={16} />
-        )}
-        {row.getValue('name')}
-      </div>
-    ),
-    size: 180,
-    filterFn: multiColumnFilterFn,
+    cell: ({ row }) => {
+      const Icon = fileIcons[row.original.type as keyof typeof fileIcons];
+
+      return (
+        <div className="flex items-center gap-2 truncate font-medium">
+          <Icon size={16} className="shrink-0 text-muted-foreground" />
+          <p className="truncate">{row.original.name}</p>
+        </div>
+      );
+    },
     enableHiding: false,
   },
   {
-    header: 'Rights',
+    header: 'Permissions',
     accessorKey: 'rights',
     cell: ({ row }) => (
       <div className="flex items-center gap-2 font-medium">
@@ -192,7 +185,11 @@ const columns: ColumnDef<FileInfo>[] = [
     accessorKey: 'modifyTime',
     cell: ({ row }) => (
       <div className="font-medium">
-        {new Date(row.getValue('modifyTime')).toLocaleDateString()}
+        {new Intl.DateTimeFormat('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        }).format(new Date(row.original.modifyTime))}
       </div>
     ),
   },
@@ -205,11 +202,14 @@ const columns: ColumnDef<FileInfo>[] = [
   },
 ];
 
-export default function FileTable({ data }: FileTableProps) {
+export const FileTable = ({ data: initialData, path }: FileTableProps) => {
   const id = useId();
+  const [data, setData] = useState<FileInfo[]>(initialData);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const pathname = usePathname();
 
   const [sorting, setSorting] = useState<SortingState>([
     {
@@ -223,8 +223,13 @@ export default function FileTable({ data }: FileTableProps) {
     const updatedData = data.filter(
       (item) => !selectedRows.some((row) => row.original.name === item.name)
     );
-    // setData(updatedData);
+    setData(updatedData);
     table.resetRowSelection();
+  };
+
+  const handleRowClick = (row: Row<FileInfo>) => {
+    const newPath = `${pathname}/${row.original.name}`;
+    router.push(newPath);
   };
 
   const table = useReactTable({
@@ -234,7 +239,6 @@ export default function FileTable({ data }: FileTableProps) {
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
     enableSortingRemoval: false,
-    getPaginationRowModel: getPaginationRowModel(),
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     getFilteredRowModel: getFilteredRowModel(),
@@ -245,47 +249,6 @@ export default function FileTable({ data }: FileTableProps) {
       columnVisibility,
     },
   });
-
-  // Get unique status values
-  const uniqueStatusValues = useMemo(() => {
-    const statusColumn = table.getColumn('status');
-
-    if (!statusColumn) return [];
-
-    const values = Array.from(statusColumn.getFacetedUniqueValues().keys());
-
-    return values.sort();
-  }, [table.getColumn('status')?.getFacetedUniqueValues()]);
-
-  // Get counts for each status
-  const statusCounts = useMemo(() => {
-    const statusColumn = table.getColumn('status');
-    if (!statusColumn) return new Map();
-    return statusColumn.getFacetedUniqueValues();
-  }, [table.getColumn('status')?.getFacetedUniqueValues()]);
-
-  const selectedStatuses = useMemo(() => {
-    const filterValue = table.getColumn('status')?.getFilterValue() as string[];
-    return filterValue ?? [];
-  }, [table.getColumn('status')?.getFilterValue()]);
-
-  const handleStatusChange = (checked: boolean, value: string) => {
-    const filterValue = table.getColumn('status')?.getFilterValue() as string[];
-    const newFilterValue = filterValue ? [...filterValue] : [];
-
-    if (checked) {
-      newFilterValue.push(value);
-    } else {
-      const index = newFilterValue.indexOf(value);
-      if (index > -1) {
-        newFilterValue.splice(index, 1);
-      }
-    }
-
-    table
-      .getColumn('status')
-      ?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
-  };
 
   return (
     <div className="space-y-4">
@@ -316,6 +279,7 @@ export default function FileTable({ data }: FileTableProps) {
             </div>
             {Boolean(table.getColumn('name')?.getFilterValue()) && (
               <button
+                type="button"
                 className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md text-muted-foreground/80 outline-none transition-[color,box-shadow] hover:text-foreground focus:z-10 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Clear filter"
                 onClick={() => {
@@ -329,53 +293,6 @@ export default function FileTable({ data }: FileTableProps) {
               </button>
             )}
           </div>
-          {/* Filter by status */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline">
-                <FilterIcon
-                  className="-ms-1 opacity-60"
-                  size={16}
-                  aria-hidden="true"
-                />
-                Status
-                {selectedStatuses.length > 0 && (
-                  <span className="-me-1 inline-flex h-5 max-h-full items-center rounded border bg-background px-1 font-[inherit] font-medium text-[0.625rem] text-muted-foreground/70">
-                    {selectedStatuses.length}
-                  </span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto min-w-36 p-3" align="start">
-              <div className="space-y-3">
-                <div className="font-medium text-muted-foreground text-xs">
-                  Filters
-                </div>
-                <div className="space-y-3">
-                  {uniqueStatusValues.map((value, i) => (
-                    <div key={value} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`${id}-${i}`}
-                        checked={selectedStatuses.includes(value)}
-                        onCheckedChange={(checked: boolean) =>
-                          handleStatusChange(checked, value)
-                        }
-                      />
-                      <Label
-                        htmlFor={`${id}-${i}`}
-                        className="flex grow justify-between gap-2 font-normal"
-                      >
-                        {value}{' '}
-                        <span className="ms-2 text-muted-foreground text-xs">
-                          {statusCounts.get(value)}
-                        </span>
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
           {/* Toggle columns visibility */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -459,15 +376,7 @@ export default function FileTable({ data }: FileTableProps) {
               </AlertDialogContent>
             </AlertDialog>
           )}
-          {/* Add user button */}
-          <Button className="ml-auto" variant="outline">
-            <UploadCloudIcon
-              className="-ms-1 opacity-60"
-              size={16}
-              aria-hidden="true"
-            />
-            Upload
-          </Button>
+          <UploadButton path={path} />
         </div>
       </div>
 
@@ -542,6 +451,8 @@ export default function FileTable({ data }: FileTableProps) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  onClick={() => handleRowClick(row)}
+                  className="cursor-pointer"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="last:py-0">
@@ -568,7 +479,7 @@ export default function FileTable({ data }: FileTableProps) {
       </div>
     </div>
   );
-}
+};
 
 function RowActions({ row }: { row: Row<FileInfo> }) {
   return (
@@ -580,12 +491,14 @@ function RowActions({ row }: { row: Row<FileInfo> }) {
             variant="ghost"
             className="shadow-none"
             aria-label="Edit item"
+            onClick={(e) => e.stopPropagation()}
+            type="button"
           >
             <EllipsisIcon size={16} aria-hidden="true" />
           </Button>
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <span>Edit</span>

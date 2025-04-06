@@ -1,7 +1,7 @@
 import { Logo } from '@/components/logo';
 import { ModeToggle } from '@/components/mode-toggle';
+import { Button } from '@/components/ui/button';
 import { lightsail } from '@/lib/lightsail';
-import { Button } from '@/ui/button';
 import { GetInstancesCommand } from '@aws-sdk/client-lightsail';
 import { UserButton } from '@clerk/nextjs';
 import { currentUser } from '@clerk/nextjs/server';
@@ -35,8 +35,12 @@ export const Navbar = async () => {
           </div>
           <span className="text-muted-foreground opacity-50">/</span>
           <TopNavigation servers={userServers ?? []} />
-          <span className="text-muted-foreground opacity-50">/</span>
-          <BottomNavigation />
+          {userServers?.length ? (
+            <>
+              <span className="text-muted-foreground opacity-50">/</span>
+              <BottomNavigation />
+            </>
+          ) : null}
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1">
